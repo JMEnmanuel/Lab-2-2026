@@ -3,161 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolo de Red - Sistema de Misiones</title>
-    <style>
-        :root {
-            --bg-color: #0d0d0d;
-            --node-color: #262626;
-            --line-color: #333;
-            --text-color: #888;
-            --glitch-color: #555;
-            --terminal-green: #00ff41;
-            --font-main: 'Courier New', Courier, monospace;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
-            overflow: hidden;
-        }
-
-        /* Ruido de fondo */
-        .noise {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            opacity: 0.05;
-            pointer-events: none;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC42NSIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIvPjwvc3ZnPg==');
-            animation: grain 0.5s steps(10) infinite;
-        }
-
-        @keyframes grain {
-            0% { transform: translate(0,0); }
-            10% { transform: translate(-5%,-5%); }
-            50% { transform: translate(-10%,5%); }
-            100% { transform: translate(0,0); }
-        }
-
-        /* Contenedor Principal */
-        #main-ui {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Pantalla de Transición */
-        #transition-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        #transition-text {
-            color: var(--terminal-green);
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            text-shadow: 0 0 10px var(--terminal-green);
-        }
-
-        .btn-volver {
-            background: transparent;
-            border: 1px solid var(--terminal-green);
-            color: var(--terminal-green);
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: var(--font-main);
-            text-transform: uppercase;
-            transition: all 0.3s;
-        }
-
-        .btn-volver:hover {
-            background: var(--terminal-green);
-            color: black;
-            box-shadow: 0 0 15px var(--terminal-green);
-        }
-
-        /* Estilos del Grafo */
-        svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .connection {
-            stroke: var(--line-color);
-            stroke-width: 1.5;
-            stroke-dasharray: 4;
-            animation: flicker-line 3s infinite;
-        }
-
-        .node-group {
-            cursor: pointer;
-        }
-
-        .node-circle {
-            fill: var(--node-color);
-            stroke: var(--glitch-color);
-            stroke-width: 2;
-            filter: url(#deteriorate);
-            animation: tremble 4s infinite ease-in-out;
-            transition: stroke 0.5s, fill 0.5s;
-        }
-
-        /* Estado COMPLETADO */
-        .completed .node-circle {
-            animation: none; /* Quita el temblor */
-            stroke: var(--terminal-green);
-            fill: #0a2412;
-            filter: drop-shadow(0 0 8px var(--terminal-green));
-        }
-
-        .completed .node-text {
-            fill: var(--terminal-green);
-            font-weight: bold;
-        }
-
-        .node-group:hover .node-circle {
-            stroke: var(--terminal-green);
-            filter: brightness(1.2);
-        }
-
-        .node-text {
-            fill: var(--text-color);
-            font-size: 12px;
-            text-transform: uppercase;
-            pointer-events: none;
-            letter-spacing: 1px;
-        }
-
-        @keyframes tremble {
-            0%, 100% { transform: translate(0,0); }
-            2% { transform: translate(1px, -1px); }
-            4% { transform: translate(-1px, 1px); }
-        }
-
-        @keyframes flicker-line {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.1; }
-        }
-    </style>
+    <title>Red Deteriorada - MVC</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -171,123 +18,21 @@
                     <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" />
                 </filter>
             </defs>
+            <!-- Capas del Grafo -->
             <g id="connections-layer"></g>
             <g id="nodes-layer"></g>
         </svg>
     </div>
 
-    <!-- Pantalla de Carga/Transición -->
+    <!-- Pantalla de Transición -->
     <div id="transition-screen">
-        <div id="transition-text">Cargando Misión...</div>
-        <button class="btn-volver" onclick="volverAlGrafo()">Volver al Sistema</button>
+        <div id="transition-text">ESTADO_SISTEMA: CARGANDO...</div>
+        <button class="btn-volver" id="btn-volver">Volver al Sistema</button>
     </div>
 
-    <script>
-        // 1. Sistema de Estado
-        let misionesCompletadas = [];
-
-        // 2. Datos de los Nodos (Créditos movido a 500, 900)
-        const nodesData = [
-            { id: 1, name: "Misión 1", x: 300, y: 300 },
-            { id: 2, name: "Misión 2", x: 700, y: 250 },
-            { id: 3, name: "Misión 3", x: 800, y: 700 },
-            { id: 4, name: "Misión 4", x: 250, y: 750 },
-            { id: 5, name: "Créditos", x: 500, y: 900 }
-        ];
-
-        const links = [
-            [1, 2], [2, 3], [3, 4], [4, 1], [1, 5], [2, 5], [3, 5], [4, 5]
-        ];
-
-        const nodesLayer = document.getElementById('nodes-layer');
-        const connectionsLayer = document.getElementById('connections-layer');
-
-        // Dibujar Conexiones
-        function drawConnections() {
-            connectionsLayer.innerHTML = '';
-            links.forEach(link => {
-                const startNode = nodesData.find(n => n.id === link[0]);
-                const endNode = nodesData.find(n => n.id === link[1]);
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute("class", "connection");
-                line.setAttribute("x1", startNode.x);
-                line.setAttribute("y1", startNode.y);
-                line.setAttribute("x2", endNode.x);
-                line.setAttribute("y2", endNode.y);
-                connectionsLayer.appendChild(line);
-            });
-        }
-
-        // Dibujar Nodos
-        function drawNodes() {
-            nodesLayer.innerHTML = '';
-            nodesData.forEach(node => {
-                const isCompleted = misionesCompletadas.includes(node.id);
-                
-                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                g.setAttribute("class", `node-group ${isCompleted ? 'completed' : ''}`);
-                g.setAttribute("id", `node-${node.id}`);
-                g.setAttribute("transform", `translate(${node.x}, ${node.y})`);
-                
-                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                circle.setAttribute("r", "45");
-                circle.setAttribute("class", "node-circle");
-                
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute("class", "node-text");
-                text.setAttribute("text-anchor", "middle");
-                text.setAttribute("dy", "5");
-                text.textContent = node.name;
-
-                g.appendChild(circle);
-                g.appendChild(text);
-
-                g.addEventListener('click', () => navegarMision(node.id));
-
-                nodesLayer.appendChild(g);
-            });
-        }
-
-        // Funciones de Navegación
-        function navegarMision(id) {
-            const node = nodesData.find(n => n.id === id);
-            const transitionScreen = document.getElementById('transition-screen');
-            const transitionText = document.getElementById('transition-text');
-            
-            transitionText.textContent = `CONECTANDO A: ${node.name.toUpperCase()}...`;
-            transitionScreen.style.display = 'flex';
-            
-            // Simulación de completar misión solo para demo:
-            // Descomenta la línea de abajo para probar el cambio visual al hacer click
-            // marcarCompletada(id); 
-        }
-
-        function volverAlGrafo() {
-            document.getElementById('transition-screen').style.display = 'none';
-        }
-
-        // Sistema para Marcar como Completada
-        function marcarCompletada(id) {
-            if (!misionesCompletadas.includes(id)) {
-                misionesCompletadas.push(id);
-                drawNodes(); // Refrescar vista
-            }
-        }
-
-        // Inicialización
-        drawConnections();
-        drawNodes();
-
-        // Pequeño parpadeo aleatorio para mantener el ambiente
-        setInterval(() => {
-            const circles = document.querySelectorAll('.node-circle:not(.completed)');
-            if(circles.length > 0) {
-                const randomNode = circles[Math.floor(Math.random() * circles.length)];
-                randomNode.style.opacity = Math.random() > 0.05 ? "1" : "0.3";
-                setTimeout(() => randomNode.style.opacity = "1", 150);
-            }
-        }, 800);
-
-    </script>
+    <!-- Carga de Scripts en Orden MVC -->
+    <script src="js/model.js"></script>
+    <script src="js/view.js"></script>
+    <script src="js/controller.js"></script>
 </body>
 </html>
