@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión 1 — Rastros del Acoso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/mission_1.css">
+</head>
+<body>
+
+\*<!-- ===================== HEADER ===================== -->
+<header id="header">
+    <div class="h-left">
+        <div class="sys-tag"><ESTRUCTURA DE DATOS II</div>
+        <div class="sys-name">RED_SEGURA // MISIÓN 01</div>
+    </div>
+    <div class="h-right">
+        <span><span class="dot dot-red"></span>AMENAZA ACTIVA</span>
+        <span id="hdr-origin"><span class="dot dot-amber"></span>ORIGEN: DESCONOCIDO</span>
+        <span id="algo-badge" style="color:var(--text-dim)"><span class="dot dot-green" style="opacity:.3"></span>FASE: —</span>
+    </div>
+</header>
+
+<button id="back-btn" onclick="location.href='../index.html'">← VOLVER AL MAPA</button>
+
+<!-- ===================== SVG FILTERS ===================== -->
+<svg style="position:absolute;width:0;height:0">
+    <defs>
+        <filter id="corrupt-g">
+            <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" result="n"/>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="3"/>
+        </filter>
+    </defs>
+</svg>
+
+<!-- ===================== SCREEN: INTRO / NARRATIVA ===================== -->
+<section id="screen-intro" class="screen active">
+    <div class="narrative-container">
+        <div class="narrative-tag">// ALERTA DEL SISTEMA — CASO #2026-M1</div>
+        <div class="narrative-title">RASTROS DEL ACOSO</div>
+
+        <div class="narrative-block">
+            <p>
+                A las <span class="hi">14:08 hrs</span> del pasado miércoles, el sistema de monitoreo de la red social
+                detectó una <span class="red">anomalía crítica</span>: mensajes de contenido dañino comenzaron a propagarse
+                entre los usuarios de una comunidad estudiantil.
+            </p>
+            <p>
+                En menos de dos horas, <span class="hi">9 usuarios</span> habían recibido, reenviado o publicado contenido
+                relacionado con el incidente. La red fue contaminada desde un único punto de origen
+                que aún permanece <span class="red">sin identificar</span>.
+            </p>
+        </div>
+
+        <div class="narrative-block">
+            <p style="color:var(--amber);font-size:10px;letter-spacing:0.1em;margin-bottom:10px">// REGISTRO DE ACTIVIDAD RECUPERADO</p>
+            <div class="report-line">
+                <span class="rl-user">2.Brayan →</span>
+                <span class="rl-msg">"¿Viste lo de ayer? Circuló por todos lados..."</span>
+                <span class="rl-time">14:11</span>
+                <span class="rl-role role-spread">PROPAGÓ</span>
+            </div>
+            <div class="report-line">
+                <span class="rl-user">5.Elena →</span>
+                <span class="rl-msg">"Me lo mandaron tres personas distintas. No sé qué hacer."</span>
+                <span class="rl-time">14:23</span>
+                <span class="rl-role role-victim">AFECTADA</span>
+            </div>
+            <div class="report-line">
+                <span class="rl-user">7.Gabriel →</span>
+                <span class="rl-msg">"Alguien lo publicó en el grupo general. Ya lo vio todo el mundo."</span>
+                <span class="rl-time">14:35</span>
+                <span class="rl-role role-spread">PROPAGÓ</span>
+            </div>
+            <div class="report-line">
+                <span class="rl-user">???  →</span>
+                <span class="rl-msg">[ORIGEN SIN IDENTIFICAR — Nodo bloqueado]</span>
+                <span class="rl-time">14:08</span>
+                <span class="rl-role role-unkn">SOSPECHOSO</span>
+            </div>
+        </div>
+
+        <div class="narrative-mission-strip">
+            <div class="nms-label">// OBJETIVOS DE LA MISIÓN</div>
+            <ul class="nms-obj">
+                <li>FASE 1 — Usar <span style="color:var(--green)">BFS</span> para mapear cómo se propagó el acoso por niveles</li>
+                <li>FASE 2 — Usar <span style="color:var(--amber)">DFS</span> para rastrear cadenas profundas e identificar al origen</li>
+                <li>Analizar la línea de tiempo de evidencias recogidas</li>
+                <li>Acusar al usuario que inició todo</li>
+            </ul>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="btn-start-bfs">INICIAR INVESTIGACIÓN →</button>
+            <button class="btn-ghost" onclick="location.href='../index.html'">← VOLVER AL MAPA</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== GAME UI ===================== -->
+<div id="game-ui">
+    <!-- SIDE PANEL -->
+    <aside id="side-panel">
+        <div class="sp-header">
+            <div class="sp-phase-label">FASE ACTIVA</div>
+            <div class="sp-phase-name" id="sp-phase-name">BFS — PROPAGACIÓN</div>
+            <div class="sp-phase-desc" id="sp-phase-desc">Recorre el grafo por niveles para mapear cómo se expandió el acoso.</div>
+        </div>
+        <div class="sp-body">
+            <div class="panel-section">
+                <span class="panel-label">ALGORITMO / ESTRUCTURA</span>
+                <div class="panel-value" id="ui-algo">BFS — Cola (FIFO)</div>
+            </div>
+            <div class="panel-section">
+                <span class="panel-label">INTENTOS RESTANTES</span>
+                <div class="lives-display" id="ui-lives">❤❤❤</div>
+            </div>
+            <div class="panel-section">
+                <span class="panel-label">NODO ACTUAL</span>
+                <div class="panel-value" id="ui-current" style="font-size:11px">— Selecciona el nodo inicial</div>
+            </div>
+            <div class="panel-section">
+                <span class="panel-label" id="ui-struct-label">COLA (FIFO) — próximo: primero</span>
+                <div class="struct-list" id="ui-struct"></div>
+            </div>
+            <div class="panel-section">
+                <span class="panel-label">VISITADOS (<span id="ui-visited-count">0</span>/9)</span>
+                <div class="visited-list" id="ui-visited-list"></div>
+            </div>
+            <div id="log-box">_</div>
+
+            <!-- Evidence Panel -->
+            <div id="evidence-panel">
+                <div class="ev-header">// EVIDENCIA RECUPERADA</div>
+                <div class="ev-user" id="ev-user">—</div>
+                <div class="ev-msg-block">
+                    <div class="ev-msg-type">MENSAJE PRIVADO</div>
+                    <div class="ev-msg-text" id="ev-priv">—</div>
+                </div>
+                <div class="ev-msg-block">
+                    <div class="ev-msg-type">PUBLICACIÓN PÚBLICA</div>
+                    <div class="ev-msg-text" id="ev-pub">—</div>
+                </div>
+                <div id="ev-role-badge" class="ev-role-badge ev-role-neutral">—</div>
+                <div class="suspicion-bar" id="sus-bar" style="display:none">
+                    <div class="suspicion-bar-label">
+                        <span>NIVEL DE SOSPECHA</span>
+                        <span id="sus-val">0%</span>
+                    </div>
+                    <div class="suspicion-bar-track"><div class="suspicion-bar-fill" id="sus-fill"></div></div>
+                </div>
+            </div>
+
+            <button class="btn-ghost btn-sm" style="width:100%;margin-top:auto" id="btn-reiniciar">↺ REINICIAR</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CANVAS -->
+    <main id="main-canvas">
+        <div id="phase-bar"><div id="phase-bar-fill"></div></div>
+        <div id="phase-switcher">
+            <div class="phase-tab active" id="tab-bfs">FASE 1: BFS</div>
+            <div class="phase-tab" id="tab-dfs">FASE 2: DFS</div>
+        </div>
+        <svg id="svg-game"></svg>
+        <div id="instruction-bar">
+            <span class="inst-phase" id="inst-phase">BFS ▸</span>
+            <span id="inst-text">Selecciona cualquier nodo para comenzar el rastreo de propagación.</span>
+        </div>
+    </main>
+</div>
+
+<!-- ===================== SCREEN: TIMELINE ===================== -->
+<section id="screen-timeline" class="screen">
+    <div class="tl-header">
+        <div class="tl-title">LÍNEA DE TIEMPO — PROPAGACIÓN DETECTADA</div>
+        <div class="tl-subtitle">Recorrido BFS completado. El acoso se expandió en este orden:</div>
+    </div>
+    <div class="tl-container" id="tl-container"></div>
+    <div class="tl-actions">
+        <p style="font-size:10px;color:var(--amber);letter-spacing:0.1em;margin-bottom:14px">
+            // FASE 2 DESBLOQUEADA — Ahora usa DFS para rastrear el origen
+        </p>
+        <button class="btn btn-amber" id="btn-start-dfs">INICIAR RASTREO DFS →</button>
+    </div>
+</section>
+
+<!-- ===================== SCREEN: ACUSACIÓN ===================== -->
+<section id="screen-accusation" class="screen">
+    <div class="phase-banner">// INVESTIGACIÓN COMPLETA — FASE DE ACUSACIÓN</div>
+    <div class="phase-title">¿QUIÉN INICIÓ EL ACOSO?</div>
+    <p class="acc-hint">
+        Basándote en los dos recorridos realizados, elige al usuario que crees que
+        <span class="hint-hi">originó la campaña de acoso</span>.
+        El origen tiene la mayor cantidad de conexiones de salida y fue el primero en actuar.
+    </p>
+    <div class="acc-grid" id="acc-grid"></div>
+    <div id="acc-feedback" style="font-size:9px;color:var(--red);letter-spacing:0.1em;min-height:20px"></div>
+</section>
+
+<!-- ===================== SCREEN: END ===================== -->
+<section id="screen-end" class="screen">
+    <div class="end-title" id="end-title">—</div>
+    <div class="end-reveal" id="end-reveal">
+        <div class="er-name" id="end-name">—</div>
+        <div id="end-detail">—</div>
+    </div>
+    <p class="end-msg" id="end-msg">—</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="btn" id="btn-final-reset">↺ JUGAR DE NUEVO</button>
+        <button class="btn-ghost" onclick="location.href='../index.html'">← VOLVER AL MAPA</button>
+    </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer id="footer">
+    <span id="clock">--:--:--</span>
+    <span>MISIÓN 01 — RASTROS DEL ACOSO</span>
+    <span>BFS / DFS</span>
+    <span style="margin-left:auto;color:var(--amber)" id="footer-phase">FASE: NARRATIVA</span>
+</footer>
+
+<!-- SCRIPTS MVC -->
+<script src="js/m1-model.js"></script>
+<script src="js/m1-view.js"></script>
+<script src="js/m1-controller.js"></script>
+
+</body>
+</html>
