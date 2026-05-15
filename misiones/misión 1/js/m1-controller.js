@@ -4,8 +4,15 @@
 const Controller = (() => {
 
     function init() {
-        // Vinculación de eventos de botones
+        // Intro → dos opciones
+        document.getElementById('btn-go-tutorial').addEventListener('click', startTutorial);
         document.getElementById('btn-start-bfs').addEventListener('click', startBFS);
+
+        // Tutorial — botones
+        document.getElementById('btn-tco-continue').addEventListener('click', onConceptOverlayContinue);
+        document.getElementById('btn-skip-tut-mid').addEventListener('click', skipTutorial);
+
+        // Juego principal
         document.getElementById('btn-reiniciar').addEventListener('click', resetGame);
         document.getElementById('btn-start-dfs').addEventListener('click', startDFS);
         document.getElementById('btn-final-reset').addEventListener('click', resetGame);
@@ -13,6 +20,160 @@ const Controller = (() => {
         // Reloj
         setInterval(updateClock, 1000);
         updateClock();
+    }
+
+    // ================================================================
+    //  TUTORIAL CONTROLLER
+    // ================================================================
+
+    // Entra al tutorial: muestra pantalla y abre overlay BFS
+    function startTutorial() {
+        Model.resetTutorial();
+        View.showScreen('screen-tutorial');
+        View.showConceptOverlay('bfs');
+        // Renderiza grafo vacío mientras se lee el concepto
+        View.renderTutorialGraph('bfs', handleTutorialClick);
+        View.updateTutorialPanel();
+    }
+
+    // Botón "ENTENDIDO" del overlay de concepto
+    function onConceptOverlayContinue() {
+        const phase = Model.tutorialState.phase;
+
+        // Si es el overlay de fin de tutorial → lanzar juego real
+        if (document.getElementById('btn-tco-continue').textContent.includes('MISIÓN REAL')) {
+            skipTutorial();
+            return;
+        }
+
+        View.hideConceptOverlay();
+
+        // Primer paso de la fase: es tipo null (solo lectura), avanzar automáticamente
+        const step = Model.getTutorialStep();
+        if (step && step.expectedNode === null) {
+            View.setTutorialInstruction(step.instruction);
+            View.setTutorialLog('_');
+            View.renderTutorialGraph(phase, handleTutorialClick);
+            View.updateTutorialPanel();
+            // Avanzar al primer paso interactivo
+            Model.tutorialState.stepIndex++;
+            const nextStep = Model.getTutorialStep();
+            if (nextStep) {
+                View.setTutorialInstruction(nextStep.instruction);
+                View.updateTutorialPanel();
+                View.renderTutorialGraph(phase, handleTutorialClick);
+            }
+        }
+    }
+
+    // Click en nodo del grafo tutorial
+    function handleTutorialClick(nodeId) {
+        const ts    = Model.tutorialState;
+        const phase = ts.phase;
+        const steps = Model.TUT_STEPS[phase];
+        const step  = steps[ts.stepIndex];
+
+        if (!step || step.expectedNode === null) return;
+
+        if (nodeId === step.expectedNode) {
+            // Correcto
+            if (phase === 'bfs') tutorialVisitBFS(nodeId);
+            else                 tutorialVisitDFS(nodeId);
+        } else {
+            // Incorrecto — flash rojo, sin penalización
+            View.flashInvalidTutorial(nodeId);
+        }
+    }
+
+    // Visita un nodo en BFS tutorial y actualiza estado
+    function tutorialVisitBFS(id) {
+        const st = Model.tutorialState.bfs;
+        const prev = st.current;
+        st.current = id;
+        if (!st.visited.includes(id)) st.visited.push(id);
+        st.queue = st.queue.filter(x => x !== id);
+
+        // Arista recorrida
+        if (prev !== null) {
+            const key = View.edgeKey(prev, id);
+            if (!st.traversed.includes(key)) st.traversed.push(key);
+        }
+
+        // Agregar vecinos a la cola (orden ascendente)
+        const neighbors = Model.TUT_ADJ[id]
+            .filter(n => !st.visited.includes(n) && !st.queue.includes(n))
+            .sort((a,b) => a-b);
+        st.queue = [...st.queue, ...neighbors];
+
+        View.setTutorialLog('_');
+        advanceTutorialStep();
+    }
+
+    // Visita un nodo en DFS tutorial y actualiza estado
+    function tutorialVisitDFS(id) {
+        const st = Model.tutorialState.dfs;
+        const prev = st.current;
+        st.current = id;
+        if (!st.visited.includes(id)) st.visited.push(id);
+        st.stack = st.stack.filter(x => x !== id);
+
+        // Arista recorrida
+        if (prev !== null) {
+            const key = View.edgeKey(prev, id);
+            if (!st.traversed.includes(key)) st.traversed.push(key);
+        }
+
+        // Apilar vecinos (orden ascendente → tope = mayor → DFS va por ramas bajas primero)
+        const neighbors = Model.TUT_ADJ[id]
+            .filter(n => !st.visited.includes(n) && !st.stack.includes(n))
+            .sort((a,b) => a-b);
+        st.stack = [...st.stack, ...neighbors];
+
+        View.setTutorialLog('_');
+        advanceTutorialStep();
+    }
+
+    // Avanza al siguiente paso del tutorial
+    function advanceTutorialStep() {
+        const ts     = Model.tutorialState;
+        const phase  = ts.phase;
+        const steps  = Model.TUT_STEPS[phase];
+
+        ts.stepIndex++;
+
+        View.renderTutorialGraph(phase, handleTutorialClick);
+        View.updateTutorialPanel();
+
+        if (ts.stepIndex >= steps.length) {
+            // Fase completada
+            if (phase === 'bfs') {
+                // Transición a DFS
+                setTimeout(() => {
+                    ts.phase     = 'dfs';
+                    ts.stepIndex = 0;
+                    // Paso 0 de DFS es siempre null (concepto) → mostrar overlay
+                    View.showConceptOverlay('dfs');
+                    View.renderTutorialGraph('dfs', handleTutorialClick);
+                    View.updateTutorialPanel();
+                }, 600);
+            } else {
+                // Tutorial completo
+                setTimeout(() => View.showTutorialComplete(), 600);
+            }
+            return;
+        }
+
+        // Siguiente paso
+        const nextStep = Model.getTutorialStep();
+        if (nextStep) {
+            View.setTutorialInstruction(nextStep.instruction);
+        }
+    }
+
+    // Saltar tutorial → ir directo al juego BFS real
+    function skipTutorial() {
+        View.hideConceptOverlay();
+        startBFS();
     }
 
     // ── FASE 1: BFS ──────────────────────────────────────────────────
@@ -213,5 +374,4 @@ const Controller = (() => {
     return { init };
 })();
 
-// Arrancar la aplicación
 Controller.init();

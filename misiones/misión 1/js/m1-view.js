@@ -12,6 +12,7 @@ const View = (() => {
 
         const labels = {
             'screen-intro':      'FASE: NARRATIVA',
+            'screen-tutorial':   'FASE: TUTORIAL',
             'screen-timeline':   'FASE: ANÁLISIS BFS',
             'screen-accusation': 'FASE: ACUSACIÓN',
             'screen-end':        'FASE: RESULTADO'
@@ -28,7 +29,7 @@ const View = (() => {
             `<span class="dot dot-green"></span>FASE: ${phase.toUpperCase()}`;
     }
 
-    // ── Grafo SVG ────────────────────────────────────────────────────
+    // ── Grafo SVG (juego principal) ──────────────────────────────────
     function renderGraph(phase, onNodeClick) {
         const svg = document.getElementById('svg-game');
         const W = svg.clientWidth || 800, H = svg.clientHeight || 520;
@@ -123,6 +124,225 @@ const View = (() => {
             nl.appendChild(g);
         });
     }
+
+    // ================================================================
+    //  TUTORIAL VIEW
+    // ================================================================
+
+    // Muestra el overlay de concepto antes de cada fase del tutorial
+    function showConceptOverlay(phase) {
+        const overlay = document.getElementById('tut-concept-overlay');
+        const isB = phase === 'bfs';
+        document.getElementById('tco-tag').textContent  = isB ? '// FASE 1 — TUTORIAL' : '// FASE 2 — TUTORIAL';
+        document.getElementById('tco-title').textContent    = isB ? 'BFS' : 'DFS';
+        document.getElementById('tco-subtitle').textContent = isB ? 'Búsqueda en Anchura (Breadth-First Search)' : 'Búsqueda en Profundidad (Depth-First Search)';
+        document.getElementById('tco-body').innerHTML = isB
+            ? `BFS explora la red <span style="color:var(--green)">nivel por nivel</span>.<br>
+               Imagina que lanzas una piedra al agua: las olas se expanden en círculos.<br>
+               Primero visita todos los vecinos directos, luego los vecinos de esos vecinos, y así.<br><br>
+               <span style="color:var(--amber)">Estructura usada: COLA (FIFO)</span><br>
+               El primero que entra a la cola es el primero en ser visitado.`
+            : `DFS explora la red <span style="color:var(--amber)">por profundidad</span>.<br>
+               Imagina seguir un laberinto: avanzas por un camino hasta el fondo,<br>
+               y solo retrocedes cuando ya no hay hacia dónde ir.<br><br>
+               <span style="color:var(--green)">Estructura usada: PILA (LIFO)</span><br>
+               El último que entra a la pila es el primero en ser visitado.`;
+        document.getElementById('tco-analogy').textContent = isB
+            ? '💡 Analogía: Notificaciones en redes sociales — el acoso se expande primero a los contactos directos, luego a los contactos de esos contactos.'
+            : '💡 Analogía: Rastrear una cadena de mensajes — sigues el hilo más profundo hasta encontrar al origen.';
+        overlay.classList.add('visible');
+    }
+
+    function hideConceptOverlay() {
+        document.getElementById('tut-concept-overlay').classList.remove('visible');
+    }
+
+    // Renderiza el grafo de 5 nodos del tutorial
+    function renderTutorialGraph(phase, onNodeClick) {
+        const svg = document.getElementById('svg-tutorial');
+        const W = svg.clientWidth || 800, H = svg.clientHeight || 480;
+        svg.innerHTML = '';
+
+        const { TUT_GRAPH, tutorialState, getTutorialStep } = Model;
+        const st   = tutorialState[phase];
+        const step = getTutorialStep();
+
+        // Fondo grillado
+        const defs = ns('defs');
+        const pat = ns('pattern'); attrs(pat,{id:'tgg',width:40,height:40,patternUnits:'userSpaceOnUse'});
+        const gp = ns('path'); attrs(gp,{d:'M 40 0 L 0 0 0 40',fill:'none',stroke:'#0d0f16','stroke-width':'0.5'});
+        pat.appendChild(gp); defs.appendChild(pat); svg.appendChild(defs);
+        const bg = ns('rect'); attrs(bg,{width:'100%',height:'100%',fill:'url(#tgg)'}); svg.appendChild(bg);
+
+        // Escala y centrado
+        const bbox = getBBox(TUT_GRAPH.nodes);
+        const sx = (W-160)/(bbox.maxX-bbox.minX||1);
+        const sy = (H-180)/(bbox.maxY-bbox.minY||1);
+        const sc = Math.min(sx, sy, 1.1);
+        const ox = (W-(bbox.maxX-bbox.minX)*sc)/2 - bbox.minX*sc;
+        const oy = (H-(bbox.maxY-bbox.minY)*sc)/2 - bbox.minY*sc + 20;
+        const px = n => n.x*sc+ox, py = n => n.y*sc+oy;
+
+        // Aristas
+        const ll = ns('g'); svg.appendChild(ll);
+        TUT_GRAPH.links.forEach(([a,b]) => {
+            const n1 = TUT_GRAPH.nodes.find(n=>n.id===a);
+            const n2 = TUT_GRAPH.nodes.find(n=>n.id===b);
+            const key = edgeKey(a,b);
+
+            const trBFS = tutorialState.bfs.traversed.includes(key);
+            const trDFS = tutorialState.dfs.traversed.includes(key);
+
+            const base = ns('line');
+            attrs(base,{x1:px(n1),y1:py(n1),x2:px(n2),y2:py(n2),class:'g-link-base'});
+            ll.appendChild(base);
+
+            const dash = ns('line');
+            let dashCls = 'g-link-dash';
+            if (trDFS)      dashCls += ' traversed-dfs';
+            else if (trBFS) dashCls += ' traversed-bfs';
+            attrs(dash,{x1:px(n1),y1:py(n1),x2:px(n2),y2:py(n2),class:dashCls});
+            ll.appendChild(dash);
+        });
+
+        // Nodos
+        const nl = ns('g'); svg.appendChild(nl);
+        TUT_GRAPH.nodes.forEach(node => {
+            const isCurr    = st.current === node.id;
+            const visited   = st.visited.includes(node.id);
+            const isHighlight = step && step.highlight && step.highlight.includes(node.id);
+
+            let isValidNext = false;
+            if (phase === 'bfs' && st.queue && st.queue.length > 0)
+                isValidNext = st.queue[0] === node.id;
+            if (phase === 'dfs' && st.stack && st.stack.length > 0)
+                isValidNext = st.stack[st.stack.length-1] === node.id;
+
+            let cls = 'g-node';
+            if (isCurr)          cls += ' current';
+            else if (visited)    cls += ' visited-bfs';
+            else if (isHighlight) cls += ' valid-next';
+            else                  cls += ' infected';
+
+            const g = ns('g');
+            g.setAttribute('class', cls);
+            g.setAttribute('id', `tut-node-${node.id}`);
+            g.setAttribute('transform', `translate(${px(node)},${py(node)})`);
+
+            const outer = ns('circle'); attrs(outer,{r:38,class:'g-node-outer'});
+            const body  = ns('circle'); attrs(body,{r:28,class:'g-node-body'});
+
+            const tName = ns('text');
+            attrs(tName,{class:'g-node-name','text-anchor':'middle',dy:'5'});
+            tName.textContent = node.name;
+
+            const tSub = ns('text');
+            attrs(tSub,{class:'g-node-sub','text-anchor':'middle',dy:'20'});
+            tSub.textContent = visited ? '✓' : '·';
+
+            g.appendChild(outer); g.appendChild(body);
+            g.appendChild(tName); g.appendChild(tSub);
+            g.addEventListener('click', () => onNodeClick(node.id));
+            nl.appendChild(g);
+        });
+    }
+
+    // Flash rojo en nodo incorrecto (sin penalización)
+    function flashInvalidTutorial(nodeId) {
+        const el = document.getElementById(`tut-node-${nodeId}`);
+        if (!el) return;
+        el.classList.add('invalid');
+        setTutorialLog(`⚠ Ese no es el siguiente paso. Observa la ${Model.tutorialState.phase === 'bfs' ? 'COLA' : 'PILA'} en el panel.`);
+        setTimeout(() => el.classList.remove('invalid'), 800);
+    }
+
+    // Actualiza el panel lateral del tutorial
+    function updateTutorialPanel() {
+        const { tutorialState, getTutorialStep, getTotalTutorialSteps, getTutorialProgressIndex, TUT_GRAPH } = Model;
+        const phase = tutorialState.phase;
+        const isB   = phase === 'bfs';
+        const st    = tutorialState[phase];
+        const step  = getTutorialStep();
+
+        // Nombre de fase y descripción
+        document.getElementById('tut-phase-name').textContent = isB ? 'BFS — PROPAGACIÓN POR NIVELES' : 'DFS — RASTREO EN PROFUNDIDAD';
+        document.getElementById('tut-phase-desc').textContent = isB
+            ? 'Recorre nivel por nivel usando una Cola (FIFO).'
+            : 'Sigue la cadena más profunda con una Pila (LIFO).';
+
+        // Concepto del paso actual
+        if (step) {
+            document.getElementById('tut-concept-box').textContent = step.concept || '—';
+        }
+
+        // Estructura activa
+        document.getElementById('tut-struct-label').textContent = isB ? 'COLA (FIFO) — próximo: primero' : 'PILA (LIFO) — próximo: último';
+        const structEl = document.getElementById('tut-struct');
+        structEl.innerHTML = '';
+        const arr   = isB ? (st.queue || []) : (st.stack || []);
+        const topId = isB
+            ? (arr.length > 0 ? arr[0]            : null)
+            : (arr.length > 0 ? arr[arr.length-1] : null);
+        arr.forEach(id => {
+            const d = document.createElement('div');
+            d.className = 'struct-item-game' + (id === topId ? ' top' : '');
+            const user = TUT_GRAPH.nodes.find(n => n.id === id);
+            d.textContent = user ? user.name : id;
+            structEl.appendChild(d);
+        });
+
+        // Visitados
+        document.getElementById('tut-visited-count').textContent = st.visited.length;
+        const vEl = document.getElementById('tut-visited-list');
+        vEl.innerHTML = '';
+        st.visited.forEach(id => {
+            const d = document.createElement('div');
+            d.className = 'visited-tag';
+            const user = TUT_GRAPH.nodes.find(n => n.id === id);
+            d.textContent = user ? user.name : id;
+            vEl.appendChild(d);
+        });
+
+        // Progreso
+        const current = getTutorialProgressIndex() + 1;
+        const total   = getTotalTutorialSteps();
+        const pct     = Math.round((current / total) * 100);
+        document.getElementById('tut-progress-fill').style.width = pct + '%';
+        document.getElementById('tut-progress-label').textContent = `PASO ${current} / ${total}`;
+
+        // Tabs
+        document.getElementById('tut-tab-bfs').className = 'phase-tab' + (isB ? ' active' : ' done');
+        document.getElementById('tut-tab-dfs').className = 'phase-tab' + (!isB ? ' active' : '');
+        document.getElementById('tut-phase-bar-fill').style.width = isB ? '50%' : '100%';
+        document.getElementById('tut-inst-phase').textContent = isB ? 'BFS ▸' : 'DFS ▸';
+    }
+
+    function setTutorialInstruction(text) {
+        document.getElementById('tut-inst-text').textContent = text;
+    }
+
+    function setTutorialLog(msg) {
+        document.getElementById('tut-log-box').textContent = msg || '_';
+    }
+
+    // Fin del tutorial — muestra mensaje y botón para continuar al juego
+    function showTutorialComplete() {
+        const overlay = document.getElementById('tut-concept-overlay');
+        document.getElementById('tco-tag').textContent     = '// TUTORIAL COMPLETADO';
+        document.getElementById('tco-title').textContent   = '¡BIEN HECHO!';
+        document.getElementById('tco-subtitle').textContent = 'Ya conoces BFS y DFS.';
+        document.getElementById('tco-body').innerHTML =
+            `Practicaste los dos algoritmos en un grafo pequeño.<br><br>
+             Ahora te enfrentarás a la red real con <span style="color:var(--red)">9 nodos comprometidos</span>.<br>
+             Recuerda:<br>
+             <span style="color:var(--green)">BFS → Cola → por niveles</span><br>
+             <span style="color:var(--amber)">DFS → Pila → en profundidad</span>`;
+        document.getElementById('tco-analogy').textContent = '¡Encuentra quién inició el acoso!';
+        document.getElementById('btn-tco-continue').textContent = 'INICIAR MISIÓN REAL →';
+        overlay.classList.add('visible');
+    }
+
+    // ── Resto de funciones View (sin cambios) ────────────────────────
 
     function renderAccusationGrid(onAccuse) {
         const grid = document.getElementById('acc-grid');
@@ -253,7 +473,8 @@ const View = (() => {
         document.getElementById('end-msg').textContent    = msg;
     }
 
-    function ns(tag) { return document.createElementNS("http://www.w3.org/2000/svg", tag); }
+    // ── Helpers ──────────────────────────────────────────────────────
+    function ns(tag)   { return document.createElementNS("http://www.w3.org/2000/svg", tag); }
     function attrs(el, a) { Object.entries(a).forEach(([k,v])=>el.setAttribute(k,String(v))); }
     function getBBox(nodes) {
         return { minX:Math.min(...nodes.map(n=>n.x)), maxX:Math.max(...nodes.map(n=>n.x)),
@@ -261,6 +482,14 @@ const View = (() => {
     }
     function edgeKey(a,b) { return [a,b].sort().join('-'); }
 
-    return { showScreen, showGame, renderGraph, renderAccusationGrid, renderTimeline,
-             showEvidence, updatePanel, setLog, setInstruction, showEndScreen, edgeKey };
+    return {
+        // Juego principal
+        showScreen, showGame, renderGraph, renderAccusationGrid, renderTimeline,
+        showEvidence, updatePanel, setLog, setInstruction, showEndScreen, edgeKey,
+        // Tutorial
+        showConceptOverlay, hideConceptOverlay,
+        renderTutorialGraph, updateTutorialPanel,
+        setTutorialInstruction, setTutorialLog,
+        flashInvalidTutorial, showTutorialComplete
+    };
 })();

@@ -9,10 +9,10 @@
 </head>
 <body>
 
-\*<!-- ===================== HEADER ===================== -->
+<!-- ===================== HEADER ===================== -->
 <header id="header">
     <div class="h-left">
-        <div class="sys-tag"><ESTRUCTURA DE DATOS II</div>
+        <div class="sys-tag">ESTRUCTURA DE DATOS II</div>
         <div class="sys-name">RED_SEGURA // MISIÓN 01</div>
     </div>
     <div class="h-right">
@@ -92,9 +92,93 @@
         </div>
 
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn" id="btn-start-bfs">INICIAR INVESTIGACIÓN →</button>
+            <button class="btn" id="btn-go-tutorial">TUTORIAL INTERACTIVO →</button>
+            <button class="btn btn-amber" id="btn-start-bfs">SALTAR TUTORIAL →</button>
             <button class="btn-ghost" onclick="location.href='../index.html'">← VOLVER AL MAPA</button>
         </div>
+        <div style="font-size:9px;color:var(--text-muted);letter-spacing:0.1em;margin-top:8px;padding-left:4px">
+            // ¿Primera vez? El tutorial te explica BFS y DFS antes de la misión real.
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SCREEN: TUTORIAL ===================== -->
+<section id="screen-tutorial" class="screen">
+
+    <!-- Layout: panel izquierdo + canvas derecho (igual que game-ui pero como screen) -->
+    <div id="tut-layout">
+
+        <!-- PANEL IZQUIERDO -->
+        <aside id="tut-panel">
+            <div class="sp-header">
+                <div class="sp-phase-label">// MODO TUTORIAL</div>
+                <div class="sp-phase-name" id="tut-phase-name">BFS — CONCEPTOS</div>
+                <div class="sp-phase-desc" id="tut-phase-desc">Aprende cómo funciona BFS antes de la misión real.</div>
+            </div>
+            <div class="sp-body">
+
+                <!-- Concepto dinámico -->
+                <div class="panel-section">
+                    <span class="panel-label">// CONCEPTO CLAVE</span>
+                    <div id="tut-concept-box" class="tut-concept-box">—</div>
+                </div>
+
+                <!-- Estructura de datos activa -->
+                <div class="panel-section">
+                    <span class="panel-label" id="tut-struct-label">COLA (FIFO)</span>
+                    <div class="struct-list" id="tut-struct"></div>
+                </div>
+
+                <!-- Visitados -->
+                <div class="panel-section">
+                    <span class="panel-label">VISITADOS (<span id="tut-visited-count">0</span>/5)</span>
+                    <div class="visited-list" id="tut-visited-list"></div>
+                </div>
+
+                <!-- Instrucción actual -->
+                <div id="tut-log-box" class="tut-log-box">_</div>
+
+                <!-- Progreso del tutorial -->
+                <div class="panel-section" style="margin-top:auto">
+                    <span class="panel-label">PROGRESO DEL TUTORIAL</span>
+                    <div class="tut-progress-wrap">
+                        <div class="tut-progress-fill" id="tut-progress-fill"></div>
+                    </div>
+                    <div style="font-size:8px;color:var(--text-muted);margin-top:4px" id="tut-progress-label">PASO 0 / 10</div>
+                </div>
+
+                <button class="btn-ghost btn-sm" style="width:100%;margin-top:12px" id="btn-skip-tut-mid">✕ SALTAR TUTORIAL</button>
+            </div>
+        </aside>
+
+        <!-- CANVAS DERECHO -->
+        <main id="tut-canvas">
+            <!-- Barra de fases tutorial -->
+            <div id="tut-phase-bar"><div id="tut-phase-bar-fill"></div></div>
+            <div id="tut-phase-switcher">
+                <div class="phase-tab active" id="tut-tab-bfs">TUTORIAL BFS</div>
+                <div class="phase-tab" id="tut-tab-dfs">TUTORIAL DFS</div>
+            </div>
+
+            <!-- SVG grafo tutorial (5 nodos) -->
+            <svg id="svg-tutorial"></svg>
+
+            <!-- Barra de instrucción guiada -->
+            <div id="tut-instruction-bar">
+                <span class="inst-phase" id="tut-inst-phase">BFS ▸</span>
+                <span id="tut-inst-text">Bienvenido al tutorial. Lee el panel izquierdo y sigue las instrucciones.</span>
+            </div>
+
+            <!-- Overlay de concepto (aparece al inicio de cada fase) -->
+            <div id="tut-concept-overlay" class="tut-concept-overlay">
+                <div class="tco-tag" id="tco-tag">// FASE 1</div>
+                <div class="tco-title" id="tco-title">BFS</div>
+                <div class="tco-subtitle" id="tco-subtitle">Búsqueda en Anchura</div>
+                <div class="tco-body" id="tco-body">—</div>
+                <div class="tco-analogy" id="tco-analogy">—</div>
+                <button class="btn" id="btn-tco-continue">ENTENDIDO — PRACTICAR →</button>
+            </div>
+        </main>
     </div>
 </section>
 

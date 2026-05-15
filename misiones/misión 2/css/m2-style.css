@@ -1,0 +1,476 @@
+/* ============================================================
+   ESTILO — Misión 2: Ruta Segura
+   Más limpio que Misión 1. Sin glitch ni deterioro.
+   ============================================================ */
+
+:root {
+    --bg:          #0d1117;
+    --surface:     #161b22;
+    --surface-2:   #1c2128;
+    --border:      #30363d;
+    --green:       #00ff41;
+    --green-dim:   #00cc33;
+    --green-faint: rgba(0,255,65,0.07);
+    --red:         #ff4455;
+    --amber:       #ffa500;
+    --blue:        #58a6ff;
+    --text:        #c9d1d9;
+    --text-muted:  #6e7681;
+    --font-mono:   'Share Tech Mono', monospace;
+    --font-display:'Orbitron', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, html {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    overflow: hidden;
+}
+
+/* ── HEADER ── */
+#header {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 44px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    z-index: 200;
+}
+
+.mission-badge {
+    font-family: var(--font-display);
+    font-size: 9px;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    border: 1px solid var(--green);
+    padding: 3px 8px;
+}
+
+.mission-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    margin-left: 12px;
+}
+
+.btn-back {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+.btn-back:hover { border-color: var(--text-muted); color: var(--text); }
+
+/* ── SCREENS ── */
+.screen {
+    position: fixed;
+    inset: 44px 0 0 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    overflow-y: auto;
+}
+.screen.active { display: flex; }
+
+/* ── INTRO ── */
+#screen-intro { background: var(--bg); }
+
+.intro-card {
+    max-width: 560px;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 36px;
+}
+
+.intro-tag {
+    font-size: 8px;
+    color: var(--text-muted);
+    letter-spacing: 0.25em;
+    margin-bottom: 14px;
+    display: block;
+}
+
+.intro-title {
+    font-family: var(--font-display);
+    font-size: clamp(15px, 2.2vw, 20px);
+    color: var(--green);
+    letter-spacing: 0.18em;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.intro-body {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 2;
+    margin-bottom: 28px;
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+}
+
+.intro-body em { color: var(--amber); font-style: normal; }
+
+.intro-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.stat-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+}
+
+.stat-label {
+    font-size: 8px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.stat-value        { font-size: 12px; color: var(--text); }
+.stat-value.danger { color: var(--red); }
+.stat-value.ok     { color: var(--green); }
+.stat-value.warn   { color: var(--amber); }
+
+.btn-primary {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 13px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+.btn-primary:hover {
+    background: var(--green-faint);
+    box-shadow: 0 0 14px rgba(0,255,65,0.12);
+}
+
+/* ── TUTORIAL ── */
+#screen-tutorial {
+    justify-content: flex-start;
+    padding-top: 20px;
+    gap: 16px;
+}
+
+.tutorial-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    width: 100%;
+    max-width: 1080px;
+    height: calc(100vh - 44px - 40px);
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.panel-header span { color: var(--green); }
+
+#tut-svg {
+    flex: 1;
+    width: 100%;
+}
+
+/* Info panel */
+.info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    flex-shrink: 0;
+}
+
+.info-card-title {
+    font-size: 8px;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Step explanation */
+#tut-step-text {
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.9;
+    min-height: 80px;
+}
+
+/* Distance table */
+#tut-distances {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dist-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background: var(--surface-2);
+    border: 1px solid transparent;
+    font-size: 11px;
+    transition: all 0.3s;
+}
+
+.dist-row.dist-current {
+    border-color: var(--green);
+    background: var(--green-faint);
+}
+
+.dist-node { color: var(--text-muted); letter-spacing: 0.1em; }
+.dist-val  { color: var(--text); font-size: 13px; }
+.dist-row.dist-current .dist-val { color: var(--green); }
+
+/* Legend */
+.legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Tutorial nav buttons */
+.tut-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.btn-tut {
+    flex: 1;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+.btn-tut:hover:not(:disabled) { border-color: var(--text-muted); color: var(--text); }
+.btn-tut:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.btn-tut.primary {
+    border-color: var(--green);
+    color: var(--green);
+}
+.btn-tut.primary:hover { background: var(--green-faint); }
+
+/* Step counter */
+#step-counter {
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+}
+
+/* ── SVG GRAPH STYLES ── */
+.edge {
+    stroke: var(--border);
+    stroke-width: 1.5;
+}
+.edge-path {
+    stroke: var(--green);
+    stroke-width: 2.5;
+}
+
+.weight-bg {
+    fill: var(--surface-2);
+    stroke: var(--border);
+    stroke-width: 1;
+    rx: 3;
+}
+.weight-bg-path { fill: rgba(0,255,65,0.12); stroke: var(--green); }
+
+.weight-label {
+    fill: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-anchor: middle;
+}
+.weight-label-path { fill: var(--green); }
+
+.node-circle {
+    fill: var(--surface-2);
+    stroke: var(--border);
+    stroke-width: 1.5;
+    transition: all 0.4s;
+}
+
+.node-visited .node-circle  { fill: rgba(0,255,65,0.08); stroke: var(--green-dim); }
+.node-current .node-circle  { fill: rgba(0,255,65,0.15); stroke: var(--green); stroke-width: 2.5; }
+.node-target  .node-circle  { fill: rgba(255,68,85,0.1);  stroke: var(--red); stroke-width: 2; }
+.node-path    .node-circle  { fill: rgba(0,255,65,0.18); stroke: var(--green); stroke-width: 2.5; }
+
+.node-label {
+    fill: var(--text);
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    pointer-events: none;
+}
+.node-sublabel {
+    fill: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 7px;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+}
+
+.node-visited .node-label { fill: var(--green-dim); }
+.node-current .node-label { fill: var(--green); }
+.node-target  .node-label { fill: var(--red); }
+.node-path    .node-label { fill: var(--green); }
+
+/* ══════════════════════════════════════════════════════════
+   POP-UPS ANCLADOS AL GRAFO — Tutorial Dijkstra
+   ══════════════════════════════════════════════════════════ */
+
+/* Popup container */
+.tut-popup {
+    position: fixed;
+    z-index: 300;
+    background: var(--surface);
+    border: 1px solid var(--green-dim);
+    padding: 12px 32px 12px 14px;
+    pointer-events: auto;
+
+    /* Sombra sutil con tono verde */
+    box-shadow:
+        0 0 0 1px rgba(0,255,65,0.08),
+        0 8px 24px rgba(0,0,0,0.5),
+        0 0 18px rgba(0,255,65,0.06);
+
+    /* Entrada: invisible y desplazado hacia arriba */
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+
+    /* Barra lateral izquierda verde */
+    border-left: 2px solid var(--green);
+}
+
+/* Estado visible */
+.tut-popup.tut-popup-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Estado salida */
+.tut-popup.tut-popup-hiding {
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+}
+
+/* Título del popup */
+.tut-popup-title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 8px;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+}
+
+/* Cuerpo del popup */
+.tut-popup-body {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Botón cerrar */
+.tut-popup-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-family: var(--font-mono);
+    transition: color 0.15s;
+}
+.tut-popup-close:hover { color: var(--green); }
+
+/* ── Conector SVG overlay ── */
+.popup-connector-line {
+    stroke: var(--green-dim);
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+    opacity: 0.6;
+}
+
+.popup-connector-dot {
+    fill: var(--green);
+    opacity: 0.85;
+}

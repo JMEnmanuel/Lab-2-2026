@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión 2 — Ruta Segura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/m2-style.css">
+</head>
+<body>
+
+    <!-- ── HEADER (siempre visible) ── -->
+    <header id="header">
+        <div style="display:flex;align-items:center;">
+            <span class="mission-badge">MISIÓN 02</span>
+            <span class="mission-title">RUTA SEGURA // DIJKSTRA</span>
+        </div>
+        <button class="btn-back" id="btn-back">↩ VOLVER AL MAPA</button>
+    </header>
+
+    <!-- ══════════════════════════════════════
+         PANTALLA 1: INTRODUCCIÓN
+    ══════════════════════════════════════ -->
+    <section id="screen-intro" class="screen">
+        <div class="intro-card">
+            <span class="intro-tag">// PROTOCOLO DE INTERVENCIÓN — SECTOR 02</span>
+
+            <h1 class="intro-title">RUTA SEGURA</h1>
+
+            <p class="intro-body">
+                El acoso ha sido identificado pero aún se propaga.<br>
+                Existe un usuario afectado que necesita apoyo urgente.<br><br>
+                Tu misión: encontrar el <em>nodo de apoyo</em> correcto y trazar
+                la <em>ruta de menor riesgo</em> hasta la víctima usando
+                el algoritmo de Dijkstra.
+            </p>
+
+            <div class="intro-stats">
+                <div class="stat-item">
+                    <span class="stat-label">ALGORITMO</span>
+                    <span class="stat-value">DIJKSTRA</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">INTENTOS</span>
+                    <span class="stat-value warn">3 DISPONIBLES</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">NODOS EN RED</span>
+                    <span class="stat-value">10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">UMBRAL DE RIESGO</span>
+                    <span class="stat-value danger">&lt; 10</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="btn-start-tutorial">
+                VER TUTORIAL ANTES DE COMENZAR →
+            </button>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         PANTALLA 2: TUTORIAL
+    ══════════════════════════════════════ -->
+    <section id="screen-tutorial" class="screen">
+        <div class="tutorial-layout">
+
+            <!-- Grafo del tutorial -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>// GRAFO DE EJEMPLO — DEMOSTRACIÓN</span>
+                    <span id="step-counter">PASO 1 / 6</span>
+                </div>
+                <svg id="tut-svg" viewBox="0 0 720 400" preserveAspectRatio="xMidYMid meet"></svg>
+            </div>
+
+            <!-- Panel derecho -->
+            <div class="info-panel">
+
+                <!-- Explicación del paso -->
+                <div class="info-card" style="flex:1;">
+                    <span class="info-card-title">// QUÉ ESTÁ PASANDO</span>
+                    <p id="tut-step-text"></p>
+                </div>
+
+                <!-- Tabla de distancias -->
+                <div class="info-card">
+                    <span class="info-card-title">// DISTANCIAS CONOCIDAS</span>
+                    <div id="tut-distances"></div>
+                </div>
+
+                <!-- Leyenda -->
+                <div class="info-card">
+                    <span class="info-card-title">// LEYENDA</span>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:rgba(0,255,65,0.15);border:2px solid #00ff41;"></div>
+                            <span>Nodo actual (siendo procesado)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:rgba(0,255,65,0.08);border:1.5px solid #00cc33;"></div>
+                            <span>Nodo ya visitado</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:rgba(255,68,85,0.1);border:2px solid #ff4455;"></div>
+                            <span>Víctima (destino)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#1c2128;border:1.5px solid #30363d;"></div>
+                            <span>Nodo sin visitar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navegación tutorial -->
+                <div class="tut-nav">
+                    <button class="btn-tut" id="btn-tut-prev">← ANTERIOR</button>
+                    <button class="btn-tut primary" id="btn-tut-next">SIGUIENTE →</button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts MVC en orden -->
+    <script src="js/m2-model.js"></script>
+    <script src="js/m2-view.js"></script>
+    <script src="js/m2-controller.js"></script>
+</body>
+</html>
