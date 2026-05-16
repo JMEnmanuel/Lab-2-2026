@@ -1,46 +1,80 @@
-// El controlador une el modelo con la vista y maneja la lógica
-function init() {
-    // Dibujamos inicialmente pasando la función de navegación como callback
-    drawConnections();
-    drawNodes(navegarMision);
-    
-    // Configurar listener para el botón de volver
-    document.getElementById('btn-volver').addEventListener('click', volverAlGrafo);
+/*
+   Controller del selector de misiones.
 
-    // Iniciar efectos ambientales
-    iniciarEfectosGlitch();
-}
+   Este archivo conecta Model y View.
+   Aqui viven los eventos, timers y navegacion.
+*/
+const SelectorController = (() => {
+    function init() {
+        document.getElementById("btn-cancel").addEventListener("click", SelectorView.hideTransition);
 
-function navegarMision(id) {
-    const node = nodesData.find(n => n.id === id);
-    if (node) {
-        showTransition(node.name);
+        SelectorView.spawnParticles();
+        renderAll();
+
+        setInterval(SelectorView.updateClock, 1000);
+        setInterval(SelectorView.ambientGlitch, 600);
+        setInterval(updateCorruption, 3000);
+
+        SelectorView.updateClock();
     }
-}
 
-function volverAlGrafo() {
-    hideTransition();
-}
+    function renderAll() {
+        const nodes = SelectorModel.getNodes();
+        const links = SelectorModel.getLinks();
+        const state = SelectorModel.getState();
 
-function marcarCompletada(id) {
-    if (!misionesCompletadas.includes(id)) {
-        misionesCompletadas.push(id);
-        // Volver a renderizar los nodos para reflejar el nuevo estado
-        drawNodes(navegarMision);
+        SelectorView.renderLinks(nodes, links, state);
+        SelectorView.renderNodes(nodes, state, {
+            onNavigate: navigate,
+            onHoverStart: handleHoverStart,
+            onHoverEnd: handleHoverEnd
+        });
+        SelectorView.updateFooter(state);
     }
-}
 
-function iniciarEfectosGlitch() {
-    setInterval(() => {
-        const circles = document.querySelectorAll('.node-circle:not(.completed)');
-        if(circles.length > 0) {
-            const randomIdx = Math.floor(Math.random() * circles.length);
-            const target = circles[randomIdx];
-            target.style.opacity = Math.random() > 0.1 ? "1" : "0.4";
-            setTimeout(() => target.style.opacity = "1", 100);
+    function navigate(id) {
+        const node = SelectorModel.getNode(id);
+        if (!node) return;
+
+        if (!node.file) {
+            SelectorView.showPendingTransition(node);
+            return;
         }
-    }, 1000);
-}
 
-// Arrancar la aplicación al cargar los scripts
-init();
+        SelectorView.showNavigationTransition(node, () => {
+            window.location.href = node.file;
+        });
+    }
+
+    function handleHoverStart(event, node) {
+        SelectorModel.setActiveNode(node.id);
+        SelectorView.renderLinks(SelectorModel.getNodes(), SelectorModel.getLinks(), SelectorModel.getState());
+        SelectorView.showTip(event, node);
+    }
+
+    function handleHoverEnd() {
+        SelectorModel.clearActiveNode();
+        SelectorView.renderLinks(SelectorModel.getNodes(), SelectorModel.getLinks(), SelectorModel.getState());
+        SelectorView.hideTip();
+    }
+
+    function markCompleted(id) {
+        SelectorModel.markCompleted(id);
+        renderAll();
+    }
+
+    function updateCorruption() {
+        SelectorModel.fluctuateCorruption();
+        renderAll();
+    }
+
+    return {
+        init,
+        markCompleted
+    };
+})();
+
+document.addEventListener("DOMContentLoaded", SelectorController.init);
+
+// Expuesto por compatibilidad si luego una mision necesita marcarse completada.
+window.marcarCompletada = SelectorController.markCompleted;

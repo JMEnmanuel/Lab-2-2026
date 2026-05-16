@@ -1,6 +1,10 @@
-/* =================================================================
-   CONTROLLER — Lógica del juego, conecta Model con View
-   ================================================================= */
+/*
+   Controller de Mision 1.
+
+   Este archivo conecta Model y View.
+   Aqui viven las reglas de interaccion de BFS, DFS, tutorial y acusacion.
+   Si el jugador hace click, este archivo decide que pasa despues.
+*/
 const Controller = (() => {
 
     function init() {
@@ -123,10 +127,10 @@ const Controller = (() => {
             if (!st.traversed.includes(key)) st.traversed.push(key);
         }
 
-        // Apilar vecinos (orden ascendente → tope = mayor → DFS va por ramas bajas primero)
+        // Apilar vecinos en orden descendente para que el menor quede como tope.
         const neighbors = Model.TUT_ADJ[id]
             .filter(n => !st.visited.includes(n) && !st.stack.includes(n))
-            .sort((a,b) => a-b);
+            .sort((a,b) => b-a);
         st.stack = [...st.stack, ...neighbors];
 
         View.setTutorialLog('_');
@@ -182,7 +186,7 @@ const Controller = (() => {
         View.showGame('bfs');
         View.updatePanel('bfs');
         View.renderGraph('bfs', handleNodeClickBFS);
-        View.setInstruction('Haz click en cualquier nodo para iniciar. El acoso empezó en algún punto de esta red.');
+        View.setInstruction('Haz click en cualquier nodo para iniciar. Cuando haya varias opciones, avanza por el ID menor disponible.');
     }
 
     function handleNodeClickBFS(id) {
@@ -211,6 +215,11 @@ const Controller = (() => {
     }
 
     function visitBFS(id) {
+        /*
+           BFS usa una cola.
+           Al visitar un nodo, sus vecinos nuevos entran al final.
+           El siguiente nodo correcto siempre es el primero de la cola.
+        */
         const st = Model.state.bfs;
         const prev = st.current;
         st.current = id;
@@ -228,7 +237,7 @@ const Controller = (() => {
         View.renderGraph('bfs', handleNodeClickBFS);
         View.updatePanel('bfs');
         View.showEvidence(id, 'bfs');
-        View.setInstruction('BFS: próximo en cola → ' + (st.queue.length ? Model.getUser(st.queue[0]).name : '(vacía)'));
+        View.setInstruction('BFS: próximo en cola por ID menor → ' + (st.queue.length ? Model.getUser(st.queue[0]).name : '(vacía)'));
         if (st.visited.length === 9) {
             st.done = true;
             setTimeout(finishBFS, 1000);
@@ -246,7 +255,7 @@ const Controller = (() => {
         View.showGame('dfs');
         View.updatePanel('dfs');
         View.renderGraph('dfs', handleNodeClickDFS);
-        View.setInstruction('DFS: elige un nodo para iniciar el rastreo profundo. Sigue la cadena hasta el origen.');
+        View.setInstruction('DFS: elige un nodo para iniciar. Si hay varias opciones, el tope debe corresponder al ID menor disponible.');
     }
 
     function handleNodeClickDFS(id) {
@@ -275,6 +284,11 @@ const Controller = (() => {
     }
 
     function visitDFS(id) {
+        /*
+           DFS usa una pila.
+           Al visitar un nodo, sus vecinos nuevos quedan disponibles.
+           El siguiente nodo correcto siempre es el tope de la pila.
+        */
         const st = Model.state.dfs;
         const prev = st.current;
         st.current = id;
@@ -286,14 +300,14 @@ const Controller = (() => {
         }
         const neighbors = Model.ADJ[id]
             .filter(n => !st.visited.includes(n) && !st.stack.includes(n))
-            .sort((a,b) => a-b);
+            .sort((a,b) => b-a);
         st.stack = [...st.stack, ...neighbors];
         Model.computeSuspicion(st.visited);
         View.setLog('', true);
         View.renderGraph('dfs', handleNodeClickDFS);
         View.updatePanel('dfs');
         View.showEvidence(id, 'dfs');
-        View.setInstruction('DFS: tope de pila → ' + (st.stack.length ? Model.getUser(st.stack[st.stack.length-1]).name : '(vacía)'));
+        View.setInstruction('DFS: tope de pila por ID menor → ' + (st.stack.length ? Model.getUser(st.stack[st.stack.length-1]).name : '(vacía)'));
         if (st.visited.length === 9) {
             st.done = true;
             setTimeout(startAccusation, 1000);
@@ -308,6 +322,7 @@ const Controller = (() => {
     }
 
     function handleAccusation(id) {
+        // La acusacion compara el usuario elegido con el origen real del modelo.
         if (id === Model.originId) {
             const user = Model.getUser(id);
             const ev   = Model.getEvidence(id);

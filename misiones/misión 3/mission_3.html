@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Misión 3 — Reconstruir la Red</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/m3-style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header id="header">
+    <div class="header-left">
+      <span class="mission-badge">MISIÓN 03</span>
+      <div>
+        <div class="mission-title">RECONSTRUIR RED</div>
+        <div class="mission-subtitle">ÁRBOL DE EXPANSIÓN MÍNIMA // KRUSKAL / PRIM</div>
+      </div>
+    </div>
+    <a class="btn-back" href="../../index.html">← VOLVER AL SELECTOR</a>
+  </header>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <main class="mission-shell">
+
+    <!-- COLUMNA IZQUIERDA: Grafo -->
+    <section class="graph-area">
+      <div class="graph-toolbar">
+        <div>
+          <span class="section-kicker">// MAPA DE CONFIANZA</span>
+          <h1>Conexiones candidatas para restaurar la red</h1>
+        </div>
+        <div class="health-chip">
+          <span class="health-dot"></span>
+          ESTABILIDAD: PARCIAL
+        </div>
+      </div>
+
+      <div class="graph-frame">
+        <svg id="mst-graph" viewBox="0 0 900 560" role="img">
+          <title>Grafo ponderado de usuarios</title>
+        </svg>
+      </div>
+    </section>
+
+    <!-- COLUMNA DERECHA: Panel -->
+    <aside class="side-panel">
+
+      <section class="panel-section panel-intro">
+        <span class="section-kicker">// PROTOCOLO ACTIVO</span>
+        <h2>Minimizar costo de confianza</h2>
+        <p>
+          La red quedó fragmentada. Reconstruye solo los vínculos necesarios
+          para conectar a todos, con el menor costo emocional posible.
+        </p>
+      </section>
+
+      <!-- Selector de algoritmo -->
+      <section class="panel-section">
+        <span class="panel-label">Algoritmo</span>
+        <div class="algo-toggle" id="algo-toggle">
+          <button class="algo-btn active" type="button" data-algorithm="kruskal">
+            <span>Kruskal</span>
+            <small>Aristas globales, menor primero</small>
+          </button>
+          <button class="algo-btn" type="button" data-algorithm="prim">
+            <span>Prim</span>
+            <small>Crece desde un nodo</small>
+          </button>
+        </div>
+      </section>
+
+      <!-- Controles -->
+      <section class="panel-section">
+        <span class="panel-label">Control</span>
+        <div class="control-row">
+          <button class="btn-action btn-start" id="btn-start" type="button">
+            <span class="btn-icon">▶</span> INICIAR
+          </button>
+          <button class="btn-action btn-reset" id="btn-reset" type="button">
+            ↺ RESET
+          </button>
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section class="panel-section">
+        <span class="panel-label">Estado</span>
+        <div class="stats">
+          <div class="stat-box">
+            <span>Nodos</span>
+            <strong id="node-count">0</strong>
+          </div>
+          <div class="stat-box">
+            <span>Aristas MST</span>
+            <strong id="mst-count">0</strong>
+          </div>
+          <div class="stat-box">
+            <span>Costo total</span>
+            <strong id="total-cost" style="color:var(--green)">0</strong>
+          </div>
+          <div class="stat-box">
+            <span>Aristas</span>
+            <strong id="edge-count">0</strong>
+          </div>
+          <div class="stat-box">
+            <span>Evaluadas</span>
+            <strong id="evaluated-steps">0</strong>
+          </div>
+          <div class="stat-box">
+            <span>Progreso MST</span>
+            <strong id="mst-progress">0 / 6</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Estado del algoritmo -->
+      <section class="panel-section">
+        <span class="panel-label">Seguimiento del algoritmo</span>
+        <div class="state-block">
+          <span class="state-title" id="ordered-edges-title">Aristas ordenadas pendientes</span>
+          <div class="state-list" id="ordered-edges-list"></div>
+        </div>
+        <div class="state-block">
+          <span class="state-title">Componentes Union-Find</span>
+          <div class="state-list" id="components-list"></div>
+        </div>
+      </section>
+
+      <!-- Estado de nodos -->
+      <section class="panel-section">
+        <span class="panel-label">Estado de nodos</span>
+        <div class="state-block">
+          <span class="state-title">Nodo frontera activo</span>
+          <div class="state-list"><div class="state-pill" id="active-node">-</div></div>
+        </div>
+        <div class="state-block">
+          <span class="state-title">Nodos en MST</span>
+          <div class="state-list" id="mst-nodes-list"></div>
+        </div>
+        <div class="state-block">
+          <span class="state-title">Nodos pendientes</span>
+          <div class="state-list" id="pending-nodes-list"></div>
+        </div>
+        <div class="state-block">
+          <span class="state-title">Frontera Prim</span>
+          <div class="state-list" id="frontier-edges-list"></div>
+        </div>
+      </section>
+
+      <!-- Leyenda -->
+      <section class="panel-section">
+        <span class="panel-label">Estados de arista</span>
+        <div class="legend">
+          <div class="legend-row"><span class="legend-line"></span>Sin evaluar</div>
+          <div class="legend-row"><span class="legend-line yellow"></span>Evaluando ahora</div>
+          <div class="legend-row"><span class="legend-line green"></span>Aceptada — forma MST</div>
+          <div class="legend-row"><span class="legend-line red"></span>Rechazada — formaría ciclo</div>
+        </div>
+      </section>
+
+      <!-- Log narrativo -->
+      <section class="panel-section log-section">
+        <span class="panel-label">Registro narrativo</span>
+        <div class="event-log" id="event-log"></div>
+      </section>
+
+    </aside>
+  </main>
+
+  <!-- OVERLAY DE VICTORIA -->
+  <div class="victory-overlay hidden" id="victory-overlay">
+    <div class="victory-card">
+      <div class="victory-badge">MISIÓN COMPLETADA</div>
+      <h2 class="victory-title">Red Reconstruida</h2>
+      <p class="victory-sub">
+        Algoritmo: <strong id="victory-algo">—</strong>
+      </p>
+      <p class="victory-sub">
+        Pasos evaluados: <strong id="victory-steps">0</strong>
+      </p>
+      <div class="victory-cost-block">
+        <span>Costo mínimo total</span>
+        <div class="victory-cost" id="victory-cost">0</div>
+        <span>unidades de confianza restauradas</span>
+      </div>
+      <p class="victory-msg">
+        Todos los usuarios están conectados. La red social puede sanar.
+      </p>
+      <div class="victory-actions">
+        <button class="btn-action btn-reset victory-reset" id="btn-victory-reset"
+          onclick="document.getElementById('btn-reset').click()">
+          ↺ INTENTAR DE NUEVO
+        </button>
+        <a class="btn-action btn-start" href="../../index.html">← VOLVER AL SELECTOR</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/m3-model.js"></script>
+  <script src="js/m3-view.js"></script>
+  <script src="js/m3-controller.js"></script>
+</body>
+</html>

@@ -3,303 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Segura — Sistema de Intervención</title>
+    <title>Red Segura - Sistema de Intervencion</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #050507;
-            --surface: #0b0d12;
-            --green: #00ff41;
-            --green-dim: #00cc33;
-            --green-faint: rgba(0,255,65,0.05);
-            --red: #ff2244;
-            --amber: #ffaa00;
-            --gray: #1e2028;
-            --gray-mid: #363a45;
-            --text-muted: #3a3f50;
-            --text-dim: #1e2128;
-            --font-mono: 'Share Tech Mono', monospace;
-            --font-display: 'Orbitron', monospace;
-        }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body, html {
-            width: 100%; height: 100%;
-            background: var(--bg);
-            color: var(--green);
-            font-family: var(--font-mono);
-            overflow: hidden;
-            cursor: crosshair;
-        }
-
-        /* SCANLINES */
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
-            pointer-events: none;
-            z-index: 997;
-        }
-
-        /* VIGNETTE */
-        body::after {
-            content: '';
-            position: fixed; inset: 0;
-            background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.9) 100%);
-            pointer-events: none;
-            z-index: 996;
-        }
-
-        /* PARTICLES */
-        #particles {
-            position: fixed; inset: 0;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            background: var(--green);
-            border-radius: 50%;
-            opacity: 0;
-            animation: float-p linear infinite;
-        }
-
-        @keyframes float-p {
-            0%   { opacity: 0; transform: translateY(0) translateX(0); }
-            10%  { opacity: 0.5; }
-            90%  { opacity: 0.15; }
-            100% { opacity: 0; transform: translateY(-100px) translateX(var(--dx)); }
-        }
-
-        .data-stream {
-            position: absolute;
-            font-family: var(--font-mono);
-            font-size: 8px;
-            color: #0d1018;
-            writing-mode: vertical-rl;
-            pointer-events: none;
-            animation: stream-fall linear infinite;
-            opacity: 0;
-            user-select: none;
-            letter-spacing: 0.1em;
-        }
-
-        @keyframes stream-fall {
-            0%   { opacity: 0; transform: translateY(-60px); }
-            15%  { opacity: 1; }
-            85%  { opacity: 0.4; }
-            100% { opacity: 0; transform: translateY(105vh); }
-        }
-
-        /* HEADER */
-        #header {
-            position: fixed; top: 0; left: 0; right: 0;
-            height: 44px;
-            border-bottom: 1px solid var(--gray);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px;
-            background: rgba(11,13,18,0.97);
-            z-index: 100;
-        }
-
-        #system-tag {
-            font-size: 8px;
-            color: var(--text-muted);
-            letter-spacing: 0.15em;
-            border-left: 2px solid var(--red);
-            padding-left: 10px;
-            line-height: 1.6;
-        }
-
-        #system-name {
-            font-family: var(--font-display);
-            font-size: 10px;
-            color: var(--green);
-            letter-spacing: 0.22em;
-            margin-left: 16px;
-        }
-
-        #header-right {
-            display: flex; align-items: center; gap: 22px;
-            font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em;
-        }
-
-        .hstat { display: flex; align-items: center; gap: 6px; }
-
-        .dot {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: var(--red);
-            animation: pd 1.4s ease-in-out infinite;
-        }
-        .dot.warn { background: var(--amber); animation-delay: 0.5s; }
-        .dot.ok   { background: var(--green); animation: none; }
-        @keyframes pd { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.2;transform:scale(0.6)} }
-
-        /* FOOTER */
-        #footer {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            height: 28px;
-            border-top: 1px solid var(--gray);
-            display: flex; align-items: center;
-            padding: 0 20px; gap: 28px;
-            background: rgba(11,13,18,0.97);
-            z-index: 100;
-            font-size: 8px; color: var(--text-muted); letter-spacing: 0.1em;
-        }
-
-        #clock { color: var(--green-dim); font-size: 10px; }
-        #progress-text { color: var(--amber); margin-left: auto; }
-
-        /* NETWORK LABEL */
-        #network-label {
-            position: fixed;
-            top: 58px; left: 20px;
-            z-index: 50;
-            pointer-events: none;
-            animation: fadeUp 1.5s ease 0.4s both;
-        }
-
-        .nl-tag  { font-size: 8px; color: var(--text-muted); letter-spacing: 0.2em; margin-bottom: 2px; }
-        .nl-name { font-family: var(--font-display); font-size: 14px; color: var(--green); letter-spacing: 0.35em; text-shadow: 0 0 20px rgba(0,255,65,0.3); }
-        .nl-status { font-size: 8px; color: var(--red); letter-spacing: 0.15em; margin-top: 3px; animation: blink 2s ease infinite; }
-
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-        /* INSTRUCTION */
-        #instruction {
-            position: fixed;
-            bottom: 38px; left: 50%;
-            transform: translateX(-50%);
-            font-size: 8px; color: var(--text-muted); letter-spacing: 0.2em;
-            z-index: 50; pointer-events: none;
-            animation: fadeUp 2s ease 1.2s both;
-            white-space: nowrap;
-        }
-
-        /* MAIN */
-        #graph-wrapper {
-            position: fixed;
-            inset: 44px 0 28px 0;
-        }
-
-        #svg-main { width: 100%; height: 100%; }
-
-        /* NODES */
-        .node-group { cursor: pointer; }
-
-        .node-pulse {
-            fill: none; stroke: var(--red); stroke-width: 0.5; opacity: 0;
-            animation: pulse-r 3.5s ease-out infinite;
-        }
-        @keyframes pulse-r { 0%{opacity:0.5} 100%{r:80px;opacity:0} }
-
-        .node-outer {
-            fill: none; stroke: var(--gray-mid); stroke-width: 0.8;
-            stroke-dasharray: 6 6;
-            animation: spin-ccw 25s linear infinite;
-            transform-box: fill-box; transform-origin: center;
-        }
-
-        .node-body {
-            fill: var(--surface); stroke: var(--gray-mid); stroke-width: 1.5;
-            filter: url(#corrupt);
-            transition: stroke 0.3s, fill 0.3s;
-        }
-
-        .node-group:hover .node-body   { fill: rgba(0,255,65,0.04); stroke: var(--green); filter: url(#corrupt-h); }
-        .node-group:hover .node-outer  { stroke: var(--green-dim); stroke-dasharray: 3 4; }
-        .node-group:hover .node-pulse  { stroke: var(--green); }
-        .node-group:hover .t-name      { fill: var(--green); }
-        .node-group:hover .t-sub       { fill: var(--green-dim); }
-        .node-group:hover .t-code      { fill: #009922; }
-        .node-group:hover .t-corr      { fill: var(--amber); }
-
-        .node-group.completed .node-body  { fill: rgba(0,255,65,0.05); stroke: var(--green); filter: none; }
-        .node-group.completed .node-outer { stroke: var(--green-dim); stroke-dasharray: none; }
-        .node-group.completed .node-pulse { stroke: var(--green); animation: pulse-ok 4s ease-out infinite; }
-        .node-group.completed .t-name     { fill: var(--green); }
-        .node-group.completed .t-sub      { fill: var(--green-dim); }
-        .node-group.completed .t-corr     { fill: var(--green); animation: none; }
-
-        @keyframes pulse-ok  { 0%{opacity:0.3} 100%{r:66px;opacity:0} }
-        @keyframes spin-ccw  { to { transform: rotate(-360deg); } }
-
-        .t-id   { fill: #555d70; font-family: var(--font-mono); font-size: 7px; pointer-events:none; }
-        .t-name { fill: #8a90a0; font-family: var(--font-display); font-size: 8px; letter-spacing: 0.12em; pointer-events:none; transition: fill 0.3s; }
-        .t-sub  { fill: #606674; font-family: var(--font-mono); font-size: 7px; pointer-events:none; transition: fill 0.3s; }
-        .t-code { fill: #3a7a4a; font-family: var(--font-mono); font-size: 7px; pointer-events:none; transition: fill 0.3s; }
-        .t-corr { fill: #a04040; font-family: var(--font-mono); font-size: 7px; pointer-events:none; animation: blink 1.8s ease infinite; }
-
-        /* LINKS */
-        .link-base { stroke: #0f1118; stroke-width: 1.5; }
-        .link-dash { stroke: #252830; stroke-width: 0.8; stroke-dasharray: 5 9; animation: dcrawl 8s linear infinite; }
-        .link-dash.hot  { stroke: var(--green-dim); opacity: 0.5; stroke-dasharray: 4 6; }
-        .link-dash.done { stroke: var(--green-dim); opacity: 0.2; stroke-dasharray: none; }
-
-        @keyframes dcrawl { to { stroke-dashoffset: -28; } }
-
-        /* CREDITS */
-        .cred-node .node-body  { stroke: var(--text-dim); fill: #060608; filter: none; }
-        .cred-node .node-outer { opacity: 0.2; }
-        .cred-node .t-name     { fill: var(--text-dim); font-size: 7px; }
-        .cred-node:hover .node-body { stroke: var(--text-muted); }
-        .cred-node:hover .t-name    { fill: var(--text-muted); }
-
-        /* TRANSITION */
-        #tr-screen {
-            position: fixed; inset: 0;
-            background: var(--bg);
-            z-index: 500;
-            display: none;
-            flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 18px;
-        }
-        #tr-screen.on { display: flex; }
-
-        .tr-tag { font-size: 8px; color: var(--text-muted); letter-spacing: 0.25em; }
-        #tr-title { font-family: var(--font-display); font-size: clamp(13px,2.2vw,22px); letter-spacing: 0.3em; color: var(--green); text-shadow: 0 0 28px rgba(0,255,65,0.35); }
-        #tr-sub   { font-size: 9px; color: var(--text-muted); letter-spacing: 0.15em; }
-
-        .bar-wrap { width: 260px; height: 1px; background: var(--gray); }
-        .bar-fill { height: 100%; background: var(--green); width: 0%; box-shadow: 0 0 6px var(--green); transition: width 1.6s ease; }
-        .bar-pct  { font-size: 8px; color: var(--green-dim); letter-spacing: 0.1em; text-align: right; width: 260px; margin-top: 5px; }
-
-        .btn-cancel {
-            margin-top: 10px; background: transparent;
-            border: 1px solid var(--gray-mid); color: var(--text-muted);
-            padding: 8px 22px; cursor: pointer;
-            font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em;
-            text-transform: uppercase; transition: all 0.2s;
-        }
-        .btn-cancel:hover { border-color: var(--red); color: var(--red); }
-
-        /* TOOLTIP */
-        #tooltip {
-            position: fixed;
-            background: var(--surface);
-            border: 1px solid var(--gray-mid);
-            border-left: 2px solid var(--green);
-            padding: 8px 12px;
-            font-size: 9px; color: var(--text-muted);
-            pointer-events: none; display: none;
-            z-index: 200; letter-spacing: 0.08em; line-height: 2;
-            max-width: 220px;
-        }
-        .tip-name { font-family: var(--font-display); font-size: 9px; color: var(--green); letter-spacing: 0.15em; margin-bottom: 4px; display: block; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+<!--
+    Guia de estudio del selector de misiones.
+
+    Esta pantalla ahora usa MVC.
+    js/model.js guarda datos y estado.
+    js/view.js dibuja el selector, tooltip, transicion y footer.
+    js/controller.js conecta eventos, timers y navegacion.
+-->
 
 <div id="particles"></div>
 
 <header id="header">
-    <div style="display:flex;align-items:center;">
-        <div id="system-tag">UNINORTE · ING. SISTEMAS<br>ESTRUCTURA DE DATOS II</div>
+    <div class="header-left">
+        <div id="system-tag">UNINORTE - ING. SISTEMAS<br>ESTRUCTURA DE DATOS II</div>
         <div id="system-name">RED_SEGURA // PROTOCOLO v2.4</div>
     </div>
     <div id="header-right">
@@ -312,10 +35,10 @@
 <div id="network-label">
     <div class="nl-tag">// MAPA DE RED ACTIVO</div>
     <div class="nl-name">CYBERNET_SN</div>
-    <div class="nl-status">⚠ COMPROMISO DETECTADO — INTERVENCIÓN REQUERIDA</div>
+    <div class="nl-status">COMPROMISO DETECTADO - INTERVENCION REQUERIDA</div>
 </div>
 
-<div id="instruction">SELECCIONA UN SECTOR PARA INICIAR PROTOCOLO DE INTERVENCIÓN</div>
+<div id="instruction">SELECCIONA UN SECTOR PARA INICIAR PROTOCOLO DE INTERVENCION</div>
 
 <div id="graph-wrapper">
     <svg id="svg-main" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet">
@@ -335,7 +58,7 @@
 
         <rect width="1000" height="700" fill="url(#grid)"/>
 
-        <!-- Threat blobs — subtly mark corrupted zones -->
+        <!-- Zonas visuales de corrupcion alrededor de misiones activas. -->
         <ellipse cx="190" cy="195" rx="95" ry="78" fill="rgba(255,34,68,0.02)" filter="url(#corrupt)"/>
         <ellipse cx="775" cy="148" rx="85" ry="68" fill="rgba(255,34,68,0.02)" filter="url(#corrupt)"/>
         <ellipse cx="830" cy="545" rx="88" ry="72" fill="rgba(255,34,68,0.02)" filter="url(#corrupt)"/>
@@ -348,241 +71,24 @@
 
 <footer id="footer">
     <span id="clock">--:--:--</span>
-    <span>UNIVERSIDAD DEL NORTE // ING. SISTEMAS Y COMPUTACIÓN</span>
-    <span>LAB 02 — 2026</span>
+    <span>UNIVERSIDAD DEL NORTE // ING. SISTEMAS Y COMPUTACION</span>
+    <span>LAB 02 - 2026</span>
     <span id="progress-text">SECTORES RESTAURADOS: 0/4</span>
 </footer>
 
 <div id="tooltip"></div>
 
 <div id="tr-screen">
-    <div class="tr-tag">// INICIANDO CONEXIÓN SEGURA</div>
+    <div class="tr-tag">// INICIANDO CONEXION SEGURA</div>
     <div id="tr-title">ACCEDIENDO...</div>
     <div id="tr-sub">PROTOCOLO PENDIENTE</div>
     <div class="bar-wrap"><div class="bar-fill" id="bar-fill"></div></div>
     <div class="bar-pct" id="bar-pct">0%</div>
-    <button class="btn-cancel" id="btn-cancel">↩ CANCELAR</button>
+    <button class="btn-cancel" id="btn-cancel">CANCELAR</button>
 </div>
 
-<script>
-// MODEL
-const NODES = [
-    { id:1, name:"MISIÓN 1", sub:"RASTROS DEL ACOSO",  code:"BFS / DFS",       x:190, y:195, file:'misiones/misión 1/mission_1.html', desc:'Traza el origen del acoso usando recorridos BFS y DFS sobre la red comprometida.' },
-    { id:2, name:"MISIÓN 2", sub:"RUTA SEGURA",        code:"DIJKSTRA",         x:775, y:148, file:'misiones/misión 2/mision2.html', desc:'Calcula el camino de menor riesgo para intervenir y proteger al usuario afectado.' },
-    { id:3, name:"MISIÓN 3", sub:"RECONSTRUIR RED",    code:"KRUSKAL / PRIM",   x:830, y:545, file:'misiones/mision3.html', desc:'Reconstruye conexiones de confianza usando árbol de expansión mínima.' },
-    { id:4, name:"MISIÓN 4", sub:"CONTROL DE IMPACTO", code:"FORD-FULKERSON",   x:148, y:520, file:'misiones/mision4.html', desc:'Limita la propagación del contenido dañino calculando el flujo máximo.' },
-    { id:5, name:"CRÉDITOS", sub:"EQUIPO",             code:"v1.0",             x:870, y:648, file:'misiones/creditos.html', desc:'Equipo de desarrollo.' }
-];
-
-const LINKS = [[1,2],[2,3],[3,4],[4,1],[1,3],[2,4],[3,5]];
-
-let completed  = [];
-let activeNode = null;
-let corruption = { 1:87, 2:74, 3:91, 4:68 };
-
-// VIEW — LINKS
-function drawLinks() {
-    const layer = document.getElementById('links-layer');
-    layer.innerHTML = '';
-    LINKS.forEach(([a,b], i) => {
-        const n1 = NODES.find(n=>n.id===a), n2 = NODES.find(n=>n.id===b);
-        const hot  = activeNode===a || activeNode===b;
-        const done = completed.includes(a) && completed.includes(b);
-
-        ['link-base','link-dash'].forEach((cls, li) => {
-            const el = document.createElementNS("http://www.w3.org/2000/svg","line");
-            el.setAttribute("x1",n1.x); el.setAttribute("y1",n1.y);
-            el.setAttribute("x2",n2.x); el.setAttribute("y2",n2.y);
-            if (li===1) cls += hot?' hot':done?' done':'';
-            el.setAttribute("class", cls);
-            if (li===1) el.style.animationDelay = `${i*0.5}s`;
-            layer.appendChild(el);
-        });
-    });
-}
-
-// VIEW — NODES
-function drawNodes() {
-    const layer = document.getElementById('nodes-layer');
-    layer.innerHTML = '';
-
-    NODES.forEach(node => {
-        const done = completed.includes(node.id);
-        const isCred = node.id === 5;
-        const R  = isCred ? 20 : 46;
-        const Ro = isCred ? 30 : 63;
-        const corr = corruption[node.id] || 0;
-
-        const g = document.createElementNS("http://www.w3.org/2000/svg","g");
-        g.setAttribute("class", `node-group${done?' completed':''}${isCred?' cred-node':''}`);
-        g.setAttribute("transform", `translate(${node.x},${node.y})`);
-
-        const mk = (tag, attrs) => {
-            const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
-            Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
-            return el;
-        };
-        const mkT = (cls, dy, txt) => {
-            const t = mk("text", {class:cls,"text-anchor":"middle",dy});
-            t.textContent = txt; return t;
-        };
-
-        // Pulse
-        const pulse = mk("circle",{r:R,class:"node-pulse"});
-        pulse.style.animationDelay = `${node.id*0.8}s`;
-
-        // Outer ring
-        const outer = mk("circle",{r:Ro,class:"node-outer"});
-        outer.style.animationDelay = `${node.id*3}s`;
-
-        // Body
-        const body = mk("circle",{r:R,class:"node-body"});
-
-        // Corruption arc
-        let corrArc = null;
-        if (!isCred) {
-            const pct = done ? 0 : corr/100;
-            const circ = 2*Math.PI*R;
-            corrArc = mk("circle",{
-                r:R, fill:"none",
-                stroke: done?"#00ff41":"#ff2244",
-                "stroke-width":"2",
-                "stroke-dasharray":`${pct*circ} ${circ}`,
-                "stroke-dashoffset": circ*0.25,
-                opacity:"0.35"
-            });
-            corrArc.style.transform = "rotate(-90deg)";
-            corrArc.style.transformBox = "fill-box";
-            corrArc.style.transformOrigin = "center";
-        }
-
-        g.appendChild(pulse);
-        g.appendChild(outer);
-        g.appendChild(body);
-        if (corrArc) g.appendChild(corrArc);
-
-        if (!isCred) {
-            g.appendChild(mkT("t-id",   "-29", `[0${node.id}]`));
-            g.appendChild(mkT("t-name", "-11",  node.name));
-            g.appendChild(mkT("t-sub",  "3",    node.sub));
-            g.appendChild(mkT("t-code", "16",   node.code));
-            g.appendChild(mkT("t-corr", "30",   done ? "✓ RESTAURADO" : `CORRUPCIÓN: ${corr}%`));
-        } else {
-            g.appendChild(mkT("t-name","4", node.name));
-        }
-
-        g.addEventListener('click',      () => navigate(node.id));
-        g.addEventListener('mouseenter', e => { activeNode=node.id; drawLinks(); showTip(e,node); });
-        g.addEventListener('mousemove',  moveTip);
-        g.addEventListener('mouseleave', () => { activeNode=null; drawLinks(); hideTip(); });
-
-        layer.appendChild(g);
-    });
-}
-
-// TOOLTIP
-function showTip(e, node) {
-    const tip = document.getElementById('tooltip');
-    tip.innerHTML = `<span class="tip-name">${node.name} // ${node.sub}</span>${node.desc}<br><br>ALGORITMO: ${node.code}`;
-    tip.style.display='block'; moveTip(e);
-}
-function moveTip(e) {
-    const tip = document.getElementById('tooltip');
-    tip.style.left = Math.min(e.clientX+16, window.innerWidth-240)+'px';
-    tip.style.top  = Math.min(e.clientY-8,  window.innerHeight-110)+'px';
-}
-function hideTip() { document.getElementById('tooltip').style.display='none'; }
-
-// CONTROLLER
-function navigate(id) {
-    const node = NODES.find(n=>n.id===id);
-    document.getElementById('tr-title').textContent = node.name;
-    document.getElementById('tr-sub').textContent   = node.sub + ' // ' + node.code;
-    document.getElementById('tr-screen').classList.add('on');
-
-    const fill=document.getElementById('bar-fill'), pctEl=document.getElementById('bar-pct');
-    fill.style.transition='none'; fill.style.width='0%'; pctEl.textContent='0%';
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{ fill.style.transition='width 1.6s ease'; fill.style.width='100%'; }));
-
-    let p=0;
-    const iv=setInterval(()=>{ p=Math.min(p+2,100); pctEl.textContent=p+'%'; if(p>=100)clearInterval(iv); },32);
-    setTimeout(()=>{ window.location.href=node.file; },1800);
-}
-
-function cancelNav() { document.getElementById('tr-screen').classList.remove('on'); }
-
-function marcarCompletada(id) {
-    if (!completed.includes(id)) {
-        completed.push(id);
-        if (corruption[id]!==undefined) corruption[id]=0;
-        drawLinks(); drawNodes(); updateFooter();
-    }
-}
-
-function updateFooter() {
-    const done=completed.filter(id=>id!==5).length;
-    document.getElementById('progress-text').textContent=`SECTORES RESTAURADOS: ${done}/4`;
-    document.getElementById('nodes-val').textContent=`${4-done}/4`;
-    document.getElementById('integrity-val').textContent=Math.min(23+done*19,100)+'%';
-}
-
-// PARTICLES
-function spawnParticles() {
-    const c=document.getElementById('particles');
-    for(let i=0;i<30;i++){
-        const p=document.createElement('div');
-        p.className='particle';
-        const sz=Math.random()>0.7?'2px':'1px';
-        p.style.cssText=`left:${Math.random()*100}vw;bottom:${Math.random()*40}vh;width:${sz};height:${sz};--dx:${(Math.random()*50-25)}px;animation-duration:${5+Math.random()*9}s;animation-delay:${Math.random()*10}s`;
-        c.appendChild(p);
-    }
-    const chars='010110100111アイウエABCDEFG10010';
-    for(let i=0;i<12;i++){
-        const s=document.createElement('div');
-        s.className='data-stream';
-        let txt='';
-        for(let j=0;j<14;j++) txt+=chars[Math.floor(Math.random()*chars.length)]+' ';
-        s.textContent=txt;
-        s.style.cssText=`left:${5+Math.random()*90}vw;top:-60px;animation-duration:${9+Math.random()*14}s;animation-delay:${Math.random()*12}s`;
-        c.appendChild(s);
-    }
-}
-
-// Fluctuate corruption
-function fluctuateCorruption() {
-    [1,2,3,4].forEach(id=>{
-        if(!completed.includes(id))
-            corruption[id]=Math.max(60,Math.min(99,corruption[id]+Math.floor(Math.random()*5-2)));
-    });
-    drawNodes();
-}
-
-// Ambient glitch
-function ambientGlitch() {
-    const bodies=document.querySelectorAll('.node-body');
-    if(bodies.length){
-        const t=bodies[Math.floor(Math.random()*bodies.length)];
-        t.style.opacity=Math.random()>0.07?'1':'0.45';
-        setTimeout(()=>t.style.opacity='1',70);
-    }
-}
-
-// Clock
-function updateClock() {
-    const d=new Date(), pad=n=>String(n).padStart(2,'0');
-    document.getElementById('clock').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
-// INIT
-document.getElementById('btn-cancel').addEventListener('click', cancelNav);
-spawnParticles();
-drawLinks();
-drawNodes();
-updateFooter();
-setInterval(updateClock,1000);
-setInterval(ambientGlitch,600);
-setInterval(fluctuateCorruption,3000);
-updateClock();
-</script>
+<script src="js/model.js"></script>
+<script src="js/view.js"></script>
+<script src="js/controller.js"></script>
 </body>
 </html>

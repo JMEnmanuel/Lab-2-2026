@@ -1,6 +1,11 @@
-/* =================================================================
-   MODEL — Datos puros, grafo, evidencias, estado
-   ================================================================= */
+/*
+   Model de Mision 1.
+
+   Este archivo guarda datos y estado.
+   No debe modificar HTML ni usar document.querySelector.
+   Controller lee y cambia este estado.
+   View recibe estos datos para dibujar la pantalla.
+*/
 const Model = (() => {
 
     // ── Usuarios (9 nodos, nombre con número integrado) ──────────────
@@ -183,76 +188,76 @@ const Model = (() => {
         bfs: [
             {
                 expectedNode: null,
-                instruction: 'BFS recorre la red por NIVELES — como una ola que se expande. Primero visita todos los vecinos cercanos antes de ir más lejos. Usa una COLA (el primero que entra, primero que sale).',
-                concept: '📡 BFS = Búsqueda en Anchura\nVisita nodo a nodo, nivel por nivel.\nEstructura: COLA (FIFO — primero en entrar, primero en salir).',
+                instruction: 'BFS recorre la red por NIVELES. Si hay varios vecinos disponibles al mismo tiempo, se elige primero el nodo con ID menor. Usa una COLA.',
+                concept: '📡 BFS = Búsqueda en Anchura\nVisita nivel por nivel.\nDesempate: ID menor primero.\nEstructura: COLA (FIFO).',
                 highlight: []
             },
             {
                 expectedNode: 1,
-                instruction: '▸ Haz click en el NODO A para iniciar el recorrido BFS. Es el punto de partida.',
-                concept: 'Paso 1: Elige el nodo de inicio.\nEse nodo se marca como VISITADO\ny sus vecinos entran a la COLA.',
+                instruction: '▸ Haz click en NODO A (ID 1) para iniciar el recorrido BFS. Es el punto de partida.',
+                concept: 'Paso 1: Elige el nodo de inicio.\nEse nodo se marca como VISITADO\ny sus vecinos entran a la COLA ordenados por ID.',
                 highlight: [1]
             },
             {
                 expectedNode: 2,
-                instruction: '▸ La cola tiene [B, C]. BFS dice: visita el PRIMERO. Haz click en NODO B.',
-                concept: 'COLA actual: [B, C]\nEl primero es B → debes visitarlo.\nAsí BFS garantiza recorrer por niveles.',
+                instruction: '▸ La cola tiene [B ID 2, C ID 3]. BFS visita el PRIMERO: el ID menor disponible. Haz click en NODO B.',
+                concept: 'COLA actual: [B(2), C(3)]\nEl primero es B porque tiene menor ID.\nAsí BFS recorre por niveles.',
                 highlight: [2]
             },
             {
                 expectedNode: 3,
-                instruction: '▸ Cola: [C, D]. El primero es C. Haz click en NODO C.',
-                concept: 'COLA actual: [C, D]\nB ya fue visitado, sus vecinos nuevos (D) entraron al final.\nSiguiente: C.',
+                instruction: '▸ Cola: [C ID 3, D ID 4]. El primero es C. Haz click en NODO C.',
+                concept: 'COLA actual: [C(3), D(4)]\nB ya fue visitado y D entró al final.\nSiguiente: C.',
                 highlight: [3]
             },
             {
                 expectedNode: 4,
-                instruction: '▸ Cola: [D, E]. Siguiente es D. Haz click en NODO D.',
-                concept: 'COLA actual: [D, E]\nC también trajo a E al final.\nBFS termina cuando la cola queda vacía.',
+                instruction: '▸ Cola: [D ID 4, E ID 5]. Siguiente es D. Haz click en NODO D.',
+                concept: 'COLA actual: [D(4), E(5)]\nC también trajo a E al final.\nBFS termina cuando la cola queda vacía.',
                 highlight: [4]
             },
             {
                 expectedNode: 5,
-                instruction: '▸ Último nodo: E. Haz click en NODO E para completar BFS.',
-                concept: 'COLA actual: [E]\n¡Casi listo! Visita E y BFS habrá\nrecorrido toda la red por niveles.',
+                instruction: '▸ Último nodo: E (ID 5). Haz click en NODO E para completar BFS.',
+                concept: 'COLA actual: [E(5)]\nVisita E y BFS habrá recorrido toda la red por niveles.',
                 highlight: [5]
             }
         ],
         dfs: [
             {
                 expectedNode: null,
-                instruction: 'DFS recorre la red en PROFUNDIDAD — sigue una cadena hasta el fondo antes de retroceder. Usa una PILA (el último que entra, primero que sale).',
-                concept: '🔍 DFS = Búsqueda en Profundidad\nSigue un camino hasta el fondo,\nluego retrocede. Estructura: PILA (LIFO).',
+                instruction: 'DFS recorre la red en PROFUNDIDAD. Si hay varios vecinos disponibles, se elige primero el nodo con ID menor. Usa una PILA.',
+                concept: '🔍 DFS = Búsqueda en Profundidad\nSigue un camino hasta el fondo.\nDesempate: ID menor primero.\nEstructura: PILA (LIFO).',
                 highlight: []
             },
             {
                 expectedNode: 1,
-                instruction: '▸ Haz click en NODO A para iniciar DFS. Sus vecinos B y C entran a la pila.',
-                concept: 'Paso 1: Inicia desde A.\nSus vecinos [B, C] se apilan.\nLa PILA trabaja al revés: el ÚLTIMO apilado es el PRIMERO visitado.',
+                instruction: '▸ Haz click en NODO A (ID 1) para iniciar DFS. Sus vecinos B y C entran a la pila.',
+                concept: 'Paso 1: Inicia desde A.\nPara visitar menor ID primero, se apilan sus vecinos como [C(3), B(2)].\nLa PILA visita el último que entró.',
                 highlight: [1]
             },
             {
                 expectedNode: 2,
-                instruction: '▸ Pila: [C, B]. El TOPE es B (último en entrar). Haz click en NODO B.',
-                concept: 'PILA actual: [C, B]\nEl tope es B → DFS va primero\npor esa rama, sin importar el nivel.',
+                instruction: '▸ Pila: [C ID 3, B ID 2]. El TOPE es B: menor ID disponible. Haz click en NODO B.',
+                concept: 'PILA actual: [C(3), B(2)]\nEl tope es B, así DFS avanza primero por el menor ID disponible.',
                 highlight: [2]
             },
             {
                 expectedNode: 4,
-                instruction: '▸ Pila: [C, D]. DFS profundiza: el tope es D. Haz click en NODO D.',
-                concept: 'PILA actual: [C, D]\nDFS sigue la rama más profunda\nantes de explorar otras.',
+                instruction: '▸ Pila: [C ID 3, D ID 4]. DFS profundiza: el tope es D. Haz click en NODO D.',
+                concept: 'PILA actual: [C(3), D(4)]\nD es el único vecino nuevo desde B, por eso queda en el tope.',
                 highlight: [4]
             },
             {
                 expectedNode: 3,
-                instruction: '▸ D no tiene vecinos nuevos. DFS retrocede. Pila: [C]. Haz click en NODO C.',
-                concept: 'PILA actual: [C]\nD era un callejón sin salida.\nDFS retrocede al siguiente en la pila: C.',
+                instruction: '▸ D no tiene vecinos nuevos. DFS retrocede. Pila: [C ID 3]. Haz click en NODO C.',
+                concept: 'PILA actual: [C(3)]\nD no abre nuevos nodos.\nDFS retrocede al siguiente nodo pendiente.',
                 highlight: [3]
             },
             {
                 expectedNode: 5,
-                instruction: '▸ Pila: [E]. Último nodo. Haz click en NODO E para completar DFS.',
-                concept: 'PILA actual: [E]\nC trajo a E. ¡Último paso!\nDFS recorrió toda la red en profundidad.',
+                instruction: '▸ Pila: [E ID 5]. Último nodo. Haz click en NODO E para completar DFS.',
+                concept: 'PILA actual: [E(5)]\nC trajo a E. Último paso: DFS completa la red en profundidad.',
                 highlight: [5]
             }
         ]

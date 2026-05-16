@@ -1,6 +1,10 @@
-/* =================================================================
-   VIEW — Renderizado SVG, paneles, pantallas
-   ================================================================= */
+/*
+   View de Mision 1.
+
+   Este archivo dibuja pantallas, grafos, paneles y mensajes.
+   No decide si una jugada es correcta.
+   Controller le dice que debe mostrar.
+*/
 const View = (() => {
 
     // ── Pantallas ────────────────────────────────────────────────────
@@ -106,20 +110,21 @@ const View = (() => {
             const body  = ns('circle'); attrs(body,{r:30,class:'g-node-body'});
 
             const tNum = ns('text');
-            attrs(tNum,{class:'g-node-num','text-anchor':'middle',dy:'-12'});
-            tNum.textContent = node.id + '.';
+            attrs(tNum,{class:'g-node-num','text-anchor':'middle',x:'30.5',y:'-27.5'});
+            tNum.textContent = node.id;
 
             const tName = ns('text');
-            attrs(tName,{class:'g-node-name','text-anchor':'middle',dy:'5'});
+            attrs(tName,{class:'g-node-name','text-anchor':'middle',dy:'4'});
             const shortName = node.name.split('.')[1] || node.name;
             tName.textContent = shortName.length > 6 ? shortName.slice(0,5)+'.' : shortName;
 
             const tSub = ns('text');
-            attrs(tSub,{class:'g-node-sub','text-anchor':'middle',dy:'20'});
+            attrs(tSub,{class:'g-node-sub','text-anchor':'middle',dy:'24'});
             tSub.textContent = visitedBFS ? '✓' : '·';
 
             g.appendChild(outer); g.appendChild(body);
-            g.appendChild(tNum); g.appendChild(tName); g.appendChild(tSub);
+            g.appendChild(tNum);
+            g.appendChild(tName); g.appendChild(tSub);
             g.addEventListener('click', () => onNodeClick(node.id));
             nl.appendChild(g);
         });
@@ -232,15 +237,20 @@ const View = (() => {
             const outer = ns('circle'); attrs(outer,{r:38,class:'g-node-outer'});
             const body  = ns('circle'); attrs(body,{r:28,class:'g-node-body'});
 
+            const tNum = ns('text');
+            attrs(tNum,{class:'g-node-num','text-anchor':'middle',x:'29',y:'-26'});
+            tNum.textContent = node.id;
+
             const tName = ns('text');
-            attrs(tName,{class:'g-node-name','text-anchor':'middle',dy:'5'});
+            attrs(tName,{class:'g-node-name','text-anchor':'middle',dy:'4'});
             tName.textContent = node.name;
 
             const tSub = ns('text');
-            attrs(tSub,{class:'g-node-sub','text-anchor':'middle',dy:'20'});
+            attrs(tSub,{class:'g-node-sub','text-anchor':'middle',dy:'24'});
             tSub.textContent = visited ? '✓' : '·';
 
             g.appendChild(outer); g.appendChild(body);
+            g.appendChild(tNum);
             g.appendChild(tName); g.appendChild(tSub);
             g.addEventListener('click', () => onNodeClick(node.id));
             nl.appendChild(g);

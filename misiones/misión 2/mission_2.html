@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión 2 — Ruta Segura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/m2-style.css">
+</head>
+<body>
+
+<!--
+    Guia de estudio de Mision 2.
+
+    Esta pantalla usa MVC estricto.
+    El HTML define introduccion, tutorial, juego real y modales.
+    m2-model.js guarda grafos, constantes y estado.
+    m2-view.js dibuja grafos, HUD, popups y modales.
+    m2-controller.js ejecuta Dijkstra y maneja drag, moneda y reinicio.
+-->
+
+<!-- OVERLAY DE DAÑO (parpadeo rojo) -->
+<div id="damage-overlay"></div>
+
+<!-- ── HEADER ── -->
+<header id="header">
+    <div style="display:flex;align-items:center;">
+        <span class="mission-badge">MISIÓN 02</span>
+        <span class="mission-title">RUTA SEGURA // DIJKSTRA</span>
+    </div>
+    <button class="btn-back" id="btn-back">↩ VOLVER AL MAPA</button>
+</header>
+
+<!-- ══════════════════════════════════════
+     PANTALLA 1: INTRODUCCIÓN
+════════════════════════════════════════ -->
+<section id="screen-intro" class="screen">
+    <div class="intro-card">
+        <span class="intro-tag">// PROTOCOLO DE INTERVENCIÓN — SECTOR 02</span>
+        <h1 class="intro-title">RUTA SEGURA</h1>
+        <p class="intro-body">
+            El acoso ha sido identificado pero aún se propaga.<br>
+            Existe un usuario afectado que necesita apoyo urgente.<br><br>
+            Tu misión: trazar la <em>ruta de menor riesgo</em> desde el nodo
+            de soporte hasta la víctima usando el algoritmo de Dijkstra.
+        </p>
+        <div class="intro-stats">
+            <div class="stat-item">
+                <span class="stat-label">ALGORITMO</span>
+                <span class="stat-value">DIJKSTRA</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">INTENTOS</span>
+                <span class="stat-value warn">3 DISPONIBLES</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">NODOS EN RED</span>
+                <span class="stat-value">10</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">UMBRAL DE RIESGO</span>
+                <span class="stat-value danger">&lt; 15</span>
+            </div>
+        </div>
+        <div class="intro-actions">
+            <button class="btn-primary" id="btn-start-tutorial">
+                VER TUTORIAL ANTES DE COMENZAR →
+            </button>
+            <button class="btn-secondary" id="btn-skip-tutorial">
+                SALTAR TUTORIAL → MISIÓN
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANTALLA 2: TUTORIAL
+════════════════════════════════════════ -->
+<section id="screen-tutorial" class="screen">
+    <div class="tutorial-layout">
+        <div class="panel">
+            <div class="panel-header">
+                <span>// GRAFO DE EJEMPLO — DEMOSTRACIÓN</span>
+                <span id="step-counter">PASO 1 / 6</span>
+            </div>
+            <svg id="tut-svg" viewBox="0 0 720 400" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-card" style="flex:1;">
+                <span class="info-card-title">// QUÉ ESTÁ PASANDO</span>
+                <p id="tut-step-text"></p>
+            </div>
+            <div class="info-card">
+                <span class="info-card-title">// DISTANCIAS CONOCIDAS</span>
+                <div id="tut-distances"></div>
+            </div>
+            <div class="info-card">
+                <span class="info-card-title">// LEYENDA</span>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:rgba(0,255,65,0.15);border:2px solid #00ff41;"></div>
+                        <span>Nodo actual (siendo procesado)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:rgba(0,255,65,0.08);border:1.5px solid #00cc33;"></div>
+                        <span>Nodo ya visitado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:rgba(255,68,85,0.1);border:2px solid #ff4455;"></div>
+                        <span>Víctima (destino)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:#1c2128;border:1.5px solid #30363d;"></div>
+                        <span>Nodo sin visitar</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tut-nav">
+                <button class="btn-tut" id="btn-tut-prev">← ANTERIOR</button>
+                <button class="btn-tut" id="btn-tut-skip">SALTAR TUTORIAL</button>
+                <button class="btn-tut primary" id="btn-tut-next">SIGUIENTE →</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANTALLA 3: JUEGO REAL
+════════════════════════════════════════ -->
+<section id="screen-game" class="screen">
+    <div class="game-layout">
+
+        <!-- Grafo interactivo -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>// RED SOCIAL — TRAZA TU RUTA</span>
+                <span class="hint-text">Arrastra desde el último nodo para conectar</span>
+            </div>
+            <svg id="game-svg" viewBox="0 0 740 460" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+
+        <!-- HUD lateral -->
+        <div class="hud-panel">
+
+            <!-- Escudo -->
+            <div class="hud-card">
+                <span class="hud-label">// ESCUDO DE PROTECCIÓN</span>
+                <div class="shield-bar-bg">
+                    <div id="shield-bar-fill" class="shield-bar-fill"></div>
+                </div>
+                <span id="shield-hp-text" class="shield-hp-text">20 / 20</span>
+            </div>
+
+            <!-- Ruta actual -->
+            <div class="hud-card">
+                <span class="hud-label">// RUTA ACTUAL</span>
+                <div id="path-display" class="path-display">— sin ruta —</div>
+                <div id="risk-display" class="risk-display risk-ok">RIESGO: 0</div>
+            </div>
+
+            <!-- Umbral -->
+            <div class="hud-card">
+                <span class="hud-label">// UMBRAL DE SEGURIDAD</span>
+                <div class="threshold-display">
+                    <span>LÍMITE MÁXIMO</span>
+                    <span class="threshold-val">15</span>
+                </div>
+            </div>
+
+            <!-- Intentos -->
+            <div class="hud-card">
+                <span class="hud-label">// INTENTOS</span>
+                <div id="attempt-display" class="threshold-display">
+                    <span>ACTUAL</span>
+                    <span class="threshold-val">1 / 3</span>
+                </div>
+            </div>
+
+            <!-- Leyenda de colores -->
+            <div class="hud-card">
+                <span class="hud-label">// NIVEL DE TOXICIDAD</span>
+                <div class="risk-legend">
+                    <div class="risk-legend-item">
+                        <div class="risk-dot" style="background:#00ff41;"></div>
+                        <span>Bajo (1–3)</span>
+                    </div>
+                    <div class="risk-legend-item">
+                        <div class="risk-dot" style="background:#ffa500;"></div>
+                        <span>Moderado (4–6)</span>
+                    </div>
+                    <div class="risk-legend-item">
+                        <div class="risk-dot" style="background:#ff4455;"></div>
+                        <span>Alto (7+)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moneda -->
+            <div class="hud-card coin-card">
+                <span class="hud-label">// MONEDA DE DIJKSTRA</span>
+                <p class="coin-desc">50/50 de revelar el siguiente nodo óptimo</p>
+                <div id="coin-slots" class="coin-slots"></div>
+                <button id="btn-coin" class="btn-coin">◈ LANZAR MONEDA (3)</button>
+            </div>
+
+            <!-- Acciones -->
+            <div class="hud-actions">
+                <button id="btn-reset-path" class="btn-action">↺ REINICIAR RUTA</button>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MODAL: LANZAMIENTO DE MONEDA
+════════════════════════════════════════ -->
+<div id="coin-modal" class="modal-overlay hidden">
+    <div class="modal-box coin-modal-box">
+        <div id="coin-face" class="coin-spinning">◈</div>
+        <p id="coin-msg" class="coin-msg-neutral">LANZANDO...</p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: FIN DE JUEGO
+════════════════════════════════════════ -->
+<div id="end-modal" class="modal-overlay hidden">
+    <div class="modal-box end-modal-box">
+        <div id="end-title" class="end-title">// FIN</div>
+        <div id="end-subtitle" class="end-subtitle"></div>
+        <div id="end-detail" class="end-detail"></div>
+        <div class="end-actions">
+            <button id="btn-retry" class="btn-primary" style="margin-top:0;">↺ INTENTAR DE NUEVO</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/m2-model.js"></script>
+<script src="js/m2-view.js"></script>
+<script src="js/m2-controller.js"></script>
+</body>
+</html>
