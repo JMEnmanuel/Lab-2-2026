@@ -222,20 +222,18 @@ function renderGameGraph(svgId, nodes, edges, playerPath, drawnEdges, hintNodeId
     svg.appendChild(dragLine);
 }
  
-// ── HUD: ESCUDO ──────────────────────────────────────────────
-function renderShield(hp, maxHp) {
-    const pct = Math.max(0, hp / maxHp * 100);
- 
-    // Color dinámico según HP
-    let color = '#00ff41';
-    if (pct < 60) color = '#ffa500';
-    if (pct < 30) color = '#ff4455';
- 
-    const bar  = document.getElementById('shield-bar-fill');
-    const text = document.getElementById('shield-hp-text');
-    if (bar)  { bar.style.width = pct + '%'; bar.style.background = color; }
-    if (text) text.textContent = `${hp} / ${maxHp}`;
-}
+// ── HUD: ESCUDO (comentado) ────────────────────────────────
+// La barra de escudo ya no se usa. El juego decide por RISK_THRESHOLD.
+// function renderShield(hp, maxHp) {
+//     const pct = Math.max(0, hp / maxHp * 100);
+//     let color = '#00ff41';
+//     if (pct < 60) color = '#ffa500';
+//     if (pct < 30) color = '#ff4455';
+//     const bar  = document.getElementById('shield-bar-fill');
+//     const text = document.getElementById('shield-hp-text');
+//     if (bar)  { bar.style.width = pct + '%'; bar.style.background = color; }
+//     if (text) text.textContent = `${hp} / ${maxHp}`;
+// }
  
 // ── HUD: MONEDA ──────────────────────────────────────────────
 function renderCoin(usesLeft, max) {
@@ -261,40 +259,34 @@ function renderPathDisplay(path, totalRisk, threshold) {
     }
 }
  
-// ── EFECTO DAÑO: parpadeo rojo ───────────────────────────────
-function triggerDamageFlash() {
-    const overlay = document.getElementById('damage-overlay');
-    if (!overlay) return;
-    overlay.classList.remove('damage-flash');
-    // forzar reflow para reiniciar animación
-    void overlay.offsetWidth;
-    overlay.classList.add('damage-flash');
-}
+// ── EFECTO DAÑO (desactivado — ligado al escudo) ─────────────
+// function triggerDamageFlash() {
+//     const overlay = document.getElementById('damage-overlay');
+//     if (!overlay) return;
+//     overlay.classList.remove('damage-flash');
+//     void overlay.offsetWidth;
+//     overlay.classList.add('damage-flash');
+// }
  
-// ── SONIDO DE DAÑO (Web Audio API, sin archivos externos) ───
+// ── SONIDO DE DAÑO (desactivado — ligado al escudo) ──────────
 var _audioCtx = null;
-function playDamageSound() {
-    try {
-        if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const ctx = _audioCtx;
- 
-        // Oscilador con descenso rápido — sonido de "golpe"
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
- 
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(220, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.18);
- 
-        gain.gain.setValueAtTime(0.35, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
- 
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.22);
-    } catch(e) { /* navegador sin AudioContext */ }
-}
+// function playDamageSound() {
+//     try {
+//         if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+//         const ctx = _audioCtx;
+//         const osc  = ctx.createOscillator();
+//         const gain = ctx.createGain();
+//         osc.connect(gain);
+//         gain.connect(ctx.destination);
+//         osc.type = 'sawtooth';
+//         osc.frequency.setValueAtTime(220, ctx.currentTime);
+//         osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.18);
+//         gain.gain.setValueAtTime(0.35, ctx.currentTime);
+//         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+//         osc.start(ctx.currentTime);
+//         osc.stop(ctx.currentTime + 0.22);
+//     } catch(e) {}
+// }
  
 // ── SONIDO MONEDA (tono corto de "lanzamiento") ─────────────
 function playCoinSound(success) {

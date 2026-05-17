@@ -4,6 +4,8 @@
    Este archivo maneja la logica del juego.
    Ejecuta Dijkstra, procesa el tutorial, valida el drag entre nodos,
    aplica riesgo, controla la moneda y decide victoria o derrota.
+
+   
 */
 
 // ── TUTORIAL STEPS ──────────────────────────────────────────
@@ -47,7 +49,7 @@ var TUT_STEPS = [
 ];
 
 var currentTutStep = 0;
-var lastResultWon = false;
+var lastResultWon  = false;
 
 // ── DIJKSTRA SOBRE EL GRAFO DE JUEGO ────────────────────────
 function dijkstra(nodes, edges, source) {
@@ -59,13 +61,11 @@ function dijkstra(nodes, edges, source) {
     dist[source] = 0;
 
     while (unvisited.size > 0) {
-        // Nodo con menor distancia
         let u = null;
         unvisited.forEach(id => { if (u === null || dist[id] < dist[u]) u = id; });
         if (dist[u] === Infinity) break;
         unvisited.delete(u);
 
-        // Vecinos
         edges.forEach(e => {
             let neighbor = null;
             if (e.from === u && unvisited.has(e.to))   neighbor = e.to;
@@ -76,10 +76,9 @@ function dijkstra(nodes, edges, source) {
         });
     }
 
-    // Reconstruir ruta óptima hasta TARGET_NODE
     var path = [], cur = TARGET_NODE;
     while (cur) { path.unshift(cur); cur = prev[cur]; }
-    if (path[0] !== source) path = []; // sin ruta
+    if (path[0] !== source) path = [];
 
     return { dist, prev, path };
 }
@@ -88,7 +87,7 @@ function dijkstra(nodes, edges, source) {
 function getNextOptimalNode(playerPath) {
     var result = dijkstra(GAME_NODES, GAME_EDGES, GAME_SOURCE);
     var optPath = result.path;
-    if (!playerPath.length) return optPath[1] || null; // siguiente desde SOURCE
+    if (!playerPath.length) return optPath[1] || null;
 
     var last = playerPath[playerPath.length - 1];
     var idx  = optPath.indexOf(last);
@@ -151,12 +150,11 @@ function startMission() {
 }
 
 function startGame() {
-    // Reset estado
     lastResultWon = false;
     gameState.playerPath   = [GAME_SOURCE];
     gameState.drawnEdges   = [];
     gameState.totalRisk    = 0;
-    gameState.shieldHP     = SHIELD_MAX;
+    // gameState.shieldHP  = SHIELD_MAX;  // escudo desactivado
     gameState.coinUsesLeft = COIN_USES_PER_GAME;
     gameState.dragging     = false;
     gameState.dragFrom     = null;
@@ -164,49 +162,89 @@ function startGame() {
 
     showScreen('screen-game');
     renderGameGraph('game-svg', GAME_NODES, GAME_EDGES, gameState.playerPath, gameState.drawnEdges, null);
-    renderShield(gameState.shieldHP, SHIELD_MAX);
+    // renderShield(gameState.shieldHP, SHIELD_MAX);  // escudo desactivado
     renderCoin(gameState.coinUsesLeft, COIN_USES_PER_GAME);
     renderPathDisplay(gameState.playerPath, gameState.totalRisk, RISK_THRESHOLD);
     renderAttemptDisplay();
     updateCoinButton();
 
-    // Cerrar modal fin si estaba abierto
     const endModal = document.getElementById('end-modal');
     if (endModal) endModal.classList.add('hidden');
 
     bindGameEvents();
 }
 
-// ── BIND EVENTOS DEL GRAFO (drag entre nodos) ────────────────
+// ── BIND EVENTOS DEL GRAFO ────────────────────────────────────
+// FIX 1: _listeners guarda referencias para poder removerlas antes de
+// rebindear, evitando acumulacion de handlers duplicados.
+var _gameListeners = null;
+
+function _removeGameListeners(el) {
+    if (!_gameListeners) return;
+    el.removeEventListener('mousedown',  _gameListeners.mousedown);
+    el.removeEventListener('mousemove',  _gameListeners.mousemove);
+    el.removeEventListener('mouseup',    _gameListeners.mouseup);
+    el.removeEventListener('mouseleave', _gameListeners.mouseleave);
+    el.removeEventListener('touchstart', _gameListeners.touchstart);
+    el.removeEventListener('touchmove',  _gameListeners.touchmove);
+    el.removeEventListener('touchend',   _gameListeners.touchend);
+    _gameListeners = null;
+}
+
 function bindGameEvents() {
-    const svg = document.getElementById('game-svg');
-    if (!svg) return;
-
-    // Limpiar listeners anteriores clonando el svg
-    const fresh = svg.cloneNode(true);
-    svg.parentNode.replaceChild(fresh, svg);
-    // Re-renderizar sobre el nuevo SVG
-    renderGameGraph('game-svg', GAME_NODES, GAME_EDGES, gameState.playerPath, gameState.drawnEdges, null);
-
+    // BUG FIX B: el cloneNode anterior destruia el SVG que startGame acaba
+    // de renderizar, causando un frame en blanco. Eliminado.
+    // Ademas, usamos requestAnimationFrame para garantizar que el browser
+    // haya calculado el layout del SVG antes de bindear — esto previene que
+    // getScreenCTM() devuelva null en el primer mousedown/touchstart.
     const gameSvg = document.getElementById('game-svg');
+    if (!gameSvg) return;
+    _removeGameListeners(gameSvg);
+    requestAnimationFrame(() => {
+        const el = document.getElementById('game-svg');
+        if (el) _attachGameListeners(el);
+    });
+}
 
-    gameSvg.addEventListener('mousedown', onNodeMouseDown);
-    gameSvg.addEventListener('mousemove', onSvgMouseMove);
-    gameSvg.addEventListener('mouseup',   onSvgMouseUp);
-    gameSvg.addEventListener('mouseleave', cancelDrag);
+// FIX 1 (core): bindGameDragOnly ahora usa addEventListener igual que
+// bindGameEvents, y elimina los anteriores antes de agregar nuevos.
+// Esto garantiza que mouse Y touch funcionen correctamente tras cada arista.
+function bindGameDragOnly() {
+    const gameSvg = document.getElementById('game-svg');
+    if (!gameSvg) return;
+    _removeGameListeners(gameSvg);
+    _attachGameListeners(gameSvg);
+}
 
-    // Touch
-    gameSvg.addEventListener('touchstart',  onTouchStart,  { passive:false });
-    gameSvg.addEventListener('touchmove',   onTouchMove,   { passive:false });
-    gameSvg.addEventListener('touchend',    onTouchEnd,    { passive:false });
-
+function _attachGameListeners(el) {
+    _gameListeners = {
+        mousedown:  onNodeMouseDown,
+        mousemove:  onSvgMouseMove,
+        mouseup:    onSvgMouseUp,
+        mouseleave: cancelDrag,
+        touchstart: onTouchStart,
+        touchmove:  onTouchMove,
+        touchend:   onTouchEnd
+    };
+    el.addEventListener('mousedown',  _gameListeners.mousedown);
+    el.addEventListener('mousemove',  _gameListeners.mousemove);
+    el.addEventListener('mouseup',    _gameListeners.mouseup);
+    el.addEventListener('mouseleave', _gameListeners.mouseleave);
+    el.addEventListener('touchstart', _gameListeners.touchstart, { passive: false });
+    el.addEventListener('touchmove',  _gameListeners.touchmove,  { passive: false });
+    el.addEventListener('touchend',   _gameListeners.touchend,   { passive: false });
 }
 
 // ── HELPERS SVG ──────────────────────────────────────────────
 function getSvgPoint(svg, clientX, clientY) {
+    // BUG FIX A: getScreenCTM() devuelve null cuando el SVG acaba de ser
+    // insertado al DOM y el navegador no ha calculado su layout aun.
+    // Llamar .inverse() sobre null lanza TypeError silencioso que mata el handler.
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
     const pt = svg.createSVGPoint();
     pt.x = clientX; pt.y = clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
+    return pt.matrixTransform(ctm.inverse());
 }
 
 function nodeAtPoint(svgPt) {
@@ -222,20 +260,20 @@ function getEdgeBetween(fromId, toId) {
         (e.from === toId   && e.to === fromId));
 }
 
-// ── DRAG ────────────────────────────────────────────────────
+// ── DRAG MOUSE ───────────────────────────────────────────────
 function onNodeMouseDown(e) {
     if (gameState.finished) return;
     const svg  = document.getElementById('game-svg');
     const pt   = getSvgPoint(svg, e.clientX, e.clientY);
+    if (!pt) return;
     const node = nodeAtPoint(pt);
     if (!node) return;
 
-    // Solo se puede arrastrar desde el último nodo de la ruta
     const last = gameState.playerPath[gameState.playerPath.length - 1];
     if (node.id !== last) return;
 
-    gameState.dragging  = true;
-    gameState.dragFrom  = node.id;
+    gameState.dragging = true;
+    gameState.dragFrom = node.id;
     e.preventDefault();
 }
 
@@ -243,6 +281,7 @@ function onSvgMouseMove(e) {
     if (!gameState.dragging) return;
     const svg    = document.getElementById('game-svg');
     const pt     = getSvgPoint(svg, e.clientX, e.clientY);
+    if (!pt) return;
     const from   = GAME_NODES.find(n => n.id === gameState.dragFrom);
     const dragLn = document.getElementById('drag-line');
     if (!dragLn || !from) return;
@@ -255,15 +294,18 @@ function onSvgMouseUp(e) {
     if (!gameState.dragging) return;
     const svg  = document.getElementById('game-svg');
     const pt   = getSvgPoint(svg, e.clientX, e.clientY);
+    if (!pt) { cancelDrag(); return; }
     const to   = nodeAtPoint(pt);
     finalizeDrag(to);
 }
 
+// ── DRAG TOUCH ───────────────────────────────────────────────
 function onTouchStart(e) {
     e.preventDefault();
-    const t   = e.touches[0];
-    const svg = document.getElementById('game-svg');
-    const pt  = getSvgPoint(svg, t.clientX, t.clientY);
+    const t    = e.touches[0];
+    const svg  = document.getElementById('game-svg');
+    const pt   = getSvgPoint(svg, t.clientX, t.clientY);
+    if (!pt) return;
     const node = nodeAtPoint(pt);
     if (!node) return;
     const last = gameState.playerPath[gameState.playerPath.length - 1];
@@ -278,6 +320,7 @@ function onTouchMove(e) {
     const t      = e.touches[0];
     const svg    = document.getElementById('game-svg');
     const pt     = getSvgPoint(svg, t.clientX, t.clientY);
+    if (!pt) return;
     const from   = GAME_NODES.find(n => n.id === gameState.dragFrom);
     const dragLn = document.getElementById('drag-line');
     if (!dragLn || !from) return;
@@ -292,6 +335,7 @@ function onTouchEnd(e) {
     const t   = e.changedTouches[0];
     const svg = document.getElementById('game-svg');
     const pt  = getSvgPoint(svg, t.clientX, t.clientY);
+    if (!pt) { cancelDrag(); return; }
     const to  = nodeAtPoint(pt);
     finalizeDrag(to);
 }
@@ -304,8 +348,6 @@ function cancelDrag() {
 }
 
 function finalizeDrag(toNode) {
-    // Esta funcion valida el intento del jugador despues de soltar el mouse.
-    // Solo permite avanzar si existe una arista y si no se forma ciclo en la ruta.
     gameState.dragging = false;
     const dragLn = document.getElementById('drag-line');
     if (dragLn) dragLn.setAttribute("display","none");
@@ -315,14 +357,11 @@ function finalizeDrag(toNode) {
     const from = gameState.dragFrom;
     const to   = toNode.id;
 
-    // Verificar que existe arista
     const edge = getEdgeBetween(from, to);
     if (!edge) return;
 
-    // Verificar que el destino no está ya en la ruta (no ciclos)
     if (gameState.playerPath.includes(to)) return;
 
-    // Verificar que 'from' es el último nodo de la ruta
     const last = gameState.playerPath[gameState.playerPath.length - 1];
     if (from !== last) return;
 
@@ -331,90 +370,71 @@ function finalizeDrag(toNode) {
 
 // ── APLICAR ARISTA AL ESTADO ─────────────────────────────────
 function applyEdge(from, to, weight) {
-    // Si la conexion es valida, se agrega a la ruta y aumenta el riesgo total.
-    // El escudo baja en la misma cantidad que el peso de la arista.
-    // Actualizar estado
     gameState.playerPath.push(to);
     gameState.drawnEdges.push({ from, to, weight });
-    gameState.totalRisk  += weight;
+    gameState.totalRisk += weight;
 
-    // Golpe al escudo
-    const shieldBefore = gameState.shieldHP;
-    gameState.shieldHP  = Math.max(0, gameState.shieldHP - weight);
+    // Escudo desactivado — ya no se descuenta HP ni se disparan efectos de daño
+    // gameState.shieldHP = Math.max(0, gameState.shieldHP - weight);
+    // triggerDamageFlash();
+    // playDamageSound();
 
-    // Efectos de daño
-    triggerDamageFlash();
-    playDamageSound();
-
-    // Re-render
     renderGameGraph('game-svg', GAME_NODES, GAME_EDGES, gameState.playerPath, gameState.drawnEdges, null);
-    renderShield(gameState.shieldHP, SHIELD_MAX);
+    // renderShield(gameState.shieldHP, SHIELD_MAX);  // escudo desactivado
     renderPathDisplay(gameState.playerPath, gameState.totalRisk, RISK_THRESHOLD);
-    bindGameDragOnly(); // rebind drag sin recrear todo
+    bindGameDragOnly();
 
-    // ¿Llegó a la víctima?
     if (to === TARGET_NODE) {
         gameState.finished = true;
         setTimeout(() => evaluateEnd(), 400);
         return;
     }
 
-    // ¿Escudo agotado?
-    if (gameState.shieldHP <= 0) {
-        gameState.finished = true;
-        setTimeout(() => {
-            showEndModal(false, gameState.totalRisk, gameState.playerPath);
-            updateRetryButton(false);
-        }, 400);
-    }
+    // Escudo desactivado — la derrota ya no ocurre por HP agotado, solo por umbral al llegar
+    // if (gameState.shieldHP <= 0) {
+    //     gameState.finished = true;
+    //     setTimeout(() => {
+    //         showEndModal(false, gameState.totalRisk, gameState.playerPath);
+    //         updateRetryButton(false);
+    //     }, 400);
+    // }
 }
 
 function evaluateEnd() {
     const win = gameState.totalRisk <= RISK_THRESHOLD;
+    lastResultWon = win;
     showEndModal(win, gameState.totalRisk, gameState.playerPath);
     updateRetryButton(win);
-}
-
-// Rebind solo drag (sin recrear SVG entero)
-function bindGameDragOnly() {
-    const gameSvg = document.getElementById('game-svg');
-    if (!gameSvg) return;
-    gameSvg.onmousedown  = onNodeMouseDown;
-    gameSvg.onmousemove  = onSvgMouseMove;
-    gameSvg.onmouseup    = onSvgMouseUp;
-    gameSvg.onmouseleave = cancelDrag;
 }
 
 // ── RESET RUTA ───────────────────────────────────────────────
 function onResetPath() {
     if (gameState.finished) return;
 
-    // Devolver el riesgo quitado al escudo (clamped a SHIELD_MAX)
-    gameState.shieldHP   = Math.min(SHIELD_MAX, gameState.shieldHP + gameState.totalRisk);
+    // Escudo desactivado — ya no hay HP que restaurar al reiniciar ruta
+    // gameState.shieldHP   = Math.min(SHIELD_MAX, gameState.shieldHP + gameState.totalRisk);
     gameState.playerPath = [GAME_SOURCE];
     gameState.drawnEdges = [];
     gameState.totalRisk  = 0;
 
     renderGameGraph('game-svg', GAME_NODES, GAME_EDGES, gameState.playerPath, gameState.drawnEdges, null);
-    renderShield(gameState.shieldHP, SHIELD_MAX);
+    // renderShield(gameState.shieldHP, SHIELD_MAX);  // escudo desactivado
     renderPathDisplay(gameState.playerPath, gameState.totalRisk, RISK_THRESHOLD);
     bindGameDragOnly();
 }
 
 // ── MONEDA ───────────────────────────────────────────────────
 function onCoinClick() {
-    // La moneda es una ayuda opcional.
-    // Si sale bien, muestra cual seria el siguiente nodo de la ruta optima.
     if (gameState.coinUsesLeft <= 0 || gameState.finished) return;
 
     gameState.coinUsesLeft--;
     renderCoin(gameState.coinUsesLeft, COIN_USES_PER_GAME);
     updateCoinButton();
 
-    const success     = Math.random() < 0.5;
-    const nextNodeId  = getNextOptimalNode(gameState.playerPath);
-    const nextNode    = nextNodeId ? GAME_NODES.find(n => n.id === nextNodeId) : null;
-    const label       = nextNode ? `${nextNode.id} (${nextNode.label})` : '—';
+    const success    = Math.random() < 0.5;
+    const nextNodeId = getNextOptimalNode(gameState.playerPath);
+    const nextNode   = nextNodeId ? GAME_NODES.find(n => n.id === nextNodeId) : null;
+    const label      = nextNode ? `${nextNode.id} (${nextNode.label})` : '—';
 
     playCoinSound(success);
 
@@ -423,7 +443,6 @@ function onCoinClick() {
             flashHintNode(nextNodeId, 'game-svg');
             renderGameGraph('game-svg', GAME_NODES, GAME_EDGES, gameState.playerPath, gameState.drawnEdges, nextNodeId);
             bindGameDragOnly();
-            // El destello desaparece después de 1.2s
             setTimeout(() => {
                 renderGameGraph('game-svg', GAME_NODES, GAME_EDGES, gameState.playerPath, gameState.drawnEdges, null);
                 bindGameDragOnly();
@@ -435,16 +454,28 @@ function onCoinClick() {
 function updateCoinButton() {
     const btn = document.getElementById('btn-coin');
     if (!btn) return;
-    btn.disabled = gameState.coinUsesLeft <= 0;
+    btn.disabled    = gameState.coinUsesLeft <= 0;
     btn.textContent = `◈ LANZAR MONEDA (${gameState.coinUsesLeft})`;
 }
 
+// FIX 2: renderAttemptDisplay ahora usa getHintLevel para mostrar
+// al jugador qué nivel de ayuda tiene disponible en el intento actual.
 function renderAttemptDisplay() {
     const display = document.getElementById('attempt-display');
     if (!display) return;
+
+    const level      = getHintLevel(missionState.currentAttempt);
+    const hintLabels = { full: 'COMPLETA', partial: 'PARCIAL', none: 'NINGUNA' };
+    const hintColors = { full: '#00ff41',  partial: '#ffa500',  none: '#ff4455' };
+    const hintLabel  = hintLabels[level] || '—';
+    const hintColor  = hintColors[level] || '#aaa';
+
     display.innerHTML = `
-        <span>ACTUAL</span>
+        <span>INTENTO</span>
         <span class="threshold-val">${missionState.currentAttempt} / ${missionState.maxAttempts}</span>
+        <span style="font-size:10px;color:${hintColor};margin-top:4px;letter-spacing:.05em;">
+            PISTA MONEDA: ${hintLabel}
+        </span>
     `;
 }
 
@@ -464,13 +495,13 @@ function updateRetryButton(win) {
     if (!btn) return;
 
     if (win) {
-        btn.disabled = false;
+        btn.disabled    = false;
         btn.textContent = '↺ JUGAR DE NUEVO';
         return;
     }
 
     const hasAttempts = missionState.currentAttempt < missionState.maxAttempts;
-    btn.disabled = !hasAttempts;
+    btn.disabled    = !hasAttempts;
     btn.textContent = hasAttempts
         ? `↺ INTENTAR DE NUEVO (${missionState.maxAttempts - missionState.currentAttempt} RESTANTES)`
         : 'SIN INTENTOS RESTANTES';

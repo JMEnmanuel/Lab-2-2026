@@ -29,14 +29,14 @@ var TUT_EDGES = [
 // Ruta óptima: S → B → D → G → V  (costo = 12)
 var GAME_NODES = [
     { id:'S', label:'SOPORTE',   x:80,  y:220 },
-    { id:'A', label:'ALEX',      x:210, y:100 },
-    { id:'B', label:'BLAKE',     x:210, y:220 },
-    { id:'C', label:'CASEY',     x:210, y:340 },
-    { id:'D', label:'DANA',      x:360, y:160 },
-    { id:'E', label:'EMERY',     x:360, y:300 },
-    { id:'F', label:'FINLEY',    x:490, y:80  },
-    { id:'G', label:'GREY',      x:490, y:230 },
-    { id:'H', label:'HARPER',    x:490, y:380 },
+    { id:'A', label:'Luigi',  x:210, y:100 },
+    { id:'B', label:'Castilla',  x:210, y:220 },
+    { id:'C', label:'Edith',   x:210, y:340 },
+    { id:'D', label:'DUVÁN',     x:360, y:160 },
+    { id:'E', label:'Samir',    x:360, y:300 },
+    { id:'F', label:'Jayce', x:490, y:80  },
+    { id:'G', label:'Dio',  x:490, y:230 },
+    { id:'H', label:'Oscar', x:490, y:380 },
     { id:'V', label:'VÍCTIMA',   x:640, y:230 }
 ];
 
@@ -67,8 +67,8 @@ var TARGET_NODE = 'V';
 var OPTIMAL_PATH = ['S','B','D','G','V'];
 var OPTIMAL_COST = 12;
 
-// Escudo
-var SHIELD_MAX     = 20;
+// Escudo (desactivado — el juego funciona solo por umbral de riesgo)
+// var SHIELD_MAX     = 20;
 var RISK_THRESHOLD = 15;  // costo ≤15 para ganar
 
 // Moneda
@@ -86,7 +86,7 @@ var gameState = {
     playerPath:   [],
     drawnEdges:   [],
     totalRisk:    0,
-    shieldHP:     SHIELD_MAX,
+    // shieldHP:  desactivado — victoria/derrota se decide solo por RISK_THRESHOLD
     coinUsesLeft: COIN_USES_PER_GAME,
     dragging:     false,
     dragFrom:     null,
