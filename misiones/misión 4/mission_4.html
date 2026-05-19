@@ -3,43 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mision 4 - Control del Impacto</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <title>Mision 4 – Control del Impacto</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/m4-style.css">
 </head>
 <body>
+
+  <!-- ── PARTICLE CANVAS (behind everything) ─────────────────────── -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- ── SCANLINE OVERLAY ────────────────────────────────────────── -->
+  <div id="scanlines" aria-hidden="true"></div>
+
+  <!-- ── HEADER ──────────────────────────────────────────────────── -->
   <header id="header">
     <div>
       <span class="mission-badge">MISION 04</span>
-      <h1>CONTROL DEL IMPACTO</h1>
-      <p>Flujo maximo // Ford-Fulkerson</p>
+      <h1><span class="glitch-text" data-text="CONTROL DEL IMPACTO">CONTROL DEL IMPACTO</span></h1>
+      <p class="header-sub">Ford-Fulkerson (Edmonds-Karp) // Flujo Maximo</p>
     </div>
-    <a class="btn-back" href="../../index.html">VOLVER AL SELECTOR</a>
+    <a class="btn-back" href="../../index.html">← VOLVER</a>
   </header>
 
+  <!-- ── MAIN ────────────────────────────────────────────────────── -->
   <main class="mission-shell">
+
+    <!-- grafo SVG -->
     <section class="graph-area">
       <div class="panel-heading">
-        <span>// BASE TECNICA</span>
-        <h2>Red de capacidades preparada</h2>
+        <span>// TOPOLOGIA DE LA RED</span>
+        <h2>Red de capacidades</h2>
       </div>
       <svg id="flow-graph" viewBox="0 0 900 560" role="img">
         <title>Grafo dirigido con capacidades para flujo maximo</title>
       </svg>
     </section>
 
+    <!-- panel lateral -->
     <aside class="side-panel">
+
+      <!-- selector de modo -->
       <section class="panel-card">
-        <span class="label">// ESTADO</span>
-        <div id="flow-summary">Cargando modelo...</div>
+        <span class="label">// MODO DE JUEGO</span>
+        <div class="mode-row">
+          <button id="btn-mode-tutorial"   class="btn btn-mode btn-mode-active">📖 TUTORIAL</button>
+          <button id="btn-mode-challenge"  class="btn btn-mode">⚔ DESAFÍO</button>
+        </div>
       </section>
+
+      <!-- controles tutorial -->
+      <section class="panel-card" id="tutorial-controls">
+        <span class="label">// TUTORIAL FORD-FULKERSON</span>
+        <div class="controls-row">
+          <button id="btn-start" class="btn btn-start">▶ INICIAR</button>
+          <button id="btn-next"  class="btn btn-next"  disabled>⏭ SIGUIENTE</button>
+          <button id="btn-reset" class="btn btn-reset">↺ REINICIAR</button>
+        </div>
+      </section>
+
+      <!-- controles desafio (oculto por defecto) -->
+      <section class="panel-card" id="challenge-controls" style="display:none;">
+        <span class="label">// DESAFÍO — SELECCIONA LA RUTA</span>
+        <div class="challenge-path-row">
+          <span class="stat-key">Ruta actual</span>
+          <span id="challenge-path-display" class="challenge-path-val">Haz click en S para comenzar</span>
+        </div>
+        <div id="challenge-feedback" class="challenge-feedback"></div>
+        <div class="challenge-actions-row">
+          <button id="btn-confirm-path" class="btn btn-confirm" disabled>✔ CONFIRMAR RUTA</button>
+          <button id="btn-clear-path"   class="btn btn-clear">✕ LIMPIAR</button>
+        </div>
+        <div class="challenge-flow-row">
+          <span class="stat-key">Flujo acumulado</span>
+          <span id="challenge-flow-val" class="stat-val" style="color:var(--blue)">0 / 17</span>
+        </div>
+      </section>
+
+      <!-- estado / flujo -->
       <section class="panel-card">
+        <span class="label">// ESTADO DE LA RED</span>
+        <div id="flow-summary">Cargando...</div>
+      </section>
+
+      <!-- leyenda -->
+      <section class="panel-card">
+        <span class="label">// LEYENDA</span>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-dot ld-default"></span>Sin flujo
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot ld-flow"></span>Con flujo (no saturada)
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot ld-saturated"></span>Saturada (flujo = capacidad)
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot ld-active"></span>Camino aumentante actual
+          </div>
+        </div>
+      </section>
+
+      <!-- log de pasos -->
+      <section class="panel-card" style="flex:1; min-height:0; overflow-y:auto;">
         <span class="label">// CAMINOS AUMENTANTES</span>
         <div id="flow-steps"></div>
       </section>
+
     </aside>
   </main>
 
+  <!-- ── COMPLETION OVERLAY ───────────────────────────────────────── -->
+  <div id="completion-overlay" role="dialog" aria-modal="true" aria-label="Mision completada">
+    <div class="completion-box">
+      <div class="completion-icon">🛡</div>
+      <div class="completion-title">RED ASEGURADA</div>
+      <p class="completion-text">
+        Has aplicado Ford-Fulkerson con exito.<br>
+        No quedan caminos aumentantes: el flujo maximo ha sido alcanzado.
+      </p>
+      <div class="completion-flow-line">
+        Flujo maximo calculado
+        <span class="completion-flow" id="completion-flow-val">—</span>
+      </div>
+      <button id="btn-close-completion" class="btn-completion">↺ VOLVER A INTENTAR</button>
+    </div>
+  </div>
+
+  <!-- ── scripts (orden: Model → View → Controller) ───────────────── -->
   <script src="js/m4-model.js"></script>
   <script src="js/m4-view.js"></script>
   <script src="js/m4-controller.js"></script>
