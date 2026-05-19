@@ -92,21 +92,24 @@ const Controller = (() => {
     // Visita un nodo en BFS tutorial y actualiza estado
     function tutorialVisitBFS(id) {
         const st = Model.tutorialState.bfs;
-        const prev = st.current;
+        if (!st.parent) st.parent = {};
         st.current = id;
         if (!st.visited.includes(id)) st.visited.push(id);
         st.queue = st.queue.filter(x => x !== id);
 
-        // Arista recorrida
-        if (prev !== null) {
-            const key = View.edgeKey(prev, id);
-            if (!st.traversed.includes(key)) st.traversed.push(key);
+        // Arista recorrida: usar el padre real que descubrió este nodo
+        const parentId = st.parent[id];
+        if (parentId !== undefined) {
+            const key = View.edgeKey(parentId, id);
+            const linkExists = Model.TUT_LINKS.some(([a,b]) => View.edgeKey(a,b) === key);
+            if (linkExists && !st.traversed.includes(key)) st.traversed.push(key);
         }
 
-        // Agregar vecinos a la cola (orden ascendente)
+        // Agregar vecinos a la cola (orden ascendente) y registrar su padre
         const neighbors = Model.TUT_ADJ[id]
             .filter(n => !st.visited.includes(n) && !st.queue.includes(n))
             .sort((a,b) => a-b);
+        neighbors.forEach(n => { if (st.parent[n] === undefined) st.parent[n] = id; });
         st.queue = [...st.queue, ...neighbors];
 
         View.setTutorialLog('_');
@@ -116,21 +119,24 @@ const Controller = (() => {
     // Visita un nodo en DFS tutorial y actualiza estado
     function tutorialVisitDFS(id) {
         const st = Model.tutorialState.dfs;
-        const prev = st.current;
+        if (!st.parent) st.parent = {};
         st.current = id;
         if (!st.visited.includes(id)) st.visited.push(id);
         st.stack = st.stack.filter(x => x !== id);
 
-        // Arista recorrida
-        if (prev !== null) {
-            const key = View.edgeKey(prev, id);
-            if (!st.traversed.includes(key)) st.traversed.push(key);
+        // Arista recorrida: usar el padre real que descubrió este nodo
+        const parentId = st.parent[id];
+        if (parentId !== undefined) {
+            const key = View.edgeKey(parentId, id);
+            const linkExists = Model.TUT_LINKS.some(([a,b]) => View.edgeKey(a,b) === key);
+            if (linkExists && !st.traversed.includes(key)) st.traversed.push(key);
         }
 
         // Apilar vecinos en orden descendente para que el menor quede como tope.
         const neighbors = Model.TUT_ADJ[id]
             .filter(n => !st.visited.includes(n) && !st.stack.includes(n))
             .sort((a,b) => b-a);
+        neighbors.forEach(n => { if (st.parent[n] === undefined) st.parent[n] = id; });
         st.stack = [...st.stack, ...neighbors];
 
         View.setTutorialLog('_');
@@ -221,17 +227,23 @@ const Controller = (() => {
            El siguiente nodo correcto siempre es el primero de la cola.
         */
         const st = Model.state.bfs;
-        const prev = st.current;
+        if (!st.parent) st.parent = {};
         st.current = id;
         if (!st.visited.includes(id)) st.visited.push(id);
         st.queue = st.queue.filter(x => x !== id);
-        if (prev !== null) {
-            const key = View.edgeKey(prev, id);
-            if (!st.traversed.includes(key)) st.traversed.push(key);
+
+        // Arista recorrida: usar el padre real que descubrió este nodo
+        const parentId = st.parent[id];
+        if (parentId !== undefined) {
+            const key = View.edgeKey(parentId, id);
+            const linkExists = Model.LINKS.some(([a,b]) => View.edgeKey(a,b) === key);
+            if (linkExists && !st.traversed.includes(key)) st.traversed.push(key);
         }
+
         const neighbors = Model.ADJ[id]
             .filter(n => !st.visited.includes(n) && !st.queue.includes(n))
             .sort((a,b) => a-b);
+        neighbors.forEach(n => { if (st.parent[n] === undefined) st.parent[n] = id; });
         st.queue = [...st.queue, ...neighbors];
         View.setLog('', true);
         View.renderGraph('bfs', handleNodeClickBFS);
@@ -290,17 +302,23 @@ const Controller = (() => {
            El siguiente nodo correcto siempre es el tope de la pila.
         */
         const st = Model.state.dfs;
-        const prev = st.current;
+        if (!st.parent) st.parent = {};
         st.current = id;
         if (!st.visited.includes(id)) st.visited.push(id);
         st.stack = st.stack.filter(x => x !== id);
-        if (prev !== null) {
-            const key = View.edgeKey(prev, id);
-            if (!st.traversed.includes(key)) st.traversed.push(key);
+
+        // Arista recorrida: usar el padre real que descubrió este nodo
+        const parentId = st.parent[id];
+        if (parentId !== undefined) {
+            const key = View.edgeKey(parentId, id);
+            const linkExists = Model.LINKS.some(([a,b]) => View.edgeKey(a,b) === key);
+            if (linkExists && !st.traversed.includes(key)) st.traversed.push(key);
         }
+
         const neighbors = Model.ADJ[id]
             .filter(n => !st.visited.includes(n) && !st.stack.includes(n))
             .sort((a,b) => b-a);
+        neighbors.forEach(n => { if (st.parent[n] === undefined) st.parent[n] = id; });
         st.stack = [...st.stack, ...neighbors];
         Model.computeSuspicion(st.visited);
         View.setLog('', true);

@@ -1,0 +1,116 @@
+:root {
+  --bg: #080d12;
+  --surface: #101722;
+  --surface-2: #151f2c;
+  --border: #26384a;
+  --text: #d7e1ea;
+  --muted: #7e8b99;
+  --green: #3fb950;
+  --blue: #58a6ff;
+  --amber: #d29922;
+  --red: #f85149;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-display: 'Orbitron', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  overflow: hidden;
+}
+
+#header {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8, 13, 18, 0.96);
+}
+
+.mission-badge,
+.label,
+.panel-heading span {
+  display: block;
+  color: var(--blue);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+
+h1, h2 {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+}
+
+h1 { color: var(--green); font-size: 13px; margin-top: 3px; }
+h2 { font-size: 18px; margin-top: 8px; }
+p { color: var(--muted); font-size: 9px; margin-top: 3px; }
+
+.btn-back {
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-decoration: none;
+  font-size: 10px;
+}
+
+.mission-shell {
+  height: calc(100% - 54px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+}
+
+.graph-area {
+  min-width: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#flow-graph {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(88,166,255,0.04), transparent 42%), #070b10;
+}
+
+.side-panel {
+  padding: 18px;
+  border-left: 1px solid var(--border);
+  background: rgba(8, 13, 18, 0.92);
+  overflow-y: auto;
+}
+
+.panel-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.summary-line,
+.step-line {
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.step-line { color: var(--muted); }
+.step-line strong { color: var(--green); }
+
+.edge-line { stroke: #33475c; stroke-width: 2; marker-end: url(#arrow); }
+.edge-flow { stroke: var(--green); stroke-width: 3; marker-end: url(#arrow-green); }
+.edge-label { fill: var(--text); font-family: var(--font-mono); font-size: 12px; text-anchor: middle; }
+.node-core { fill: var(--surface-2); stroke: var(--blue); stroke-width: 2; }
+.node-source .node-core { stroke: var(--green); }
+.node-sink .node-core { stroke: var(--red); }
+.node-label { fill: var(--text); font-family: var(--font-display); font-size: 12px; text-anchor: middle; dominant-baseline: middle; }

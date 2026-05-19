@@ -31,6 +31,7 @@ const Model = (() => {
 
   const state = {
     algorithm: "kruskal",
+    mode: "tutorial",          // "tutorial" | "challenge"
     running: false,
     finished: false,
     totalCost: 0,
@@ -46,7 +47,13 @@ const Model = (() => {
     mstNodes: [],
     pendingNodes: [],
     frontierEdges: [],
-    activeFrontierNode: null
+    activeFrontierNode: null,
+    // Estado exclusivo del modo Desafio
+    challenge: {
+      uf: null,          // Union-Find propio (Kruskal)
+      included: null,    // Set de nodos en MST (Prim)
+      startNode: null    // nodo inicial de Prim
+    }
   };
 
   function init() {
@@ -71,8 +78,23 @@ const Model = (() => {
     resetStateFromTemplate();
     state.log = [
       `Algoritmo seleccionado: ${getAlgorithmName()}.`,
-      "Presiona INICIAR para comenzar la reconstruccion."
+      getModeHint()
     ];
+  }
+
+  function setMode(mode) {
+    if (state.running) return;
+    stopTimer();
+    state.mode = mode;
+    resetStateFromTemplate();
+    state.log = [getModeHint()];
+  }
+
+  function getModeHint() {
+    if (state.mode === "challenge") {
+      return "Modo Desafio: proximamente podras seleccionar aristas manualmente.";
+    }
+    return "Modo Tutorial: presiona VER DEMO para observar el algoritmo.";
   }
 
   function getGraph() {
@@ -198,7 +220,17 @@ const Model = (() => {
     state.pendingNodes = state.nodes.map(node => node.id);
     state.frontierEdges = [];
     state.activeFrontierNode = null;
-    state.log = ["Red cargada. Selecciona Kruskal o Prim e inicia la reconstruccion."];
+    state.log = [getModeHint()];
+    // Inicializar estructuras del Desafio
+    resetChallengeState();
+  }
+
+  function resetChallengeState() {
+    const nodeIds = NODES.map(n => n.id);
+    state.challenge.uf = createUnionFind(nodeIds);
+    const startNode = Math.min(...nodeIds);
+    state.challenge.startNode = startNode;
+    state.challenge.included = new Set([startNode]);
   }
 
   function createKruskalContext() {
@@ -328,11 +360,18 @@ const Model = (() => {
   }
 
   function applyResolution(step) {
-    setEdgeState(step.edgeId, step.accepted ? "accepted" : "rejected");
-
     if (step.accepted) {
+      setEdgeState(step.edgeId, "accepted");
       state.totalCost += step.weight;
       state.acceptedCount++;
+    } else if (step.type === "prim") {
+      // En Prim un rechazo es temporal: la arista puede volver a ser frontera
+      // en una ronda posterior. Usamos "compared" (naranja tenue) en lugar de
+      // "rejected" para no confundir visualmente.
+      setEdgeState(step.edgeId, "compared");
+    } else {
+      // Kruskal: rechazo definitivo (formaria ciclo, Union-Find no cambia)
+      setEdgeState(step.edgeId, "rejected");
     }
 
     step.apply();
@@ -347,6 +386,20 @@ const Model = (() => {
       setIncludedNodes([...includedIds]);
     }
 
+    // Prim: sellar como "rejected" definitivo las aristas cuyos dos extremos
+    // ya estan en el MST (nunca podran ser frontera de nuevo).
+    if (step.type === "prim") {
+      state.edges.forEach(edge => {
+        if (edge.state === "compared") {
+          const fromNode = state.nodes.find(n => n.id === edge.from);
+          const toNode   = state.nodes.find(n => n.id === edge.to);
+          if (fromNode && toNode && fromNode.inMST && toNode.inMST) {
+            edge.state = "rejected";
+          }
+        }
+      });
+    }
+
     state.log.unshift(step.resolveLog);
     state.currentStep = null;
   }
@@ -359,6 +412,10 @@ const Model = (() => {
     state.currentStep = null;
     state.frontierEdges = [];
     state.activeFrontierNode = null;
+    // Sellar aristas "compared" de Prim que no quedaron como accepted
+    state.edges.forEach(edge => {
+      if (edge.state === "compared") edge.state = "rejected";
+    });
     state.log.unshift(`MST completo: ${state.acceptedCount} aristas aceptadas, costo total ${state.totalCost}.`);
     onStep();
     onFinish(state.totalCost, state.algorithm, state.evaluatedSteps);
@@ -410,6 +467,180 @@ const Model = (() => {
       })
       .sort(compareEdges);
   }
+
+  // ═══════════════════════════════════════════════════════
+  //  VALIDACION MODO DESAFIO
+  //  Estas funciones no tocan la animacion Tutorial.
+  //  Operan sobre state.challenge (UF y Set separados).
+  // ═══════════════════════════════════════════════════════
+
+  /*
+    isMSTComplete — true cuando el jugador ya acepto n-1 aristas.
+  */
+  function isMSTComplete() {
+    return state.acceptedCount >= state.nodes.length - 1;
+  }
+
+  // ── Kruskal ──────────────────────────────────────────
+
+  /*
+    hasCycleChallenge — consulta el UF del Desafio sin modificarlo.
+    Devuelve true si aceptar esta arista crearia un ciclo.
+  */
+  function hasCycleChallenge(edgeId) {
+    const edge = state.edges.find(e => e.id === edgeId);
+    if (!edge) return true;
+    return state.challenge.uf.find(edge.from) === state.challenge.uf.find(edge.to);
+  }
+
+  /*
+    getNextKruskalEdge — devuelve la arista correcta en este momento:
+    la de menor peso entre las idle que no forman ciclo.
+    Retorna el objeto edge o null si el MST ya esta completo.
+  */
+  function getNextKruskalEdge() {
+    if (isMSTComplete()) return null;
+    const sorted = sortEdges(state.edges.filter(e => e.state === "idle"));
+    return sorted.find(e =>
+      state.challenge.uf.find(e.from) !== state.challenge.uf.find(e.to)
+    ) || null;
+  }
+
+  /*
+    validateKruskalMove — true si edgeId es exactamente la jugada correcta.
+    No modifica ningun estado; solo consulta.
+  */
+  function validateKruskalMove(edgeId) {
+    const correct = getNextKruskalEdge();
+    return correct !== null && correct.id === edgeId;
+  }
+
+  /*
+    applyKruskalMove — acepta la arista en el Desafio y avanza el estado.
+    Solo debe llamarse despues de validateKruskalMove() === true.
+    Devuelve el objeto edge aceptado.
+  */
+  function applyKruskalMove(edgeId) {
+    const edge = state.edges.find(e => e.id === edgeId);
+    if (!edge) return null;
+
+    // Marcar aristas que quedarian como ciclo como rejected
+    const sorted = sortEdges(state.edges.filter(e => e.state === "idle"));
+    for (const candidate of sorted) {
+      if (candidate.id === edgeId) break; // llegamos a la correcta
+      // Las anteriores tienen mismo o menor peso y forman ciclo: rechazadas
+      candidate.state = "rejected";
+    }
+
+    edge.state = "accepted";
+    state.challenge.uf.union(edge.from, edge.to);
+    state.totalCost += edge.weight;
+    state.acceptedCount++;
+    state.evaluatedSteps++;
+
+    // Actualizar componentes visibles
+    state.components = getComponentsFromUnionFind(state.challenge.uf);
+
+    // Actualizar nodos incluidos
+    const acceptedEdges = state.edges.filter(e => e.state === "accepted");
+    const includedIds = new Set();
+    acceptedEdges.forEach(e => { includedIds.add(e.from); includedIds.add(e.to); });
+    setIncludedNodes([...includedIds]);
+
+    // Actualizar lista pendingEdges
+    state.pendingEdges = sortEdges(
+      state.edges.filter(e => e.state === "idle")
+    ).map(e => e.id);
+
+    state.log.unshift(`Correcto. Aceptada ${edgeLabel(edge)}.`);
+    return edge;
+  }
+
+  // ── Prim ─────────────────────────────────────────────
+
+  /*
+    getChallengeIncluded — devuelve el Set actual de nodos en MST (Desafio).
+    Para Prim, el Set parte con el nodo de menor id.
+    Si el Desafio no ha comenzado, devuelve el Set inicial.
+  */
+  function getChallengeIncluded() {
+    return state.challenge.included;
+  }
+
+  /*
+    getPrimFrontier — aristas que cruzan el corte MST / pendientes,
+    ordenadas por peso ascendente.
+    Excluye aristas ya aceptadas o rechazadas definitivamente.
+  */
+  function getPrimFrontier() {
+    const included = state.challenge.included;
+    return sortEdges(
+      state.edges.filter(e => {
+        if (e.state === "accepted" || e.state === "rejected") return false;
+        const fromIn = included.has(e.from);
+        const toIn   = included.has(e.to);
+        return (fromIn && !toIn) || (!fromIn && toIn);
+      })
+    );
+  }
+
+  /*
+    getNextPrimEdge — la arista minima de la frontera actual.
+    Retorna el objeto edge o null.
+  */
+  function getNextPrimEdge() {
+    if (isMSTComplete()) return null;
+    const frontier = getPrimFrontier();
+    return frontier.length > 0 ? frontier[0] : null;
+  }
+
+  /*
+    validatePrimMove — true si edgeId es la arista minima de la frontera.
+  */
+  function validatePrimMove(edgeId) {
+    const correct = getNextPrimEdge();
+    return correct !== null && correct.id === edgeId;
+  }
+
+  /*
+    applyPrimMove — acepta la arista en Desafio Prim y avanza el estado.
+    Solo llamar despues de validatePrimMove() === true.
+    Devuelve el objeto edge aceptado.
+  */
+  function applyPrimMove(edgeId) {
+    const edge = state.edges.find(e => e.id === edgeId);
+    if (!edge) return null;
+
+    const included = state.challenge.included;
+    const newNode  = included.has(edge.from) ? edge.to : edge.from;
+
+    edge.state = "accepted";
+    included.add(newNode);
+    state.totalCost += edge.weight;
+    state.acceptedCount++;
+    state.evaluatedSteps++;
+
+    // Actualizar listas de nodos
+    setIncludedNodes([...included]);
+
+    // Sellar como rejected las aristas cuyo corte ya no es posible
+    state.edges.forEach(e => {
+      if (e.state === "idle" || e.state === "compared") {
+        const fromIn = included.has(e.from);
+        const toIn   = included.has(e.to);
+        if (fromIn && toIn) e.state = "rejected";
+      }
+    });
+
+    // Actualizar frontera visible en el panel
+    state.frontierEdges = getPrimFrontier().map(e => e.id);
+    state.activeFrontierNode = newNode;
+
+    state.log.unshift(`Correcto. Aceptada ${edgeLabel(edge)}. ${nodeName(newNode)} se une a la red.`);
+    return edge;
+  }
+
+  // ────────────────────────────────────────────────────
 
   function createUnionFind(ids) {
     const parent = {};
@@ -513,8 +744,22 @@ const Model = (() => {
     getGraph,
     getNode,
     setAlgorithm,
+    setMode,
     resetEdges,
     newGame,
-    runAnimation
+    runAnimation,
+    // Desafio — control
+    isMSTComplete,
+    // Desafio — Kruskal
+    getNextKruskalEdge,
+    validateKruskalMove,
+    hasCycleChallenge,
+    applyKruskalMove,
+    // Desafio — Prim
+    getPrimFrontier,
+    getNextPrimEdge,
+    validatePrimMove,
+    applyPrimMove,
+    getChallengeIncluded
   };
 })();

@@ -37,6 +37,9 @@
         </div>
       </div>
 
+      <!-- Instrucción activa del Desafío (oculta en Tutorial) -->
+      <div id="challenge-hint" class="challenge-hint" aria-live="polite"></div>
+
       <div class="graph-frame">
         <svg id="mst-graph" viewBox="0 0 900 560" role="img">
           <title>Grafo ponderado de usuarios</title>
@@ -50,10 +53,24 @@
       <section class="panel-section panel-intro">
         <span class="section-kicker">// PROTOCOLO ACTIVO</span>
         <h2>Minimizar costo de confianza</h2>
-        <p>
-          La red quedó fragmentada. Reconstruye solo los vínculos necesarios
-          para conectar a todos, con el menor costo emocional posible.
+        <p id="mode-description">
+          Observa cómo el algoritmo reconstruye la red paso a paso de forma automática.
         </p>
+      </section>
+
+      <!-- Selector de modo -->
+      <section class="panel-section">
+        <span class="panel-label">Modo de juego</span>
+        <div class="mode-toggle" id="mode-toggle">
+          <button class="mode-btn active" type="button" data-mode="tutorial">
+            <span>Tutorial</span>
+            <small>Demostración automática</small>
+          </button>
+          <button class="mode-btn" type="button" data-mode="challenge">
+            <span>Desafío</span>
+            <small>Elige las aristas tú mismo</small>
+          </button>
+        </div>
       </section>
 
       <!-- Selector de algoritmo -->
@@ -75,8 +92,8 @@
       <section class="panel-section">
         <span class="panel-label">Control</span>
         <div class="control-row">
-          <button class="btn-action btn-start" id="btn-start" type="button">
-            <span class="btn-icon">▶</span> INICIAR
+          <button class="btn-action btn-start" id="btn-start" type="button" data-current-mode="tutorial">
+            <span class="btn-icon">▶</span> <span class="btn-label">VER DEMO</span>
           </button>
           <button class="btn-action btn-reset" id="btn-reset" type="button">
             ↺ RESET
@@ -155,6 +172,7 @@
         <div class="legend">
           <div class="legend-row"><span class="legend-line"></span>Sin evaluar</div>
           <div class="legend-row"><span class="legend-line yellow"></span>Evaluando ahora</div>
+          <div class="legend-row"><span class="legend-line orange"></span>Comparada (Prim)</div>
           <div class="legend-row"><span class="legend-line green"></span>Aceptada — forma MST</div>
           <div class="legend-row"><span class="legend-line red"></span>Rechazada — formaría ciclo</div>
         </div>

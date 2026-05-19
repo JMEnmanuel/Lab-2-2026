@@ -10,7 +10,7 @@ const SelectorModel = (() => {
         { id: 1, name: "MISION 1", sub: "RASTROS DEL ACOSO", code: "BFS / DFS", x: 190, y: 195, file: "misiones/misión 1/mission_1.html", desc: "Traza el origen del acoso usando recorridos BFS y DFS sobre la red comprometida." },
         { id: 2, name: "MISION 2", sub: "RUTA SEGURA", code: "DIJKSTRA", x: 775, y: 148, file: "misiones/misión 2/mission_2.html", desc: "Calcula el camino de menor riesgo para intervenir y proteger al usuario afectado." },
         { id: 3, name: "MISION 3", sub: "RECONSTRUIR RED", code: "KRUSKAL / PRIM", x: 830, y: 545, file: "misiones/misión 3/mission_3.html", desc: "Reconstruye conexiones de confianza usando arbol de expansion minima." },
-        { id: 4, name: "MISION 4", sub: "CONTROL DE IMPACTO", code: "FORD-FULKERSON", x: 148, y: 520, file: null, pending: true, desc: "Limita la propagacion del contenido danino calculando el flujo maximo." },
+        { id: 4, name: "MISION 4", sub: "CONTROL DE IMPACTO", code: "FORD-FULKERSON", x: 148, y: 520, file: "misiones/misión 4/mission_4.html", desc: "Limita la propagacion del contenido danino calculando el flujo maximo." },
         { id: 5, name: "CREDITOS", sub: "EQUIPO", code: "v1.0", x: 870, y: 648, file: null, pending: true, desc: "Equipo de desarrollo." }
     ];
 

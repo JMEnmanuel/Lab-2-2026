@@ -91,7 +91,7 @@ const Model = (() => {
     const ORIGIN_EVIDENCE_OVERRIDE = {
         priv: '"Esto va a ponerse interesante. Ya verán. 😈"',
         pub:  '"Hay personas que se creen intocables. Pronto todos sabrán la verdad."',
-        roleLabel: '⚠ SOSPECHOSO PRINCIPAL', roleCls: 'ev-role-spread'
+        roleLabel: 'INICIADOR', roleCls: 'ev-role-spread'
     };
 
     // ── Estado del juego principal ───────────────────────────────────
@@ -101,6 +101,7 @@ const Model = (() => {
             visited:   [],
             queue:     [],
             traversed: [],
+            parent:    {},
             current:   null,
             lives:     3,
             done:      false
@@ -109,6 +110,7 @@ const Model = (() => {
             visited:   [],
             stack:     [],
             traversed: [],
+            parent:    {},
             current:   null,
             lives:     3,
             done:      false,
@@ -120,22 +122,19 @@ const Model = (() => {
     function resetState() {
         originId = POSSIBLE_ORIGINS[Math.floor(Math.random() * POSSIBLE_ORIGINS.length)];
         state.phase = 'bfs';
-        state.bfs  = { visited:[], queue:[], traversed:[], current:null, lives:3, done:false };
-        state.dfs  = { visited:[], stack:[], traversed:[], current:null, lives:3, done:false, suspicion:{} };
+        state.bfs  = { visited:[], queue:[], traversed:[], parent:{}, current:null, lives:3, done:false };
+        state.dfs  = { visited:[], stack:[], traversed:[], parent:{}, current:null, lives:3, done:false, suspicion:{} };
         state.accusationLives = 3;
     }
 
     function computeSuspicion(visitOrder) {
-        const total = visitOrder.length;
         visitOrder.forEach((id, idx) => {
             const base = 30;
             const bonus = idx < 3 ? Math.round(70 * (1 - idx / 3)) : 0;
             const degreeBonus = ADJ[id].length >= 3 ? 15 : 0;
             state.dfs.suspicion[id] = Math.min(95, base + bonus + degreeBonus);
         });
-        if (state.dfs.suspicion[originId]) {
-            state.dfs.suspicion[originId] = 98;
-        }
+        // Sin override forzado: el origen se destaca por su posición y grado naturales.
     }
 
     function getUser(id)     { return USERS.find(u => u.id === id); }
@@ -284,8 +283,8 @@ const Model = (() => {
     function resetTutorial() {
         tutorialState.phase     = 'bfs';
         tutorialState.stepIndex = 0;
-        tutorialState.bfs = { visited:[], queue:[], traversed:[], current:null };
-        tutorialState.dfs = { visited:[], stack:[], traversed:[], current:null };
+        tutorialState.bfs = { visited:[], queue:[], traversed:[], parent:{}, current:null };
+        tutorialState.dfs = { visited:[], stack:[], traversed:[], parent:{}, current:null };
     }
 
     function getTutorialStep() {

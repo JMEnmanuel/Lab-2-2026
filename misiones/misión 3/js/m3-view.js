@@ -10,6 +10,7 @@ const View = (() => {
   const EDGE_COLORS = {
     idle:       "#30363d",
     evaluating: "#d29922",
+    compared:   "#e07a28",
     accepted:   "#3fb950",
     rejected:   "#f85149"
   };
@@ -17,20 +18,24 @@ const View = (() => {
   const EDGE_GLOW = {
     idle:       "none",
     evaluating: "drop-shadow(0 0 6px #d29922aa)",
+    compared:   "drop-shadow(0 0 5px #e07a2888)",
     accepted:   "drop-shadow(0 0 8px #3fb950cc)",
     rejected:   "drop-shadow(0 0 6px #f85149aa)"
   };
 
   /* ── Render principal ── */
 
+  // onEdgeClick se inyecta desde el Controller solo en modo Desafío
+  let _onEdgeClick = null;
+
   function render(graph, state) {
-    renderGraph(graph);
+    renderGraph(graph, state);
     renderPanel(graph, state);
   }
 
   /* ── SVG ── */
 
-  function renderGraph(graph) {
+  function renderGraph(graph, state) {
     const svg = document.getElementById("mst-graph");
     svg.innerHTML = "";
 
@@ -59,18 +64,23 @@ const View = (() => {
           return { x, y };
         }
       }
-      // Fallback: usar t=0.5 aunque haya colision leve
       const x = (from.x + to.x) / 2;
       const y = (from.y + to.y) / 2;
       placed.push({ x, y });
       return { x, y };
     }
 
+    // En modo Desafío, calcular qué aristas son clicables ahora mismo
+    const clickableIds = state && state.mode === "challenge" && !state.finished
+      ? getClickableEdgeIds(graph, state)
+      : new Set();
+
     graph.edges.forEach(edge => {
       const from = Model.getNode(edge.from);
       const to   = Model.getNode(edge.to);
       const badgePos = pickBadgePos(from, to);
-      edgeLayer.appendChild(renderEdge(edge, badgePos));
+      const clickable = clickableIds.has(edge.id);
+      edgeLayer.appendChild(renderEdge(edge, badgePos, clickable));
     });
 
     graph.nodes.forEach(node => nodeLayer.appendChild(renderNode(node)));
@@ -79,24 +89,59 @@ const View = (() => {
     svg.appendChild(nodeLayer);
   }
 
-  function renderEdge(edge, badgePos) {
+  /*
+    getClickableEdgeIds — devuelve el Set de aristas que el jugador
+    puede seleccionar en este turno según el algoritmo activo.
+    Kruskal: todas las idle (el jugador debe identificar la correcta).
+    Prim:    solo las que están en la frontera actual.
+  */
+  function getClickableEdgeIds(graph, state) {
+    const ids = new Set();
+    if (state.algorithm === "kruskal") {
+      graph.edges.forEach(e => { if (e.state === "idle") ids.add(e.id); });
+    } else {
+      state.frontierEdges.forEach(id => ids.add(id));
+    }
+    return ids;
+  }
+
+  function renderEdge(edge, badgePos, clickable = false) {
     const from = Model.getNode(edge.from);
     const to   = Model.getNode(edge.to);
-    const group = createSvgEl("g", { class: `edge edge-${edge.state}` });
 
-    const color = EDGE_COLORS[edge.state];
+    const color = EDGE_COLORS[edge.state] || EDGE_COLORS.idle;
     const isAccepted   = edge.state === "accepted";
     const isEvaluating = edge.state === "evaluating";
+    const isCompared   = edge.state === "compared";
+
+    const classes = [`edge`, `edge-${edge.state}`];
+    if (clickable) classes.push("edge-clickable");
+    const group = createSvgEl("g", {
+      class: classes.join(" "),
+      "data-edge-id": edge.id
+    });
+
+    // Área de hit invisible para clicks más fáciles en móvil/desktop
+    if (clickable) {
+      const hitArea = createSvgEl("line", {
+        x1: from.x, y1: from.y,
+        x2: to.x,   y2: to.y,
+        stroke: "transparent",
+        "stroke-width": 18,
+        "stroke-linecap": "round"
+      });
+      group.appendChild(hitArea);
+    }
 
     // Línea principal
     const line = createSvgEl("line", {
       x1: from.x, y1: from.y,
       x2: to.x,   y2: to.y,
       stroke: color,
-      "stroke-width": isAccepted ? 3.5 : isEvaluating ? 3 : 2,
+      "stroke-width": isAccepted ? 3.5 : isEvaluating || isCompared ? 3 : 2,
       "stroke-linecap": "round",
       opacity: edge.state === "idle" ? 0.5 : 1,
-      style: `filter: ${EDGE_GLOW[edge.state]}; transition: stroke 0.3s, stroke-width 0.3s`
+      style: `filter: ${EDGE_GLOW[edge.state] || "none"}; transition: stroke 0.3s, stroke-width 0.3s`
     });
 
     if (isAccepted) {
@@ -115,7 +160,7 @@ const View = (() => {
       group.appendChild(line);
     }
 
-    // Badge en la posición sin colisión calculada por renderGraph
+    // Badge de peso
     const { x: bx, y: by } = badgePos;
 
     const bg = createSvgEl("rect", {
@@ -124,17 +169,20 @@ const View = (() => {
       rx: 4,
       fill: isAccepted   ? "rgba(63,185,80,0.15)"
           : isEvaluating ? "rgba(210,153,34,0.15)"
+          : isCompared   ? "rgba(224,122,40,0.12)"
           :                "rgba(22,27,34,0.92)",
       stroke: isAccepted   ? "#3fb950"
             : isEvaluating ? "#d29922"
+            : isCompared   ? "#e07a28"
             :                "#30363d",
-      "stroke-width": isAccepted || isEvaluating ? 1.5 : 1
+      "stroke-width": isAccepted || isEvaluating || isCompared ? 1.5 : 1
     });
 
     const weightText = createSvgEl("text", {
       x: bx, y: by,
       fill: isAccepted   ? "#3fb950"
           : isEvaluating ? "#d29922"
+          : isCompared   ? "#e07a28"
           :                "#8b949e",
       "font-family": "'Share Tech Mono', monospace",
       "font-size": 12,
@@ -146,6 +194,12 @@ const View = (() => {
 
     group.appendChild(bg);
     group.appendChild(weightText);
+
+    // Click handler — solo en modo Desafío
+    if (clickable && _onEdgeClick) {
+      group.addEventListener("click", () => _onEdgeClick(edge.id));
+    }
+
     return group;
   }
 
@@ -359,11 +413,14 @@ const View = (() => {
       const row = document.createElement("div");
       row.className = "log-entry" + (i === 0 ? " log-entry--new" : "");
 
-      const isAccepted = msg.startsWith("Aceptada") || msg.includes("MST completo");
+      const isAccepted = msg.startsWith("Aceptada") || msg.startsWith("Correcto")
+                      || msg.includes("MST completo") || msg.includes("se une a la red");
       const isRejected = msg.startsWith("Rechazada") || msg.startsWith("Descartada");
+      const isWrong    = msg.startsWith("Esa arista") || msg.startsWith("No es");
 
       if (isAccepted) row.classList.add("log-entry--accept");
-      if (isRejected) row.classList.add("log-entry--reject");
+      else if (isRejected) row.classList.add("log-entry--reject");
+      else if (isWrong)    row.classList.add("log-entry--wrong");
 
       row.textContent = msg;
       log.appendChild(row);
@@ -422,14 +479,17 @@ const View = (() => {
     const btnStart = document.getElementById("btn-start");
     const btnReset = document.getElementById("btn-reset");
     const algobtns = document.querySelectorAll("[data-algorithm]");
+    const modeBtns = document.querySelectorAll("[data-mode]");
 
     btnStart.disabled = locked;
     algobtns.forEach(b => b.disabled = locked);
+    modeBtns.forEach(b => b.disabled = locked);
 
-    if (locked) {
-      btnStart.textContent = "EJECUTANDO...";
-    } else {
-      btnStart.textContent = "INICIAR";
+    const label = btnStart.querySelector(".btn-label");
+    if (label) {
+      label.textContent = locked ? "EJECUTANDO..." : (
+        btnStart.dataset.currentMode === "challenge" ? "JUGAR" : "VER DEMO"
+      );
     }
   }
 
@@ -454,6 +514,66 @@ const View = (() => {
     overlay.classList.add("hidden");
   }
 
+  /* ── Desafío ── */
+
+  /*
+    setChallengeEdgeHandler — registra el callback que el Controller
+    quiere recibir cuando el jugador clica una arista.
+    Pasar null para desactivar clicks.
+  */
+  function setChallengeEdgeHandler(fn) {
+    _onEdgeClick = fn;
+  }
+
+  /*
+    flashEdge — aplica una clase CSS temporal al grupo SVG de la arista
+    para dar feedback visual de acierto o error sin re-renderizar.
+    result: "correct" | "wrong"
+  */
+  function flashEdge(edgeId, result) {
+    const svg = document.getElementById("mst-graph");
+    if (!svg) return;
+    // Los grupos de aristas no tienen id propio; buscamos por data-edge-id
+    const group = svg.querySelector(`[data-edge-id="${edgeId}"]`);
+    if (!group) return;
+    const cls = result === "correct" ? "edge-flash-correct" : "edge-flash-wrong";
+    group.classList.add(cls);
+    setTimeout(() => group.classList.remove(cls), 600);
+  }
+
+  /*
+    renderChallengeHint — actualiza el texto de instrucción según algoritmo.
+    Se llama desde el Controller cada vez que cambia el estado del Desafío.
+    accepted: número de aristas aceptadas. total: n-1 esperadas.
+  */
+  function renderChallengeHint(algorithm, finished, accepted, total) {
+    const el = document.getElementById("challenge-hint");
+    if (!el) return;
+
+    if (finished) {
+      el.innerHTML =
+        `<span class="hint-icon">✓</span>` +
+        `<span class="hint-text">¡Red reconstruida con éxito!</span>` +
+        `<span class="hint-progress">${total} / ${total}</span>`;
+      el.className = "challenge-hint hint-success";
+      return;
+    }
+
+    el.className = "challenge-hint";
+    const icon   = algorithm === "kruskal" ? "⊕" : "◎";
+    const text   = algorithm === "kruskal"
+      ? "Selecciona la arista de menor peso que no forme un ciclo."
+      : "Selecciona la arista mínima que conecte un nuevo nodo a la red.";
+    const prog   = (accepted !== undefined && total !== undefined)
+      ? `<span class="hint-progress">${accepted} / ${total}</span>`
+      : "";
+
+    el.innerHTML =
+      `<span class="hint-icon">${icon}</span>` +
+      `<span class="hint-text">${text}</span>` +
+      prog;
+  }
+
   /* ── Helpers ── */
 
   function createSvgEl(tag, attrs = {}) {
@@ -462,5 +582,13 @@ const View = (() => {
     return el;
   }
 
-  return { render, setControlsLocked, showVictory, hideVictory };
+  return {
+    render,
+    setControlsLocked,
+    showVictory,
+    hideVictory,
+    setChallengeEdgeHandler,
+    flashEdge,
+    renderChallengeHint
+  };
 })();

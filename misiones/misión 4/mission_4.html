@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mision 4 - Control del Impacto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/m4-style.css">
+</head>
+<body>
+  <header id="header">
+    <div>
+      <span class="mission-badge">MISION 04</span>
+      <h1>CONTROL DEL IMPACTO</h1>
+      <p>Flujo maximo // Ford-Fulkerson</p>
+    </div>
+    <a class="btn-back" href="../../index.html">VOLVER AL SELECTOR</a>
+  </header>
+
+  <main class="mission-shell">
+    <section class="graph-area">
+      <div class="panel-heading">
+        <span>// BASE TECNICA</span>
+        <h2>Red de capacidades preparada</h2>
+      </div>
+      <svg id="flow-graph" viewBox="0 0 900 560" role="img">
+        <title>Grafo dirigido con capacidades para flujo maximo</title>
+      </svg>
+    </section>
+
+    <aside class="side-panel">
+      <section class="panel-card">
+        <span class="label">// ESTADO</span>
+        <div id="flow-summary">Cargando modelo...</div>
+      </section>
+      <section class="panel-card">
+        <span class="label">// CAMINOS AUMENTANTES</span>
+        <div id="flow-steps"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="js/m4-model.js"></script>
+  <script src="js/m4-view.js"></script>
+  <script src="js/m4-controller.js"></script>
+</body>
+</html>

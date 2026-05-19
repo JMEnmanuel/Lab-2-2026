@@ -489,6 +489,68 @@ h1 {
   gap: 8px;
 }
 
+/* Selector de modo — mismo patrón que algo-toggle */
+.mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mode-btn {
+  min-height: 52px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  padding: 10px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  text-align: left;
+  transition: border-color 0.18s, color 0.18s, background 0.18s, transform 0.15s;
+}
+
+.mode-btn span {
+  display: block;
+  color: var(--text);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.mode-btn small {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-dim);
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.mode-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Tutorial activo: azul/accent */
+.mode-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.mode-btn.active span { color: var(--accent); }
+.mode-btn.active small { color: rgba(88,166,255,0.6); }
+
+/* Desafío activo: amarillo */
+[data-mode="challenge"].active {
+  border-color: var(--yellow);
+  background: rgba(210,153,34,0.08);
+}
+[data-mode="challenge"].active span { color: var(--yellow); }
+[data-mode="challenge"].active small { color: rgba(210,153,34,0.6); }
+
+/* Desafío deshabilitado visualmente cuando no está implementado */
+[data-mode="challenge"]:not(.active) {
+  opacity: 0.7;
+}
+
+.mode-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
 .algo-btn {
   min-height: 58px;
   border: 1px solid var(--border);
@@ -706,9 +768,128 @@ h1 {
   flex-shrink: 0;
 }
 
-.legend-line.yellow { background: var(--yellow); }
-.legend-line.green  { background: var(--green); }
-.legend-line.red    { background: var(--red); }
+.legend-line.yellow  { background: var(--yellow); }
+.legend-line.orange  { background: #e07a28; }
+.legend-line.green   { background: var(--green); }
+.legend-line.red     { background: var(--red); }
+
+/* ── Estado "compared" (Prim: descarte temporal, naranja) ── */
+.edge-compared line {
+  stroke: #e07a28;
+}
+
+/* ── Aristas clicables en Desafío ── */
+.edge-clickable {
+  cursor: pointer;
+}
+
+/* Área de hit ampliada visualmente en hover */
+.edge-clickable:hover line:not([stroke="transparent"]) {
+  stroke: var(--accent) !important;
+  stroke-width: 3.5px !important;
+  filter: drop-shadow(0 0 10px rgba(88,166,255,0.7)) !important;
+}
+
+.edge-clickable:hover rect {
+  stroke: var(--accent) !important;
+  fill: rgba(88,166,255,0.18) !important;
+  filter: drop-shadow(0 0 6px rgba(88,166,255,0.5));
+}
+
+.edge-clickable:hover text {
+  fill: var(--accent) !important;
+  font-size: 13px !important;
+}
+
+/* Pulso suave en aristas de frontera (Prim) o idle (Kruskal) para llamar la atención */
+@keyframes edge-invite-pulse {
+  0%,100% { opacity: 0.55; }
+  50%      { opacity: 0.85; }
+}
+
+.edge-idle line:not([stroke="transparent"]) {
+  animation: edge-invite-pulse 2.5s ease-in-out infinite;
+}
+
+/* ── Flash de acierto / error ── */
+@keyframes flash-correct {
+  0%   { opacity: 1; filter: none; }
+  20%  { opacity: 0.5; filter: drop-shadow(0 0 18px #3fb950) brightness(1.5); }
+  60%  { opacity: 1;   filter: drop-shadow(0 0 12px #3fb950cc); }
+  100% { opacity: 1; filter: none; }
+}
+
+@keyframes flash-wrong {
+  0%,100% { transform: translateX(0); filter: none; }
+  15%     { transform: translateX(-5px); filter: drop-shadow(0 0 6px #f85149); }
+  30%     { transform: translateX(5px); }
+  50%     { transform: translateX(-4px); filter: drop-shadow(0 0 4px #f85149aa); }
+  70%     { transform: translateX(4px); }
+  85%     { transform: translateX(-2px); }
+}
+
+.edge-flash-correct { animation: flash-correct 0.55s ease forwards; }
+.edge-flash-wrong   { animation: flash-wrong   0.5s  ease forwards; }
+
+/* ── Log: entrada de error (jugada incorrecta) ── */
+.log-entry--wrong {
+  border-left-color: var(--yellow);
+  background: rgba(210,153,34,0.05);
+  color: var(--yellow);
+}
+
+/* ── Hint de instrucción del Desafío ── */
+.challenge-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--yellow);
+  border: 1px solid rgba(210,153,34,0.3);
+  background: rgba(210,153,34,0.06);
+  padding: 8px 14px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+}
+
+.challenge-hint:empty {
+  display: none;
+}
+
+.challenge-hint .hint-icon {
+  flex-shrink: 0;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.challenge-hint .hint-text {
+  flex: 1;
+}
+
+.challenge-hint .hint-progress {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(88,166,255,0.08);
+  border: 1px solid rgba(88,166,255,0.2);
+  padding: 2px 8px;
+  letter-spacing: 0.1em;
+}
+
+.hint-success {
+  color: var(--green);
+  border-color: rgba(63,185,80,0.4);
+  background: rgba(63,185,80,0.07);
+  animation: hint-victory-pulse 1.2s ease infinite;
+}
+
+@keyframes hint-victory-pulse {
+  0%,100% { box-shadow: 0 0 0 rgba(63,185,80,0); }
+  50%      { box-shadow: 0 0 12px rgba(63,185,80,0.25); }
+}
 
 /* Log narrativo */
 .log-section { flex: 1; min-height: 0; }
