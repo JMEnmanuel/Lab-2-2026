@@ -79,14 +79,14 @@ const FinalModel = (() => {
     function createInitialPhases() {
         const originGraph = {
             nodes: [
-                { id: 1, label: "Ana", x: 150, y: 120, clue: "", evidence: "Me lo pasaron, no se si sea real." },
-                { id: 2, label: "Brayan", x: 330, y: 80, clue: "", evidence: "Eso ya esta rodando por varios chats." },
-                { id: 3, label: "Carlos", x: 520, y: 130, clue: "", evidence:"No me da verguenza, verguenza debería darle a esa." },
+                { id: 1, label: "Nicky", x: 150, y: 120, clue: "", evidence: "Me lo pasaron, no se si sea real." },
+                { id: 2, label: "Luigi", x: 330, y: 80, clue: "", evidence: "Eso ya esta rodando por varios chats." },
+                { id: 3, label: "Mancipe", x: 520, y: 130, clue: "", evidence:"No me da verguenza, verguenza debería darle a esa." },
                 { id: 4, label: "Diana", x: 120, y: 300, clue: "", evidence: "No entiendo que esta pasando." },
                 { id: 5, label: "Elena", x: 330, y: 270, clue: "", evidence: "Eso es sobre mi y es mentira. Paren." },
                 { id: 6, label: "Danna", x: 560, y: 300, clue: "", evidence: "Ya esto está viral." },
                 { id: 7, label: "Gabriel", x: 170, y: 455, clue: "", evidence: "Me lo mandaron y lo reenvié sin pensar." },
-                { id: 8, label: "Hana", x: 380, y: 445, clue: "", evidence: "Todo el mundo ya lo anda viendo." },
+                { id: 8, label: "Rey", x: 380, y: 445, clue: "", evidence: "Todo el mundo ya lo anda viendo." },
                 { id: 9, label: "Ivan", x: 595, y: 455, clue: "", evidence: "Lo vi hace unos minutos, que vaina." }
             ],
             edges: [[1, 2], [1, 4], [2, 3], [2, 5], [3, 6], [4, 7], [5, 3], [5, 8], [6, 9], [7, 8], [8, 9]],
