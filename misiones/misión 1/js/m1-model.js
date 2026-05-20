@@ -12,7 +12,7 @@ const Model = (() => {
     const USERS = [
         { id:1, name:'1.Ana',     alias:'ana_r'     },
         { id:2, name:'2.Brayan',  alias:'brayan_x'  },
-        { id:3, name:'3.Carlos',  alias:'carlos_k'  },
+        { id:3, name:'3.Mancipe',  alias:'carlos_k'  },
         { id:4, name:'4.Diana',   alias:'diana_m'   },
         { id:5, name:'5.Elena',   alias:'elena_z'   },
         { id:6, name:'6.Fiona',   alias:'fiona_v'   },
