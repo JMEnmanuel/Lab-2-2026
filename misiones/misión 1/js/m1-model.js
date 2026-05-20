@@ -15,7 +15,7 @@ const Model = (() => {
         { id:3, name:'3.Mancipe',  alias:'carlos_k'  },
         { id:4, name:'4.Diana',   alias:'diana_m'   },
         { id:5, name:'5.Elena',   alias:'elena_z'   },
-        { id:6, name:'6.Fiona',   alias:'fiona_v'   },
+        { id:6, name:'6.Natalia',   alias:'fiona_v'   },
         { id:7, name:'7.Gabriel', alias:'gabriel_t' },
         { id:8, name:'8.Hana',    alias:'hana_j'    },
         { id:9, name:'9.Ivan',    alias:'ivan_q'    }
