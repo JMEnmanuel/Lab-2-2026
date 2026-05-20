@@ -366,6 +366,7 @@ const View = (() => {
                 <div class="acc-card-name">${user.name}</div>
                 <div class="acc-card-sus">SOSPECHA: ${sus}%</div>
                 <div class="acc-card-sus-bar"><div class="acc-card-sus-fill" style="width:${sus}%"></div></div>
+                <div class="acc-card-sus">${Model.getEvidence(user.id).clue}</div>
             `;
             card.addEventListener('click', () => onAccuse(user.id));
             grid.appendChild(card);
@@ -394,6 +395,8 @@ const View = (() => {
                         <div class="tl-node-role ${roleClass}">${ev.roleLabel}</div>
                     </div>
                     <div class="tl-evidence">${ev.pub}</div>
+                    <div class="tl-evidence">${ev.trace}</div>
+                    <div class="tl-connections">Pista: <span>${ev.clue}</span></div>
                     <div class="tl-connections">Conectado con: <span>${adj.map(i=>Model.getUser(i).name).join(', ')}</span></div>
                 </div>
             `;
@@ -406,7 +409,7 @@ const View = (() => {
         const user = Model.getUser(id);
         document.getElementById('ev-user').textContent     = user.name + ' (@' + user.alias + ')';
         document.getElementById('ev-priv').textContent     = ev.priv;
-        document.getElementById('ev-pub').textContent      = ev.pub;
+        document.getElementById('ev-pub').textContent      = `${ev.pub} ${ev.trace} Pista: ${ev.clue}`;
         const badge = document.getElementById('ev-role-badge');
         badge.textContent  = ev.roleLabel;
         badge.className    = 'ev-role-badge ' + ev.roleCls;

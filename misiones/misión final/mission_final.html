@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mision Final - Red Segura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Glitch&family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/final-style.css?v=4">
+</head>
+<body>
+    <div class="signal-grid" aria-hidden="true"></div>
+    <div class="rupture-overlay" aria-hidden="true">
+        <span class="crack crack-a"></span>
+        <span class="crack crack-b"></span>
+        <span class="crack crack-c"></span>
+    </div>
+    <div id="particles" aria-hidden="true"></div>
+
+    <header class="topbar">
+        <div>
+            <span class="mission-tag">PROTOCOLO AURORA // EVENTO CRITICO</span>
+            <h1 class="glitch-text" data-text="MISION FINAL - RED SEGURA">MISION FINAL - RED SEGURA</h1>
+            <p>Integracion final de rastreo, apoyo, reconstruccion y contencion.</p>
+        </div>
+        <a class="btn-back" href="../../index.html">VOLVER</a>
+    </header>
+
+    <main class="final-shell">
+        <section class="briefing-panel" aria-labelledby="briefing-title">
+            <div class="briefing-copy">
+                <span class="section-label">// INFORME DE CRISIS</span>
+                <h2 id="briefing-title">Una cadena de acoso fracturo la red.</h2>
+                <p>
+                    Activa los cuatro modulos del protocolo para rastrear el origen, llevar apoyo,
+                    reconstruir vinculos seguros y contener la difusion dañina.
+                </p>
+            </div>
+            <div class="fracture-map" id="fracture-map" aria-hidden="true"></div>
+            <div class="global-status" id="global-status"></div>
+        </section>
+
+        <section class="crisis-layout">
+            <div class="modules-area">
+                <div class="module-heading">
+                    <span class="section-label">// TABLERO DE CRISIS</span>
+                    <h2>Modulos de restauracion</h2>
+                </div>
+                <div class="module-grid" id="module-grid"></div>
+            </div>
+
+            <section class="phase-panel" id="phase-panel" aria-live="polite">
+                <div class="empty-panel">
+                    <span class="section-label">// FASE ACTIVA</span>
+                    <h2>Selecciona un modulo</h2>
+                    <p>El panel mostrara el rol narrativo de cada algoritmo dentro del Protocolo Aurora.</p>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <footer class="footer-strip">
+        <span id="clock">--:--:--</span>
+        <span>// PROTOCOLO AURORA ACTIVO</span>
+    </footer>
+
+    <script src="js/final-model.js?v=5"></script>
+    <script src="js/final-view.js?v=5"></script>
+    <script src="js/final-controller.js?v=5"></script>
+</body>
+</html>

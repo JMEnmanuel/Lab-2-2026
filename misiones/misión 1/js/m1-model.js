@@ -40,46 +40,64 @@ const Model = (() => {
         1: {
             priv: '"Oye, ¿ya viste lo que está circulando sobre alguien del grupo? Dicen que es real."',
             pub:  '"Hay cosas que uno no puede callar. La verdad siempre sale."',
+            trace: 'Recibio el rumor despues de que ya habia circulado en dos chats.',
+            clue: 'Reacciona al contenido; no aparece como primer emisor.',
             roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
         },
         2: {
             priv: '"Me lo mandaron hace rato. No sé si creerlo pero... es bastante fuerte."',
             pub:  '"Algunas personas deberían pensar antes de actuar. #Reflexión"',
+            trace: 'Su mensaje cita una captura reenviada por otro nodo.',
+            clue: 'Dice "me lo mandaron"; indica receptor, no origen.',
             roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
         },
         3: {
             priv: '"Ya lo vi. La verdad no me sorprende viniendo de esa persona."',
             pub:  '"Qué pena ajena con algunos. 😬"',
+            trace: 'Entra al hilo cuando el rumor ya tenia respuestas previas.',
+            clue: 'Comenta despues de verlo; no lo inicia.',
             roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
         },
         4: {
             priv: '"¿Qué? ¿De qué están hablando todos?"',
             pub:  '"Feliz día 🌞 ignorando el drama de hoy."',
+            trace: 'No comparte enlaces ni capturas del rumor.',
+            clue: 'Desconoce el tema al inicio.',
             roleLabel: 'NEUTRAL', roleCls: 'ev-role-neutral'
         },
         5: {
             priv: '"Por favor paren. Eso que están compartiendo es sobre mí y es mentira."',
             pub:  '"No entiendo por qué la gente hace esto. Me duele mucho."',
+            trace: 'Recibe el impacto directo del rumor.',
+            clue: 'Es la victima; pide detener la difusion.',
             roleLabel: 'VÍCTIMA', roleCls: 'ev-role-victim'
         },
         6: {
             priv: '"Lo vi en el grupo. Ya tiene demasiados likes, esto se salió de control."',
             pub:  '"Hay que aprender a respetar la privacidad de los demás."',
+            trace: 'Detectado despues de que la publicacion ya tenia alcance.',
+            clue: 'Habla de algo que ya se salio de control.',
             roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
         },
         7: {
             priv: '"Alguien me lo mandó al privado. Lo reenvié sin pensar, lo siento."',
             pub:  '"A veces uno comete errores. Pido disculpas."',
+            trace: 'Confiesa reenvio posterior.',
+            clue: 'Fue reenviador, no primer emisor.',
             roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
         },
         8: {
             priv: '"¿Ya vio lo del grupo general? Todo el mundo lo está viendo."',
             pub:  '"El chisme de hoy llegó lejos. 😳"',
+            trace: 'Aparece cuando el rumor ya esta en el grupo general.',
+            clue: 'Describe alcance masivo ya existente.',
             roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
         },
         9: {
             priv: '"Me lo mandaron hace unos minutos. Es lo primero que vi al despertar."',
             pub:  '"Esperemos que esto no le haga daño a nadie."',
+            trace: 'Ultimo registro de lectura; no hay reenvios salientes.',
+            clue: 'Recibio tarde y no amplifico.',
             roleLabel: 'NEUTRAL', roleCls: 'ev-role-neutral'
         }
     };
@@ -89,9 +107,11 @@ const Model = (() => {
     let originId = POSSIBLE_ORIGINS[Math.floor(Math.random() * POSSIBLE_ORIGINS.length)];
 
     const ORIGIN_EVIDENCE_OVERRIDE = {
-        priv: '"Esto va a ponerse interesante. Ya verán. 😈"',
-        pub:  '"Hay personas que se creen intocables. Pronto todos sabrán la verdad."',
-        roleLabel: 'INICIADOR', roleCls: 'ev-role-spread'
+        priv: '"Lo voy a soltar primero por aqui. Cuando todos lo vean, ya no podran frenarlo."',
+        pub:  '"Hay personas que se creen intocables. Pronto todos sabran la verdad."',
+        trace: 'Primer registro temporal: publica antes que existan reenvios, capturas o respuestas.',
+        clue: 'Clave: habla en futuro y no cita a nadie. Es emisor inicial.',
+        roleLabel: 'INICIADOR', roleCls: 'ev-role-origin'
     };
 
     // ── Estado del juego principal ───────────────────────────────────
@@ -132,15 +152,15 @@ const Model = (() => {
             const base = 30;
             const bonus = idx < 3 ? Math.round(70 * (1 - idx / 3)) : 0;
             const degreeBonus = ADJ[id].length >= 3 ? 15 : 0;
-            state.dfs.suspicion[id] = Math.min(95, base + bonus + degreeBonus);
+            const originBonus = id === originId ? 35 : 0;
+            state.dfs.suspicion[id] = Math.min(95, base + bonus + degreeBonus + originBonus);
         });
-        // Sin override forzado: el origen se destaca por su posición y grado naturales.
     }
 
     function getUser(id)     { return USERS.find(u => u.id === id); }
     function getEvidence(id) {
         if (id === originId) return ORIGIN_EVIDENCE_OVERRIDE;
-        return EVIDENCE_POOL[id] || { priv:'—', pub:'—', roleLabel:'DESCONOCIDO', roleCls:'ev-role-neutral' };
+        return EVIDENCE_POOL[id] || { priv:'—', pub:'—', trace:'Sin registro.', clue:'Sin pista.', roleLabel:'DESCONOCIDO', roleCls:'ev-role-neutral' };
     }
 
     const GRAPH = { nodes: USERS.map(u=>({...u,...POSITIONS[u.id]})), links: LINKS, adj: ADJ };

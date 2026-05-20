@@ -11,17 +11,18 @@ const SelectorModel = (() => {
         { id: 2, name: "MISION 2", sub: "RUTA SEGURA", code: "DIJKSTRA", x: 775, y: 148, file: "misiones/misión 2/mission_2.html", desc: "Calcula el camino de menor riesgo para intervenir y proteger al usuario afectado." },
         { id: 3, name: "MISION 3", sub: "RECONSTRUIR RED", code: "KRUSKAL / PRIM", x: 830, y: 545, file: "misiones/misión 3/mission_3.html", desc: "Reconstruye conexiones de confianza usando arbol de expansion minima." },
         { id: 4, name: "MISION 4", sub: "CONTROL DE IMPACTO", code: "FORD-FULKERSON", x: 148, y: 520, file: "misiones/misión 4/mission_4.html", desc: "Limita la propagacion del contenido danino calculando el flujo maximo." },
-        { id: 5, name: "CREDITOS", sub: "EQUIPO", code: "v1.0", x: 870, y: 648, file: null, pending: true, desc: "Equipo de desarrollo." }
+        { id: 5, name: "MISION FINAL", sub: "RED SEGURA", code: "PROTOCOLO AURORA", x: 500, y: 350, file: "misiones/misión final/mission_final.html", desc: "Integra rastreo, intervencion, reconstruccion y contencion durante la Noche del Hashtag." },
+        { id: 6, name: "CREDITOS", sub: "EQUIPO", code: "v1.0", x: 870, y: 648, file: null, pending: true, type: "credits", desc: "Equipo de desarrollo." }
     ];
 
     // Cada par conecta dos nodos del selector.
-    const links = [[1,2], [2,3], [3,4], [4,1], [1,3], [2,4], [3,5]];
+    const links = [[1,2], [2,3], [3,4], [4,1], [1,3], [2,4], [1,5], [2,5], [3,5], [4,5], [5,6]];
 
     // Estado visual que cambia mientras el selector esta abierto.
     const state = {
         completed: [],
         activeNode: null,
-        corruption: { 1: 87, 2: 74, 3: 91, 4: 68 }
+        corruption: { 1: 87, 2: 74, 3: 91, 4: 68, 5: 96 }
     };
 
     function getNodes() {
@@ -59,7 +60,7 @@ const SelectorModel = (() => {
     }
 
     function fluctuateCorruption() {
-        [1, 2, 3, 4].forEach(id => {
+        [1, 2, 3, 4, 5].forEach(id => {
             if (!state.completed.includes(id)) {
                 const nextValue = state.corruption[id] + Math.floor(Math.random() * 5 - 2);
                 state.corruption[id] = Math.max(60, Math.min(99, nextValue));

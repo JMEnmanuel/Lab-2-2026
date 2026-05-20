@@ -43,7 +43,7 @@ const SelectorView = (() => {
 
         nodes.forEach(node => {
             const isDone = state.completed.includes(node.id);
-            const isCredit = node.id === 5;
+            const isCredit = node.type === "credits";
             const isLocked = node.pending && !node.file;
             const radius = isCredit ? 20 : 46;
             const outerRadius = isCredit ? 30 : 63;
@@ -147,10 +147,11 @@ const SelectorView = (() => {
     }
 
     function updateFooter(state) {
-        const done = state.completed.filter(id => id !== 5).length;
-        document.getElementById("progress-text").textContent = `SECTORES RESTAURADOS: ${done}/4`;
-        document.getElementById("nodes-val").textContent = `${4 - done}/4`;
-        document.getElementById("integrity-val").textContent = Math.min(23 + done * 19, 100) + "%";
+        const totalMissions = 5;
+        const done = state.completed.filter(id => id <= totalMissions).length;
+        document.getElementById("progress-text").textContent = `SECTORES RESTAURADOS: ${done}/${totalMissions}`;
+        document.getElementById("nodes-val").textContent = `${totalMissions - done}/${totalMissions}`;
+        document.getElementById("integrity-val").textContent = Math.min(23 + done * 15, 100) + "%";
     }
 
     function updateClock() {
