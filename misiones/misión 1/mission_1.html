@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Misión 1 — Rastros del Acoso</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/m1-style.css?v=cpu-rival-1">
+    <link rel="stylesheet" href="css/m1-style.css?v=cpu-rival-3">
 </head>
 <body>
 
@@ -103,7 +103,8 @@
 
         <div style="display:flex;gap:10px;flex-wrap:wrap">
             <button class="btn" id="btn-go-tutorial">TUTORIAL INTERACTIVO →</button>
-            <button class="btn btn-amber" id="btn-start-bfs">SALTAR TUTORIAL →</button>
+            <button class="btn btn-amber" id="btn-start-single">JUGAR SOLO →</button>
+            <button class="btn btn-red" id="btn-start-cpu">JUGAR VS CPU →</button>
             <button class="btn-ghost" onclick="location.href='../../index.html'">← VOLVER AL MAPA</button>
         </div>
         <div style="font-size:9px;color:var(--text-muted);letter-spacing:0.1em;margin-top:8px;padding-left:4px">
@@ -267,6 +268,7 @@
             <div class="phase-tab" id="tab-dfs">FASE 2: DFS</div>
         </div>
         <svg id="svg-game"></svg>
+        <div id="cpu-ad-layer" aria-live="polite"></div>
         <div id="instruction-bar">
             <span class="inst-phase" id="inst-phase">BFS ▸</span>
             <span id="inst-text">Selecciona cualquier nodo para comenzar el rastreo de propagación.</span>
@@ -326,9 +328,10 @@
 </footer>
 
 <!-- SCRIPTS MVC -->
-<script src="js/m1-model.js?v=cpu-rival-1"></script>
-<script src="js/m1-view.js?v=cpu-rival-1"></script>
-<script src="js/m1-controller.js?v=cpu-rival-1"></script>
+<script src="js/m1-model.js?v=cpu-rival-3"></script>
+<script src="js/m1-view.js?v=cpu-rival-3"></script>
+<script src="js/m1-cpu.js?v=cpu-rival-3"></script>
+<script src="js/m1-controller.js?v=cpu-rival-3"></script>
 <script src="../../js/mission-timer.js"></script>
 <script>
 MissionTimer.configure({

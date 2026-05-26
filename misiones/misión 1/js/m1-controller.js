@@ -6,11 +6,13 @@
    Si el jugador hace click, este archivo decide que pasa despues.
 */
 const Controller = (() => {
+    let cpuEnabled = true;
 
     function init() {
         // Intro → dos opciones
         document.getElementById('btn-go-tutorial').addEventListener('click', startTutorial);
-        document.getElementById('btn-start-bfs').addEventListener('click', startBFS);
+        document.getElementById('btn-start-single').addEventListener('click', () => startRealGame(false));
+        document.getElementById('btn-start-cpu').addEventListener('click', () => startRealGame(true));
 
         // Tutorial — botones
         document.getElementById('btn-tco-continue').addEventListener('click', onConceptOverlayContinue);
@@ -183,6 +185,13 @@ const Controller = (() => {
     // Saltar tutorial → ir directo al juego BFS real
     function skipTutorial() {
         View.hideConceptOverlay();
+        startRealGame(true);
+    }
+
+    function startRealGame(withCpu) {
+        cpuEnabled = withCpu;
+        Model.resetState();
+        if (window.M1CpuEffects) M1CpuEffects.clear();
         startBFS();
     }
 
@@ -190,10 +199,13 @@ const Controller = (() => {
     function startBFS() {
         Model.state.phase = 'bfs';
         View.showGame('bfs');
+        document.getElementById('game-ui').dataset.cpuMode = cpuEnabled ? 'enabled' : 'disabled';
         View.updatePanel('bfs');
         View.updateCpuPanel();
         View.renderGraph('bfs', handleNodeClickBFS);
-        View.setInstruction('Haz click en cualquier nodo para iniciar. Cuando haya varias opciones, avanza por el ID menor disponible.');
+        View.setInstruction(cpuEnabled
+            ? 'Modo VS CPU: avanza por el ID menor disponible mientras la CPU intenta distraerte.'
+            : 'Modo single player: haz click en cualquier nodo para iniciar y sigue el orden correcto del algoritmo.');
     }
 
     function handleNodeClickBFS(id) {
@@ -404,16 +416,21 @@ const Controller = (() => {
     }
 
     function resetGame() {
+        cpuEnabled = true;
         Model.resetState();
         View.showScreen('screen-intro');
         View.updateCpuPanel();
+        if (window.M1CpuEffects) M1CpuEffects.clear();
         document.getElementById('evidence-panel').classList.remove('visible');
     }
 
     function cpuTurn(kind) {
+        if (!cpuEnabled) return false;
         const cpu = Model.runCpuTurn(kind);
         View.updateCpuPanel();
+        if (window.M1CpuEffects) M1CpuEffects.runTurn(kind, cpu);
         if (cpu.progress < 100) return false;
+        if (window.M1CpuEffects) M1CpuEffects.clear();
         const origin = Model.getUser(Model.originId);
         View.showEndScreen(false, origin,
             'La CPU completo su carrera de propagacion antes de que cerraras el caso.',

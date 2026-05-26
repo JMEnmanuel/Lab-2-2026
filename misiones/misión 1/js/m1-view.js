@@ -13,6 +13,7 @@ const View = (() => {
         const el = document.getElementById(id);
         if (el) el.classList.add('active');
         document.getElementById('game-ui').classList.remove('active');
+        if (window.M1CpuEffects) M1CpuEffects.clear();
 
         const labels = {
             'screen-intro':      'FASE: NARRATIVA',
