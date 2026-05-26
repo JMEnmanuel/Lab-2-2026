@@ -19,8 +19,8 @@ const Mission4View = (() => {
     raf: null,
     saturatedRatio: 0,   // 0-1 según cuántas aristas saturadas hay
 
-    PARTICLE_COUNT:  90,
-    CONNECTION_DIST: 120,
+    PARTICLE_COUNT:  50,
+    CONNECTION_DIST: 100,
 
     init() {
       this.canvas = document.getElementById("particle-canvas");
@@ -74,6 +74,7 @@ const Mission4View = (() => {
 
     loop() {
       this.raf = requestAnimationFrame(() => this.loop());
+      if (document.hidden) return;
       const ctx = this.ctx;
       ctx.clearRect(0, 0, this.W, this.H);
 

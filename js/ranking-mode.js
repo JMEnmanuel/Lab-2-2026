@@ -24,6 +24,7 @@
     let nativeCpu = false;
     let cpuTimer = null;
     let cpuToast = null;
+    let hudTimer = null;
 
     function pad(n) {
         return String(n).padStart(2, "0");
@@ -487,6 +488,7 @@
                 detail: { missionId, missionLabel, playerName }
             }));
             if (typeof opts.onStart === "function") opts.onStart();
+            startHudTimer();
             if (!nativeCpu) startGenericCpu();
         };
         const input = promptEl.querySelector("#ranking-name-input");
@@ -500,6 +502,7 @@
         const seconds = Math.max(1, Math.floor((Date.now() - startMs) / 1000) + elapsedSeconds);
         active = false;
         stopGenericCpu();
+        stopHudTimer();
         elapsedSeconds = seconds;
         updateHud();
         document.body.classList.remove("ranking-mode");
@@ -525,6 +528,7 @@
     function cancel() {
         active = false;
         stopGenericCpu();
+        stopHudTimer();
         elapsedSeconds = 0;
         document.body.classList.remove("ranking-mode");
         updateHud();
@@ -536,7 +540,15 @@
         updateHud();
     }
 
-    setInterval(updateHud, 250);
+    function startHudTimer() {
+        stopHudTimer();
+        hudTimer = setInterval(updateHud, 1000);
+    }
+
+    function stopHudTimer() {
+        if (hudTimer) clearInterval(hudTimer);
+        hudTimer = null;
+    }
 
     window.RankingMode = {
         begin,

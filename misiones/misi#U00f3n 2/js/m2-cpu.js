@@ -311,7 +311,10 @@ const M2CpuEffects = (() => {
     }
 
     function queue(fn, delay) {
-        const id = setTimeout(fn, delay);
+        const id = setTimeout(() => {
+            timers = timers.filter(timerId => timerId !== id);
+            fn();
+        }, delay);
         timers.push(id);
         return id;
     }
