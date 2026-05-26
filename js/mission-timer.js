@@ -58,7 +58,7 @@
                 top: 56px;
                 right: 18px;
                 z-index: 950;
-                min-width: 148px;
+                min-width: 240px;
                 padding: 8px 12px;
                 border: 1px solid rgba(255,170,0,.72);
                 border-left: 3px solid #ffaa00;
@@ -72,7 +72,7 @@
             }
             .mission-timer-label {
                 display: block;
-                font-size: 7px;
+                font-size: 11px;
                 color: #c2c8d8;
                 margin-bottom: 3px;
             }
@@ -171,7 +171,7 @@
                     top: auto;
                     right: 12px;
                     bottom: 42px;
-                    min-width: 118px;
+                    min-width: 200px;
                 }
                 .mission-timer-value { font-size: 15px; }
             }

@@ -45,8 +45,8 @@ const SelectorView = (() => {
             const isDone = state.completed.includes(node.id);
             const isCredit = node.type === "credits";
             const isLocked = node.pending && !node.file;
-            const radius = isCredit ? 20 : 46;
-            const outerRadius = isCredit ? 30 : 63;
+            const radius = isCredit ? 20 : 62;
+            const outerRadius = isCredit ? 30 : 82;
             const corruption = state.corruption[node.id] || 0;
 
             const group = createSvgElement("g", {
@@ -68,11 +68,11 @@ const SelectorView = (() => {
 
             if (!isCredit) {
                 group.appendChild(createCorruptionArc(radius, corruption, isDone));
-                group.appendChild(createText("t-id", "-29", `[0${node.id}]`));
-                group.appendChild(createText("t-name", "-11", node.name));
-                group.appendChild(createText("t-sub", "3", node.sub));
-                group.appendChild(createText("t-code", "16", node.code));
-                group.appendChild(createText("t-corr", "30", getNodeStatusText(isLocked, isDone, corruption)));
+                group.appendChild(createText("t-id", "-40", `[0${node.id}]`));
+                group.appendChild(createText("t-name", "-20", node.name));
+                group.appendChild(createText("t-sub", "-4", node.sub));
+                group.appendChild(createText("t-code", "12", node.code));
+                group.appendChild(createText("t-corr", "28", getNodeStatusText(isLocked, isDone, corruption)));
             } else {
                 group.appendChild(createText("t-name", "4", node.name));
             }
