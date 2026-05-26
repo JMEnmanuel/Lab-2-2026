@@ -78,7 +78,7 @@ body::after {
 .data-stream {
     position: absolute;
     font-family: var(--font-mono);
-    font-size: 8px;
+    font-size: 12px;
     color: #0d1018;
     writing-mode: vertical-rl;
     pointer-events: none;
@@ -116,7 +116,7 @@ body::after {
 }
 
 #system-tag {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.15em;
     border-left: 2px solid var(--red);
@@ -126,7 +126,7 @@ body::after {
 
 #system-name {
     font-family: var(--font-display);
-    font-size: 10px;
+    font-size: 14px;
     color: var(--green);
     letter-spacing: 0.22em;
     margin-left: 16px;
@@ -136,7 +136,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 22px;
-    font-size: 9px;
+    font-size: 13px;
     color: var(--text-muted);
     letter-spacing: 0.1em;
 }
@@ -183,14 +183,14 @@ body::after {
     gap: 28px;
     background: rgba(11,13,18,0.97);
     z-index: 100;
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.1em;
 }
 
 #clock {
     color: var(--green-dim);
-    font-size: 10px;
+    font-size: 14px;
 }
 
 #progress-text {
@@ -208,7 +208,7 @@ body::after {
 }
 
 .nl-tag {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.2em;
     margin-bottom: 2px;
@@ -216,14 +216,14 @@ body::after {
 
 .nl-name {
     font-family: var(--font-display);
-    font-size: 14px;
+    font-size: 18px;
     color: var(--green);
     letter-spacing: 0.35em;
     text-shadow: 0 0 20px rgba(0,255,65,0.3);
 }
 
 .nl-status {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--red);
     letter-spacing: 0.15em;
     margin-top: 3px;
@@ -245,7 +245,7 @@ body::after {
     bottom: 38px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.2em;
     z-index: 50;
@@ -365,14 +365,14 @@ body::after {
 .t-id {
     fill: #aeb6c8;
     font-family: var(--font-mono);
-    font-size: 7px;
+    font-size: 11px;
     pointer-events: none;
 }
 
 .t-name {
     fill: #d7dced;
     font-family: var(--font-display);
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 0.12em;
     pointer-events: none;
     transition: fill 0.3s;
@@ -381,7 +381,7 @@ body::after {
 .t-sub {
     fill: #aeb6c8;
     font-family: var(--font-mono);
-    font-size: 7px;
+    font-size: 11px;
     pointer-events: none;
     transition: fill 0.3s;
 }
@@ -389,7 +389,7 @@ body::after {
 .t-code {
     fill: #75d684;
     font-family: var(--font-mono);
-    font-size: 7px;
+    font-size: 11px;
     pointer-events: none;
     transition: fill 0.3s;
 }
@@ -397,7 +397,7 @@ body::after {
 .t-corr {
     fill: #ff6b7a;
     font-family: var(--font-mono);
-    font-size: 7px;
+    font-size: 11px;
     pointer-events: none;
     animation: blink 1.8s ease infinite;
 }
@@ -442,7 +442,7 @@ body::after {
 
 .cred-node .t-name {
     fill: var(--text-dim);
-    font-size: 7px;
+    font-size: 11px;
 }
 
 .cred-node:hover .node-body {
@@ -496,21 +496,21 @@ body::after {
 }
 
 .tr-tag {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.25em;
 }
 
 #tr-title {
     font-family: var(--font-display);
-    font-size: clamp(13px,2.2vw,22px);
+    font-size: clamp(17px,2.2vw,26px);
     letter-spacing: 0.3em;
     color: var(--green);
     text-shadow: 0 0 28px rgba(0,255,65,0.35);
 }
 
 #tr-sub {
-    font-size: 9px;
+    font-size: 13px;
     color: var(--text-muted);
     letter-spacing: 0.15em;
 }
@@ -530,7 +530,7 @@ body::after {
 }
 
 .bar-pct {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--green-dim);
     letter-spacing: 0.1em;
     text-align: right;
@@ -546,7 +546,7 @@ body::after {
     padding: 8px 22px;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 13px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     transition: all 0.2s;
@@ -563,7 +563,7 @@ body::after {
     border: 1px solid var(--gray-mid);
     border-left: 2px solid var(--green);
     padding: 8px 12px;
-    font-size: 9px;
+    font-size: 13px;
     color: var(--text-muted);
     pointer-events: none;
     display: none;
@@ -575,7 +575,7 @@ body::after {
 
 .tip-name {
     font-family: var(--font-display);
-    font-size: 9px;
+    font-size: 13px;
     color: var(--green);
     letter-spacing: 0.15em;
     margin-bottom: 4px;

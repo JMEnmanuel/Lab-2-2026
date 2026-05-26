@@ -138,7 +138,7 @@ html, body {
 .mission-badge {
   display: block;
   color: var(--blue);
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: .22em;
   text-shadow: 0 0 8px var(--blue);
 }
@@ -146,7 +146,7 @@ html, body {
 h1 {
   font-family: var(--font-disp);
   color: var(--green);
-  font-size: 13px;
+  font-size: 17px;
   letter-spacing: .1em;
   margin-top: 2px;
   text-shadow: 0 0 12px rgba(0,255,136,.5);
@@ -154,7 +154,7 @@ h1 {
 
 .header-sub {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 13px;
   margin-top: 2px;
 }
 
@@ -163,7 +163,7 @@ h1 {
   border: 1px solid var(--border);
   padding: 7px 12px;
   text-decoration: none;
-  font-size: 10px;
+  font-size: 14px;
   font-family: var(--font-mono);
   letter-spacing: .06em;
   transition: color .15s, border-color .15s, box-shadow .15s;
@@ -203,13 +203,13 @@ h1 {
 }
 .panel-heading span {
   color: var(--blue);
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: .18em;
   text-shadow: 0 0 6px rgba(0,170,255,.4);
 }
 .panel-heading h2 {
   font-family: var(--font-disp);
-  font-size: 15px;
+  font-size: 19px;
   letter-spacing: .07em;
 }
 
@@ -270,7 +270,7 @@ h1 {
 
 .edge-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 15px;
   text-anchor: middle;
   dominant-baseline: middle;
   pointer-events: none;
@@ -344,7 +344,7 @@ h1 {
 .node-id {
   fill: var(--text);
   font-family: var(--font-node);
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 400;
   text-anchor: middle;
   dominant-baseline: middle;
@@ -358,7 +358,7 @@ h1 {
 .node-alias {
   fill: var(--muted);
   font-family: var(--font-alias);
-  font-size: 8px;
+  font-size: 12px;
   text-anchor: middle;
   dominant-baseline: middle;
   pointer-events: none;
@@ -425,7 +425,7 @@ h1 {
 .label {
   display: block;
   color: var(--blue);
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: .18em;
   margin-bottom: 8px;
   text-shadow: 0 0 6px rgba(0,170,255,.3);
@@ -447,7 +447,7 @@ h1 {
   background: var(--surface-2);
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: .08em;
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s, opacity .15s, box-shadow .15s;
@@ -494,7 +494,7 @@ h1 {
   flex: 2;
   border-color: var(--green);
   color: var(--green);
-  font-size: 10px;
+  font-size: 14px;
   padding: 8px 10px;
 }
 .btn-confirm:hover:not(:disabled) {
@@ -513,7 +513,7 @@ h1 {
   flex: 1;
   border-color: var(--red);
   color: var(--red);
-  font-size: 10px;
+  font-size: 14px;
   padding: 8px 10px;
 }
 .btn-clear:hover:not(:disabled) {
@@ -533,7 +533,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: 14px;
   color: var(--muted);
 }
 
@@ -556,7 +556,7 @@ h1 {
   align-items: flex-start;
   gap: 8px;
   margin-top: 7px;
-  font-size: 11px;
+  font-size: 15px;
   line-height: 1.4;
 }
 
@@ -566,8 +566,8 @@ h1 {
 .source-badge { color: var(--green); font-weight: 700; text-shadow: 0 0 6px rgba(0,255,136,.4); }
 .sink-badge   { color: var(--red);   font-weight: 700; text-shadow: 0 0 6px rgba(255,51,68,.4); }
 
-.path-display { color: var(--amber); font-size: 10px; }
-.val-highlight { color: var(--amber); font-size: 14px; font-weight: 700; }
+.path-display { color: var(--amber); font-size: 14px; }
+.val-highlight { color: var(--amber); font-size: 18px; font-weight: 700; }
 
 /* ── CHALLENGE PANEL ────────────────────────────────────────────────── */
 
@@ -578,12 +578,12 @@ h1 {
   align-items: flex-start;
   gap: 8px;
   margin-top: 8px;
-  font-size: 11px;
+  font-size: 15px;
 }
 
 .challenge-path-val {
   color: var(--amber);
-  font-size: 10px;
+  font-size: 14px;
   text-align: right;
   word-break: break-word;
   max-width: 170px;
@@ -592,7 +592,7 @@ h1 {
 .challenge-feedback {
   min-height: 18px;
   margin-top: 8px;
-  font-size: 10px;
+  font-size: 14px;
   line-height: 1.5;
   border-radius: 2px;
   padding: 2px 4px;
@@ -612,7 +612,7 @@ h1 {
   background: var(--surface-2);
   color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: .06em;
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
@@ -627,7 +627,7 @@ h1 {
 
 /* ── STEP LOG ───────────────────────────────────────────────────────── */
 
-.step-empty { color: var(--muted); font-size: 10px; padding: 4px 0; }
+.step-empty { color: var(--muted); font-size: 14px; padding: 4px 0; }
 
 .step-entry {
   padding: 6px 0;
@@ -636,7 +636,7 @@ h1 {
   flex-wrap: wrap;
   gap: 4px 8px;
   align-items: center;
-  font-size: 10px;
+  font-size: 14px;
   line-height: 1.4;
   animation: step-appear .3s ease;
 }
@@ -708,12 +708,12 @@ h1 {
   100% { left: 200%; }
 }
 
-.completion-icon { font-size: 40px; margin-bottom: 14px; }
+.completion-icon { font-size: 42px; margin-bottom: 14px; }
 
 .completion-title {
   font-family: var(--font-disp);
   color: var(--green);
-  font-size: 20px;
+  font-size: 23px;
   letter-spacing: .12em;
   margin-bottom: 8px;
   text-shadow: 0 0 16px rgba(0,255,136,.5);
@@ -721,20 +721,20 @@ h1 {
 
 .completion-text {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1.7;
   margin-bottom: 20px;
 }
 
 .completion-flow-line {
-  font-size: 13px;
+  font-size: 17px;
   color: var(--text);
   margin-bottom: 26px;
 }
 
 .completion-flow {
   color: var(--green);
-  font-size: 36px;
+  font-size: 38px;
   font-family: var(--font-node);
   font-weight: 400;
   display: block;
@@ -750,7 +750,7 @@ h1 {
   background: rgba(0,255,136,.07);
   color: var(--green);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 15px;
   letter-spacing: .12em;
   cursor: pointer;
   transition: background .15s, box-shadow .15s;

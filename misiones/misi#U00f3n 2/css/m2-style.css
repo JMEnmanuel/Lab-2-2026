@@ -65,7 +65,7 @@ body, html {
 
 .mission-badge {
     font-family: var(--font-display);
-    font-size: 9px;
+    font-size: 13px;
     color: var(--green);
     letter-spacing: 0.2em;
     border: 1px solid var(--green);
@@ -73,7 +73,7 @@ body, html {
 }
 
 .mission-title {
-    font-size: 10px;
+    font-size: 14px;
     color: var(--text-muted);
     letter-spacing: 0.15em;
     margin-left: 12px;
@@ -81,7 +81,7 @@ body, html {
 
 .btn-back {
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 13px;
     color: var(--text-muted);
     background: transparent;
     border: 1px solid var(--border);
@@ -118,7 +118,7 @@ body, html {
 }
 
 .intro-tag {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.25em;
     margin-bottom: 14px;
@@ -127,7 +127,7 @@ body, html {
 
 .intro-title {
     font-family: var(--font-display);
-    font-size: clamp(15px, 2.2vw, 20px);
+    font-size: clamp(19px, 2.2vw, 23px);
     color: var(--green);
     letter-spacing: 0.18em;
     margin-bottom: 20px;
@@ -135,7 +135,7 @@ body, html {
 }
 
 .intro-body {
-    font-size: 12px;
+    font-size: 16px;
     color: var(--text);
     line-height: 2;
     margin-bottom: 28px;
@@ -158,14 +158,14 @@ body, html {
 }
 
 .stat-label {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.15em;
     margin-bottom: 4px;
     display: block;
 }
 
-.stat-value        { font-size: 12px; color: var(--text); }
+.stat-value        { font-size: 16px; color: var(--text); }
 .stat-value.danger { color: var(--red); }
 .stat-value.ok     { color: var(--green); }
 .stat-value.warn   { color: var(--amber); }
@@ -184,7 +184,7 @@ body, html {
     padding: 13px;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 15px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     transition: all 0.2s;
@@ -202,7 +202,7 @@ body, html {
     padding: 12px;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 14px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     transition: all 0.2s;
@@ -244,7 +244,7 @@ body, html {
 .panel-header {
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
-    font-size: 9px;
+    font-size: 13px;
     color: var(--text-muted);
     letter-spacing: 0.15em;
     display: flex;
@@ -266,7 +266,7 @@ body, html {
 }
 
 .info-card-title {
-    font-size: 8px;
+    font-size: 12px;
     color: var(--text-muted);
     letter-spacing: 0.2em;
     margin-bottom: 10px;
@@ -274,7 +274,7 @@ body, html {
 }
 
 #tut-step-text {
-    font-size: 11px;
+    font-size: 15px;
     color: var(--text);
     line-height: 1.9;
     min-height: 80px;
@@ -289,16 +289,16 @@ body, html {
     padding: 5px 10px;
     background: var(--surface-2);
     border: 1px solid transparent;
-    font-size: 11px;
+    font-size: 15px;
     transition: all 0.3s;
 }
 .dist-row.dist-current { border-color: var(--green); background: var(--green-faint); }
 .dist-node { color: var(--text-muted); letter-spacing: 0.1em; }
-.dist-val  { color: var(--text); font-size: 13px; }
+.dist-val  { color: var(--text); font-size: 17px; }
 .dist-row.dist-current .dist-val { color: var(--green); }
 
 .legend { display: flex; flex-direction: column; gap: 8px; }
-.legend-item { display: flex; align-items: center; gap: 10px; font-size: 10px; color: var(--text-muted); }
+.legend-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-muted); }
 .legend-dot  { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 
 .tut-nav {
@@ -318,7 +318,7 @@ body, html {
     padding: 10px;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 14px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     transition: all 0.2s;
@@ -328,7 +328,7 @@ body, html {
 .btn-tut.primary  { border-color: var(--green); color: var(--green); }
 .btn-tut.primary:hover { background: var(--green-faint); }
 
-#step-counter { font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em; }
+#step-counter { font-size: 13px; color: var(--text-muted); letter-spacing: 0.1em; }
 
 /* ── SVG GRAPH STYLES (tutorial) ── */
 .edge        { stroke: var(--border); stroke-width: 1.5; }
@@ -337,7 +337,7 @@ body, html {
 .weight-bg      { fill: var(--surface-2); stroke: var(--border); stroke-width: 1; }
 .weight-bg-path { fill: rgba(0,255,65,0.12); stroke: var(--green); }
 
-.weight-label      { fill: var(--text-muted); font-family: var(--font-mono); font-size: 10px; text-anchor: middle; }
+.weight-label      { fill: var(--text-muted); font-family: var(--font-mono); font-size: 14px; text-anchor: middle; }
 .weight-label-path { fill: var(--green); }
 
 .node-circle { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.5; transition: all 0.4s; }
@@ -347,8 +347,8 @@ body, html {
 .node-target  .node-circle { fill: rgba(255,68,85,0.1); stroke: var(--red); stroke-width: 2; }
 .node-path    .node-circle { fill: rgba(0,255,65,0.18); stroke: var(--green); stroke-width: 2.5; }
 
-.node-label    { fill: var(--text); font-family: var(--font-display); font-size: 11px; letter-spacing: 0.1em; pointer-events: none; }
-.node-sublabel { fill: var(--text-muted); font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.05em; pointer-events: none; }
+.node-label    { fill: var(--text); font-family: var(--font-display); font-size: 15px; letter-spacing: 0.1em; pointer-events: none; }
+.node-sublabel { fill: var(--text-muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; pointer-events: none; }
 
 .node-visited .node-label { fill: var(--green-dim); }
 .node-current .node-label { fill: var(--green); }
@@ -369,7 +369,7 @@ body, html {
 
 #game-svg { flex: 1; width: 100%; cursor: crosshair; user-select: none; }
 
-.hint-text { font-size: 8px; color: var(--text-muted); letter-spacing: 0.1em; }
+.hint-text { font-size: 12px; color: var(--text-muted); letter-spacing: 0.1em; }
 
 /* ── HUD ── */
 .hud-panel {
@@ -400,12 +400,12 @@ body, html {
     gap: 10px;
     margin: 8px 0;
     color: var(--text-muted);
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 0.14em;
 }
 .m2-cpu-top strong {
     color: var(--red);
-    font-size: 13px;
+    font-size: 17px;
 }
 .m2-cpu-track {
     height: 6px;
@@ -423,7 +423,7 @@ body, html {
     min-height: 30px;
     margin-top: 8px;
     color: var(--text-muted);
-    font-size: 9px;
+    font-size: 13px;
     line-height: 1.55;
     letter-spacing: 0.05em;
 }
@@ -440,7 +440,7 @@ body, html {
 }
 
 .hud-label {
-    font-size: 7px;
+    font-size: 11px;
     color: var(--text-muted);
     letter-spacing: 0.2em;
     margin-bottom: 8px;
@@ -467,14 +467,14 @@ body, html {
 }
 
 .shield-hp-text {
-    font-size: 11px;
+    font-size: 15px;
     color: var(--text);
     letter-spacing: 0.1em;
 }
 */
 /* Ruta y riesgo */
 .path-display {
-    font-size: 10px;
+    font-size: 14px;
     color: var(--text);
     line-height: 1.8;
     word-break: break-all;
@@ -483,7 +483,7 @@ body, html {
 }
 
 .risk-display {
-    font-size: 11px;
+    font-size: 15px;
     letter-spacing: 0.1em;
     font-family: var(--font-display);
 }
@@ -501,25 +501,25 @@ body, html {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 10px;
+    font-size: 14px;
     color: var(--text-muted);
 }
 .threshold-val {
     font-family: var(--font-display);
-    font-size: 16px;
+    font-size: 20px;
     color: var(--amber);
 }
 
 /* Leyenda riesgo */
 .risk-legend { display: flex; flex-direction: column; gap: 6px; }
-.risk-legend-item { display: flex; align-items: center; gap: 8px; font-size: 9px; color: var(--text-muted); }
+.risk-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
 .risk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
 /* Moneda */
 .coin-card { border-color: rgba(0,255,65,0.2); }
 
 .coin-desc {
-    font-size: 9px;
+    font-size: 13px;
     color: var(--text-muted);
     margin-bottom: 10px;
     line-height: 1.6;
@@ -532,7 +532,7 @@ body, html {
 }
 
 .coin-slot {
-    font-size: 18px;
+    font-size: 22px;
     transition: all 0.3s;
 }
 .coin-available { color: var(--green); filter: drop-shadow(0 0 4px var(--green)); }
@@ -546,7 +546,7 @@ body, html {
     padding: 10px;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 14px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     transition: all 0.2s;
@@ -565,7 +565,7 @@ body, html {
     padding: 10px;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 14px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     transition: all 0.2s;
@@ -608,7 +608,7 @@ body, html {
 }
 .game-weight-label.cpu-weight-fake {
     fill: var(--red) !important;
-    font-size: 13px;
+    font-size: 17px;
     animation: cpuWeightGlitch 0.16s steps(2,end) infinite;
 }
 .game-weight-bg.cpu-weight-fake {
@@ -640,7 +640,7 @@ body, html {
 }
 .m2-qte-kicker {
     color: var(--amber);
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 0.24em;
     margin-bottom: 9px;
 }
@@ -659,7 +659,7 @@ body, html {
     background: var(--surface-2);
     color: var(--text-muted);
     font-family: var(--font-display);
-    font-size: 17px;
+    font-size: 21px;
     letter-spacing: 0.08em;
 }
 .m2-qte-key.active {
@@ -688,7 +688,7 @@ body, html {
 .m2-qte-note {
     margin-top: 8px;
     color: var(--text-muted);
-    font-size: 9px;
+    font-size: 13px;
     letter-spacing: 0.05em;
 }
 .m2-qte.success {
@@ -766,7 +766,7 @@ body, html {
 .coin-modal-box { min-width: 280px; }
 
 #coin-face {
-    font-size: 48px;
+    font-size: 50px;
     display: block;
     margin-bottom: 16px;
     color: var(--green);
@@ -790,16 +790,16 @@ body, html {
     to   { transform: scale(1);   opacity: 1; }
 }
 
-.coin-msg-neutral { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; }
-.coin-msg-success { font-size: 11px; color: var(--green); letter-spacing: 0.05em; line-height: 1.6; }
-.coin-msg-fail    { font-size: 11px; color: var(--red);   letter-spacing: 0.05em; }
+.coin-msg-neutral { font-size: 15px; color: var(--text-muted); letter-spacing: 0.1em; }
+.coin-msg-success { font-size: 15px; color: var(--green); letter-spacing: 0.05em; line-height: 1.6; }
+.coin-msg-fail    { font-size: 15px; color: var(--red);   letter-spacing: 0.05em; }
 
 /* End modal */
 .end-modal-box { max-width: 440px; }
 
 .end-title {
     font-family: var(--font-display);
-    font-size: 18px;
+    font-size: 22px;
     letter-spacing: 0.2em;
     margin-bottom: 10px;
 }
@@ -807,14 +807,14 @@ body, html {
 .end-title.lose { color: var(--red); }
 
 .end-subtitle {
-    font-size: 10px;
+    font-size: 14px;
     color: var(--text-muted);
     letter-spacing: 0.2em;
     margin-bottom: 16px;
 }
 
 .end-detail {
-    font-size: 11px;
+    font-size: 15px;
     color: var(--text);
     line-height: 1.8;
     margin-bottom: 24px;
@@ -845,7 +845,7 @@ body, html {
 .tut-popup-title {
     display: block;
     font-family: var(--font-display);
-    font-size: 8px;
+    font-size: 12px;
     color: var(--green);
     letter-spacing: 0.2em;
     margin-bottom: 6px;
@@ -853,7 +853,7 @@ body, html {
 
 .tut-popup-body {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 14px;
     color: var(--text);
     line-height: 1.7;
     margin: 0;
@@ -865,7 +865,7 @@ body, html {
     background: transparent;
     border: none;
     color: var(--text-muted);
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1;
     cursor: pointer;
     padding: 2px 4px;
