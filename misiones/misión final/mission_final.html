@@ -66,5 +66,16 @@
     <script src="js/final-model.js?v=5"></script>
     <script src="js/final-view.js?v=5"></script>
     <script src="js/final-controller.js?v=5"></script>
+    <script src="../../js/mission-timer.js"></script>
+    <script>
+    MissionTimer.configure({
+        missionLabel: "MISION FINAL",
+        durationSeconds: 540,
+        startSelectors: ["#btn-start-phase"],
+        shouldStop: function () {
+            return document.body.dataset.restoration === "limpia";
+        }
+    });
+    </script>
 </body>
 </html>

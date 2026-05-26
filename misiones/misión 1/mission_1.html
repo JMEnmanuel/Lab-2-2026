@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Misión 1 — Rastros del Acoso</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/m1-style.css?v=id-labels-4">
+    <link rel="stylesheet" href="css/m1-style.css?v=cpu-rival-1">
 </head>
 <body>
 
@@ -202,6 +202,16 @@
             <div class="sp-phase-desc" id="sp-phase-desc">Recorre el grafo por niveles para mapear cómo se expandió el acoso.</div>
         </div>
         <div class="sp-body">
+            <div id="cpu-rival-panel" class="cpu-rival-panel" data-pressure="stable">
+                <div class="cpu-rival-top">
+                    <span>// CPU RIVAL</span>
+                    <strong id="cpu-progress-val">0%</strong>
+                </div>
+                <div class="cpu-rival-track">
+                    <div id="cpu-progress-fill" class="cpu-rival-fill"></div>
+                </div>
+                <div id="cpu-action-log" class="cpu-action-log">CPU en espera. El ruido digital aun no avanza.</div>
+            </div>
             <div class="panel-section">
                 <span class="panel-label">ALGORITMO / ESTRUCTURA</span>
                 <div class="panel-value" id="ui-algo">BFS — Cola (FIFO)</div>
@@ -236,7 +246,6 @@
                     <div class="ev-msg-type">PUBLICACIÓN PÚBLICA</div>
                     <div class="ev-msg-text" id="ev-pub">—</div>
                 </div>
-                <div id="ev-role-badge" class="ev-role-badge ev-role-neutral">—</div>
                 <div class="suspicion-bar" id="sus-bar" style="display:none">
                     <div class="suspicion-bar-label">
                         <span>NIVEL DE SOSPECHA</span>
@@ -317,9 +326,19 @@
 </footer>
 
 <!-- SCRIPTS MVC -->
-<script src="js/m1-model.js?v=id-labels-4"></script>
-<script src="js/m1-view.js?v=id-labels-4"></script>
-<script src="js/m1-controller.js?v=id-labels-4"></script>
+<script src="js/m1-model.js?v=cpu-rival-1"></script>
+<script src="js/m1-view.js?v=cpu-rival-1"></script>
+<script src="js/m1-controller.js?v=cpu-rival-1"></script>
+<script src="../../js/mission-timer.js"></script>
+<script>
+MissionTimer.configure({
+    missionLabel: "MISION 01",
+    durationSeconds: 180,
+    startWhenVisible: ["#game-ui.active"],
+    stopWhenVisible: ["#screen-end.active"],
+    resetSelectors: ["#btn-reiniciar", "#btn-final-reset"]
+});
+</script>
 
 </body>
 </html>

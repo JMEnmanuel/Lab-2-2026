@@ -134,5 +134,15 @@
   <script src="js/m4-model.js"></script>
   <script src="js/m4-view.js"></script>
   <script src="js/m4-controller.js"></script>
+  <script src="../../js/mission-timer.js"></script>
+  <script>
+  MissionTimer.configure({
+    missionLabel: "MISION 04",
+    durationSeconds: 120,
+    startWhenVisible: ["#challenge-controls"],
+    stopWhenVisible: ["#completion-overlay"],
+    resetSelectors: ["#btn-reset", "#btn-close-completion", "#btn-mode-tutorial"]
+  });
+  </script>
 </body>
 </html>

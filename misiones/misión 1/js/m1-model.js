@@ -10,12 +10,12 @@ const Model = (() => {
 
     // ── Usuarios (9 nodos, nombre con número integrado) ──────────────
     const USERS = [
-        { id:1, name:'1.Ana',     alias:'ana_r'     },
+        { id:1, name:'1.Omar',     alias:'yesid_r'     },
         { id:2, name:'2.Brayan',  alias:'brayan_x'  },
-        { id:3, name:'3.Mancipe',  alias:'carlos_k'  },
+        { id:3, name:'3.Mancipe',  alias:'david_k'  },
         { id:4, name:'4.Diana',   alias:'diana_m'   },
         { id:5, name:'5.Elena',   alias:'elena_z'   },
-        { id:6, name:'6.Natalia',   alias:'fiona_v'   },
+        { id:6, name:'6.Natalia',   alias:'Nat'   },
         { id:7, name:'7.Gabriel', alias:'gabriel_t' },
         { id:8, name:'8.Hana',    alias:'hana_j'    },
         { id:9, name:'9.Ivan',    alias:'ivan_q'    }
@@ -37,82 +37,218 @@ const Model = (() => {
 
     // ── Evidencias narrativas ────────────────────────────────────────
     const EVIDENCE_POOL = {
-        1: {
-            priv: '"Oye, ¿ya viste lo que está circulando sobre alguien del grupo? Dicen que es real."',
-            pub:  '"Hay cosas que uno no puede callar. La verdad siempre sale."',
-            trace: 'Recibio el rumor despues de que ya habia circulado en dos chats.',
-            clue: 'Reacciona al contenido; no aparece como primer emisor.',
-            roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
-        },
-        2: {
-            priv: '"Me lo mandaron hace rato. No sé si creerlo pero... es bastante fuerte."',
-            pub:  '"Algunas personas deberían pensar antes de actuar. #Reflexión"',
-            trace: 'Su mensaje cita una captura reenviada por otro nodo.',
-            clue: 'Dice "me lo mandaron"; indica receptor, no origen.',
-            roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
-        },
-        3: {
-            priv: '"Ya lo vi. La verdad no me sorprende viniendo de esa persona."',
-            pub:  '"Qué pena ajena con algunos. 😬"',
-            trace: 'Entra al hilo cuando el rumor ya tenia respuestas previas.',
-            clue: 'Comenta despues de verlo; no lo inicia.',
-            roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
-        },
-        4: {
-            priv: '"¿Qué? ¿De qué están hablando todos?"',
-            pub:  '"Feliz día 🌞 ignorando el drama de hoy."',
-            trace: 'No comparte enlaces ni capturas del rumor.',
-            clue: 'Desconoce el tema al inicio.',
-            roleLabel: 'NEUTRAL', roleCls: 'ev-role-neutral'
-        },
-        5: {
-            priv: '"Por favor paren. Eso que están compartiendo es sobre mí y es mentira."',
-            pub:  '"No entiendo por qué la gente hace esto. Me duele mucho."',
-            trace: 'Recibe el impacto directo del rumor.',
-            clue: 'Es la victima; pide detener la difusion.',
-            roleLabel: 'VÍCTIMA', roleCls: 'ev-role-victim'
-        },
-        6: {
-            priv: '"Lo vi en el grupo. Ya tiene demasiados likes, esto se salió de control."',
-            pub:  '"Hay que aprender a respetar la privacidad de los demás."',
-            trace: 'Detectado despues de que la publicacion ya tenia alcance.',
-            clue: 'Habla de algo que ya se salio de control.',
-            roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
-        },
-        7: {
-            priv: '"Alguien me lo mandó al privado. Lo reenvié sin pensar, lo siento."',
-            pub:  '"A veces uno comete errores. Pido disculpas."',
-            trace: 'Confiesa reenvio posterior.',
-            clue: 'Fue reenviador, no primer emisor.',
-            roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
-        },
-        8: {
-            priv: '"¿Ya vio lo del grupo general? Todo el mundo lo está viendo."',
-            pub:  '"El chisme de hoy llegó lejos. 😳"',
-            trace: 'Aparece cuando el rumor ya esta en el grupo general.',
-            clue: 'Describe alcance masivo ya existente.',
-            roleLabel: 'PROPAGADOR', roleCls: 'ev-role-spread'
-        },
-        9: {
-            priv: '"Me lo mandaron hace unos minutos. Es lo primero que vi al despertar."',
-            pub:  '"Esperemos que esto no le haga daño a nadie."',
-            trace: 'Ultimo registro de lectura; no hay reenvios salientes.',
-            clue: 'Recibio tarde y no amplifico.',
-            roleLabel: 'NEUTRAL', roleCls: 'ev-role-neutral'
-        }
+        1: [
+            {
+                priv: '"Ajá, ¿tú viste esa captura que anda rodando? A mí me llegó ya con medio salón opinando."',
+                pub:  '"La gente habla sin saber y después se hace la loca, ombe."',
+                trace: 'El registro entra cuando la captura ya fue vista en dos chats distintos.',
+                clue: 'Habla de algo que ya estaba rodando antes de su mensaje.'
+            },
+            {
+                priv: '"Primo, eso me cayó reenviado. Ni sé de dónde salió, pero el grupo está prendido."',
+                pub:  '"Uno debería confirmar antes de tirar comentarios, ¿sí o qué?"',
+                trace: 'La cadena privada conserva marcas de reenvío previas.',
+                clue: 'Reconoce recepción previa; no aparece como primera fuente.'
+            },
+            {
+                priv: '"Ey, me lo mandó Brayan y después Diana preguntó qué era esa vaina. Esto va rápido."',
+                pub:  '"No todo chisme merece tarima, pelaos."',
+                trace: 'Menciona otros nodos antes de intervenir públicamente.',
+                clue: 'Su relato depende de mensajes que ya existían.'
+            }
+        ],
+        2: [
+            {
+                priv: '"Me lo pasaron hace rato, compa. No sé si sea cierto, pero la gente está embaladísima."',
+                pub:  '"Hay quienes tiran la piedra y esconden la mano. Qué vaina seria."',
+                trace: 'Su chat cita una captura con compresión de reenvío.',
+                clue: 'Dice que le llegó antes de opinar.'
+            },
+            {
+                priv: '"A mí me llegó por interno, no fui yo el que armó ese bololó."',
+                pub:  '"Barranquilla es chiquita cuando el chisme coge buseta."',
+                trace: 'El mensaje llega después de una primera publicación en el grupo.',
+                clue: 'Se defiende como receptor, pero amplifica el tema.'
+            },
+            {
+                priv: '"No manden mi nombre en eso, yo solo pregunté si era verdad."',
+                pub:  '"Si van a hablar, hablen con pruebas, ajá."',
+                trace: 'Hay una pregunta suya pegada a una captura enviada por otro usuario.',
+                clue: 'Su actividad reacciona a material anterior.'
+            }
+        ],
+        3: [
+            {
+                priv: '"Ya lo vi, y nojoda... eso está fuerte. Pero a mí me apareció cuando ya todos estaban comentando."',
+                pub:  '"Qué pena con la gente que disfruta ese show."',
+                trace: 'Entra al hilo después de varias respuestas acumuladas.',
+                clue: 'Comenta tarde dentro de una conversación ya activa.'
+            },
+            {
+                priv: '"Me etiquetaron en el comentario, por eso entré. Yo ni sabía qué pasaba."',
+                pub:  '"A veces el silencio salva más que el comentario filoso."',
+                trace: 'Su primera acción visible es responder a una mención.',
+                clue: 'La mención lo arrastra al caso; no abre la cadena.'
+            },
+            {
+                priv: '"Ese pantallazo me llegó borroso, como reenviado mil veces. ¿Quién empezó esa vaina?"',
+                pub:  '"Dejen de echarle leña al incendio, pelaos."',
+                trace: 'La evidencia contiene una imagen degradada por varios reenvíos.',
+                clue: 'Pregunta por el inicio, señal de que no lo conoce.'
+            }
+        ],
+        4: [
+            {
+                priv: '"¿Cuál drama? Yo estaba en clase, no entiendo nada de lo que están diciendo."',
+                pub:  '"Hoy solo quiero entregar el taller y sobrevivir, gracias."',
+                trace: 'No hay capturas salientes ni reenvíos asociados.',
+                clue: 'Su actividad inicia con confusión, no con difusión.'
+            },
+            {
+                priv: '"Pásame contexto, pero sin mandarme esa cosa, que no quiero meterme en problema."',
+                pub:  '"Respirar, tomar agua y no opinar de vidas ajenas."',
+                trace: 'Rechaza recibir la captura completa.',
+                clue: 'Evita participar en la cadena de distribución.'
+            },
+            {
+                priv: '"Yo vi fue a la gente alterada, pero no abrí ningún link raro."',
+                pub:  '"El grupo hoy parece mercado en quincena."',
+                trace: 'Solo registra lectura del chat general, sin adjuntos enviados.',
+                clue: 'Observa el ruido sin empujar el contenido.'
+            }
+        ],
+        5: [
+            {
+                priv: '"Por favor, paren. Eso que están pasando es sobre mí y no es como lo están contando."',
+                pub:  '"Duele que una mentira corra más que cualquier explicación."',
+                trace: 'Aparece como persona afectada por la publicación central.',
+                clue: 'Su mensaje pide detener la difusión.'
+            },
+            {
+                priv: '"No me sigan mandando capturas, de verdad. Ya bastante tengo con ver mi nombre ahí."',
+                pub:  '"Si no saben el daño que hacen, al menos no compartan."',
+                trace: 'Recibe múltiples copias desde nodos distintos.',
+                clue: 'La evidencia la ubica como objetivo del rumor.'
+            },
+            {
+                priv: '"Mamá ya se enteró por otra persona. ¿Ustedes entienden lo grave que es esto?"',
+                pub:  '"A veces el chisme también es violencia."',
+                trace: 'El impacto aparece después de que el contenido cruza varios contactos.',
+                clue: 'Responde al daño, no al inicio de la cadena.'
+            }
+        ],
+        6: [
+            {
+                priv: '"Lo vi en el grupo grande, ya tenía un pocotón de reacciones. Esto se salió de madre."',
+                pub:  '"La privacidad no es juego, mi gente."',
+                trace: 'Detectado después de que la publicación ya acumulaba alcance.',
+                clue: 'Describe una propagación que ya estaba avanzada.'
+            },
+            {
+                priv: '"A mí me llegó cuando ya estaban haciendo memes. Qué falta de respeto, de verdad."',
+                pub:  '"No todo lo que da risa está bien compartirlo."',
+                trace: 'Se conecta tras actividad masiva en el hilo público.',
+                clue: 'Su entrada ocurre después del pico de exposición.'
+            },
+            {
+                priv: '"Yo reaccioné tarde, porque pensé que era broma. Después vi que era serio."',
+                pub:  '"El relajo también tiene límite, coste."',
+                trace: 'La reacción queda marcada varios minutos después de los primeros envíos.',
+                clue: 'No coincide con la ventana inicial del caso.'
+            }
+        ],
+        7: [
+            {
+                priv: '"Me lo mandaron al privado y yo, de bruto, lo reenvié. La embarré, lo sé."',
+                pub:  '"Uno también tiene que responder por lo que comparte."',
+                trace: 'Confiesa un reenvío posterior a la primera oleada.',
+                clue: 'Admite amplificación, no creación.'
+            },
+            {
+                priv: '"Yo pensé que ya todo el mundo sabía. Igual no era excusa, compa."',
+                pub:  '"Perdón a quien le cayó encima esta vuelta."',
+                trace: 'Su reenvío ocurre cuando la conversación ya era pública.',
+                clue: 'Se suma por presión del grupo.'
+            },
+            {
+                priv: '"Me dejé llevar por el vacile y terminé mandando algo que no debía."',
+                pub:  '"No repitan lo que yo hice. Eso no fue juego."',
+                trace: 'La cadena muestra un envío suyo conectado a contenido recibido.',
+                clue: 'Hay rastro claro de entrada antes de salida.'
+            }
+        ],
+        8: [
+            {
+                priv: '"¿Ya viste lo del grupo general? Eso está en boca de todo el mundo, qué locura."',
+                pub:  '"El chisme de hoy cogió carretera, ombe."',
+                trace: 'Aparece cuando el rumor ya está en el grupo general.',
+                clue: 'Habla de alcance masivo ya existente.'
+            },
+            {
+                priv: '"Me desperté y tenía como veinte mensajes de esa vaina. ¿Quién soltó eso primero?"',
+                pub:  '"Cuando una cosa se riega así, después nadie responde."',
+                trace: 'Recibe múltiples notificaciones antes de publicar.',
+                clue: 'Pregunta por la fuente original.'
+            },
+            {
+                priv: '"Yo solo vi el alboroto completo, no el primer mensaje. Eso venía rodando desde temprano."',
+                pub:  '"La lengua corre más que Transmetro en hora pico."',
+                trace: 'Su primer registro es posterior a varias conexiones activas.',
+                clue: 'Ubica el inicio antes de su participación.'
+            }
+        ],
+        9: [
+            {
+                priv: '"Me lo mandaron hace unos minutos. Yo apenas estoy entendiendo el cuento."',
+                pub:  '"Ojalá esto no le haga daño a nadie, porque se siente pesado."',
+                trace: 'Último registro de lectura, sin reenvíos salientes.',
+                clue: 'Recibe tarde y no amplifica.'
+            },
+            {
+                priv: '"Yo abrí el chat y ya eso estaba explotado. Ni alcancé a ver quién empezó."',
+                pub:  '"Qué cansancio ese afán de destruir por una pantalla."',
+                trace: 'Solo hay lectura tardía del grupo.',
+                clue: 'Llega al final de la cadena.'
+            },
+            {
+                priv: '"No me metan en ese lío, yo no pasé nada. Vi fue el desorden armado."',
+                pub:  '"A veces cerrar el chat también es cuidarse."',
+                trace: 'No registra adjuntos enviados ni menciones iniciales.',
+                clue: 'Permanece como observador tardío.'
+            }
+        ]
     };
 
     // ── Origen aleatorio ─────────────────────────────────────────────
     const POSSIBLE_ORIGINS = [1, 2, 3, 6, 8];
     let originId = POSSIBLE_ORIGINS[Math.floor(Math.random() * POSSIBLE_ORIGINS.length)];
 
-    const ORIGIN_EVIDENCE_OVERRIDE = {
-        priv: '"Lo voy a soltar primero por aqui. Cuando todos lo vean, ya no podran frenarlo."',
-        pub:  '"Hay personas que se creen intocables. Pronto todos sabran la verdad."',
-        trace: 'Primer registro temporal: publica antes que existan reenvios, capturas o respuestas.',
-        clue: 'Clave: habla en futuro y no cita a nadie. Es emisor inicial.',
-        roleLabel: 'INICIADOR', roleCls: 'ev-role-origin'
-    };
+    const ORIGIN_EVIDENCE_POOL = [
+        {
+            priv: '"Voy a tirar esto antes de que borren todo. Después no digan que nadie avisó."',
+            pub:  '"Hay verdades que tienen que salir, así a algunos les arda."',
+            trace: 'Primer registro temporal: aparece antes de capturas, respuestas o reenvíos.',
+            clue: 'No hay referencias a mensajes anteriores en su registro.'
+        },
+        {
+            priv: '"Tengo el pantallazo listo. Si lo suelto ahora, esto prende en cinco minutos."',
+            pub:  '"A veces toca destapar lo que otros esconden, ajá."',
+            trace: 'La marca horaria antecede a la primera reacción del grupo.',
+            clue: 'El tono anticipa reacción, no responde a una cadena previa.'
+        },
+        {
+            priv: '"Nadie ha dicho nada todavía. Voy a ponerlo en el grupo y que cada quien saque cuentas."',
+            pub:  '"No me culpen por mostrar lo que estaba tapado."',
+            trace: 'No cita mensajes anteriores ni adjuntos recibidos.',
+            clue: 'Su registro queda antes del ruido público del caso.'
+        }
+    ];
+
+    const evidenceRolls = {};
+    function rollEvidence() {
+        USERS.forEach(u => { evidenceRolls[u.id] = Math.floor(Math.random() * 3); });
+    }
+    rollEvidence();
 
     // ── Estado del juego principal ───────────────────────────────────
     const state = {
@@ -136,15 +272,63 @@ const Model = (() => {
             done:      false,
             suspicion: {}
         },
+        cpu: {
+            progress: 0,
+            turn: 0,
+            lastAction: 'CPU en espera. El ruido digital aun no avanza.',
+            pressure: 'stable',
+            lockedEvidenceId: null
+        },
         accusationLives: 3
+    };
+
+    const CPU_ACTIONS = {
+        correct: [
+            'La CPU replica el rumor en canales secundarios.',
+            'La CPU empuja comentarios viejos para tapar el rastro.',
+            'La CPU aumenta el ruido alrededor de los nodos ya visitados.'
+        ],
+        mistake: [
+            'La CPU aprovecha el error y contamina una pista recuperada.',
+            'La CPU acelera la difusion mientras corriges el recorrido.',
+            'La CPU crea falsos sospechosos en la red.'
+        ],
+        repeat: [
+            'La CPU gana un poco de terreno por la duda en el rastreo.',
+            'La CPU mantiene vivo el ruido mientras revisas un nodo repetido.',
+            'La CPU refuerza una conversacion secundaria.'
+        ],
+        accusation: [
+            'La CPU usa la acusacion fallida para borrar parte de la trazabilidad.',
+            'La CPU redirige la culpa hacia otro nodo y acelera la confusion.',
+            'La CPU convierte el fallo en una ola de desinformacion.'
+        ]
     };
 
     function resetState() {
         originId = POSSIBLE_ORIGINS[Math.floor(Math.random() * POSSIBLE_ORIGINS.length)];
+        rollEvidence();
         state.phase = 'bfs';
         state.bfs  = { visited:[], queue:[], traversed:[], parent:{}, current:null, lives:3, done:false };
         state.dfs  = { visited:[], stack:[], traversed:[], parent:{}, current:null, lives:3, done:false, suspicion:{} };
+        state.cpu  = { progress:0, turn:0, lastAction:'CPU en espera. El ruido digital aun no avanza.', pressure:'stable', lockedEvidenceId:null };
         state.accusationLives = 3;
+    }
+
+    function runCpuTurn(kind) {
+        const gains = { correct: 3, mistake: 14, repeat: 7, accusation: 22 };
+        const pool = CPU_ACTIONS[kind] || CPU_ACTIONS.correct;
+        const action = pool[state.cpu.turn % pool.length];
+        const visitedTotal = state.bfs.visited.length + state.dfs.visited.length;
+        const pressureBonus = visitedTotal >= 12 ? 2 : visitedTotal >= 7 ? 1 : 0;
+        state.cpu.turn += 1;
+        state.cpu.progress = Math.min(100, state.cpu.progress + (gains[kind] || 5) + pressureBonus);
+        state.cpu.lastAction = action;
+        state.cpu.pressure = state.cpu.progress >= 75 ? 'critical' : state.cpu.progress >= 45 ? 'warning' : 'stable';
+        state.cpu.lockedEvidenceId = kind === 'mistake'
+            ? USERS[(state.cpu.turn + visitedTotal) % USERS.length].id
+            : null;
+        return { ...state.cpu };
     }
 
     function computeSuspicion(visitOrder) {
@@ -159,8 +343,10 @@ const Model = (() => {
 
     function getUser(id)     { return USERS.find(u => u.id === id); }
     function getEvidence(id) {
-        if (id === originId) return ORIGIN_EVIDENCE_OVERRIDE;
-        return EVIDENCE_POOL[id] || { priv:'—', pub:'—', trace:'Sin registro.', clue:'Sin pista.', roleLabel:'DESCONOCIDO', roleCls:'ev-role-neutral' };
+        const roll = evidenceRolls[id] || 0;
+        if (id === originId) return ORIGIN_EVIDENCE_POOL[roll % ORIGIN_EVIDENCE_POOL.length];
+        const variants = EVIDENCE_POOL[id];
+        return variants ? variants[roll % variants.length] : { priv:'—', pub:'—', trace:'Sin registro.', clue:'Sin pista.' };
     }
 
     const GRAPH = { nodes: USERS.map(u=>({...u,...POSITIONS[u.id]})), links: LINKS, adj: ADJ };
@@ -331,7 +517,7 @@ const Model = (() => {
     return {
         // Juego principal
         GRAPH, USERS, POSITIONS, LINKS, ADJ, state, resetState,
-        computeSuspicion, getUser, getEvidence,
+        computeSuspicion, runCpuTurn, getUser, getEvidence,
         get originId() { return originId; },
 
         // Tutorial

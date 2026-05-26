@@ -219,5 +219,19 @@
   <script src="js/m3-model.js"></script>
   <script src="js/m3-view.js"></script>
   <script src="js/m3-controller.js"></script>
+  <script src="../../js/mission-timer.js"></script>
+  <script>
+  MissionTimer.configure({
+    missionLabel: "MISION 03",
+    durationSeconds: 120,
+    startSelectors: ["#btn-start"],
+    stopWhenVisible: ["#victory-overlay"],
+    resetSelectors: ["#btn-reset", "#btn-victory-reset"],
+    canStart: function () {
+      var activeMode = document.querySelector(".mode-btn.active");
+      return activeMode && activeMode.dataset.mode === "challenge";
+    }
+  });
+  </script>
 </body>
 </html>

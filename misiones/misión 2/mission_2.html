@@ -10,10 +10,6 @@
 <body>
 
 <!--
-    Guia de estudio de Mision 2.
-
-    Esta pantalla usa MVC estricto.
-    El HTML define introduccion, tutorial, juego real y modales.
     m2-model.js guarda grafos, constantes y estado.
     m2-view.js dibuja grafos, HUD, popups y modales.
     m2-controller.js ejecuta Dijkstra y maneja drag, moneda y reinicio.
@@ -244,5 +240,15 @@
 <script src="js/m2-model.js"></script>
 <script src="js/m2-view.js"></script>
 <script src="js/m2-controller.js"></script>
+<script src="../../js/mission-timer.js"></script>
+<script>
+MissionTimer.configure({
+    missionLabel: "MISION 02",
+    durationSeconds: 120,
+    startWhenVisible: ["#screen-game"],
+    stopWhenVisible: ["#end-modal"],
+    resetSelectors: ["#btn-retry"]
+});
+</script>
 </body>
 </html>

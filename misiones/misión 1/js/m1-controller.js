@@ -191,6 +191,7 @@ const Controller = (() => {
         Model.state.phase = 'bfs';
         View.showGame('bfs');
         View.updatePanel('bfs');
+        View.updateCpuPanel();
         View.renderGraph('bfs', handleNodeClickBFS);
         View.setInstruction('Haz click en cualquier nodo para iniciar. Cuando haya varias opciones, avanza por el ID menor disponible.');
     }
@@ -212,9 +213,11 @@ const Controller = (() => {
             visitBFS(id);
         } else if (st.visited.includes(id)) {
             View.setLog('[ ' + Model.getUser(id).name + ' ya fue investigado. Sigue el orden de la cola. ]');
+            cpuTurn('repeat');
         } else if (!st.queue.includes(id)) {
             View.setLog('[ ' + Model.getUser(id).name + ' aún no está en la cola BFS. ]');
             flashInvalid(id);
+            cpuTurn('mistake');
         } else {
             penalize('bfs', '[ BFS: debes visitar el PRIMERO de la cola → ' + Model.getUser(st.queue[0]).name + ' ]');
         }
@@ -250,6 +253,7 @@ const Controller = (() => {
         View.updatePanel('bfs');
         View.showEvidence(id, 'bfs');
         View.setInstruction('BFS: próximo en cola por ID menor → ' + (st.queue.length ? Model.getUser(st.queue[0]).name : '(vacía)'));
+        if (cpuTurn('correct')) return;
         if (st.visited.length === 9) {
             st.done = true;
             setTimeout(finishBFS, 1000);
@@ -266,6 +270,7 @@ const Controller = (() => {
         Model.state.phase = 'dfs';
         View.showGame('dfs');
         View.updatePanel('dfs');
+        View.updateCpuPanel();
         View.renderGraph('dfs', handleNodeClickDFS);
         View.setInstruction('DFS: elige un nodo para iniciar. Si hay varias opciones, el tope debe corresponder al ID menor disponible.');
     }
@@ -287,9 +292,11 @@ const Controller = (() => {
             visitDFS(id);
         } else if (st.visited.includes(id)) {
             View.setLog('[ ' + Model.getUser(id).name + ' ya fue rastreado. Sigue el tope de la pila. ]');
+            cpuTurn('repeat');
         } else if (!st.stack.includes(id)) {
             View.setLog('[ ' + Model.getUser(id).name + ' aún no está en la pila DFS. ]');
             flashInvalid(id);
+            cpuTurn('mistake');
         } else {
             penalize('dfs', '[ DFS: debes visitar el TOPE de la pila → ' + Model.getUser(validNext).name + ' ]');
         }
@@ -326,6 +333,7 @@ const Controller = (() => {
         View.updatePanel('dfs');
         View.showEvidence(id, 'dfs');
         View.setInstruction('DFS: tope de pila por ID menor → ' + (st.stack.length ? Model.getUser(st.stack[st.stack.length-1]).name : '(vacía)'));
+        if (cpuTurn('correct')) return;
         if (st.visited.length === 9) {
             st.done = true;
             setTimeout(startAccusation, 1000);
@@ -349,6 +357,7 @@ const Controller = (() => {
                 `Correcto. ${user.name} inició la campaña de acoso. Tu análisis BFS+DFS reveló su posición central en la red y su alta sospecha (${Model.state.dfs.suspicion[id]}%). La misión fue un éxito.`
             );
         } else {
+            if (cpuTurn('accusation')) return;
             Model.state.accusationLives--;
             const remaining = Model.state.accusationLives;
             if (remaining <= 0) {
@@ -384,6 +393,7 @@ const Controller = (() => {
         st.lives--;
         View.setLog(msg);
         View.updatePanel(phase);
+        if (cpuTurn('mistake')) return;
         if (st.lives <= 0) {
             const origin = Model.getUser(Model.originId);
             View.showEndScreen(false, origin,
@@ -396,7 +406,21 @@ const Controller = (() => {
     function resetGame() {
         Model.resetState();
         View.showScreen('screen-intro');
+        View.updateCpuPanel();
         document.getElementById('evidence-panel').classList.remove('visible');
+    }
+
+    function cpuTurn(kind) {
+        const cpu = Model.runCpuTurn(kind);
+        View.updateCpuPanel();
+        if (cpu.progress < 100) return false;
+        const origin = Model.getUser(Model.originId);
+        View.showEndScreen(false, origin,
+            'La CPU completo su carrera de propagacion antes de que cerraras el caso.',
+            `${cpu.lastAction} El ruido digital llego al 100% y el rastro del iniciador quedo cubierto por desinformacion. Reintenta con menos errores y decisiones mas rapidas.`,
+            'CPU TOMÓ LA RED'
+        );
+        return true;
     }
 
     function updateClock() {

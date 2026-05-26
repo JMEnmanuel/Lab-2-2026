@@ -49,11 +49,11 @@ const View = (() => {
         const bg = ns('rect'); attrs(bg,{width:'100%',height:'100%',fill:'url(#gg)'}); svg.appendChild(bg);
 
         const bbox = getBBox(GRAPH.nodes);
-        const sx = (W-100)/(bbox.maxX-bbox.minX||1);
-        const sy = (H-120)/(bbox.maxY-bbox.minY||1);
-        const sc = Math.min(sx, sy, 1.05);
+        const sx = (W-320)/(bbox.maxX-bbox.minX||1);
+        const sy = (H-280)/(bbox.maxY-bbox.minY||1);
+        const sc = Math.min(sx, sy, 0.66);
         const ox = (W-(bbox.maxX-bbox.minX)*sc)/2 - bbox.minX*sc;
-        const oy = (H-(bbox.maxY-bbox.minY)*sc)/2 - bbox.minY*sc + 10;
+        const oy = (H-(bbox.maxY-bbox.minY)*sc)/2 - bbox.minY*sc + 24;
         const px = n => n.x*sc+ox, py = n => n.y*sc+oy;
 
         const ll = ns('g'); svg.appendChild(ll);
@@ -95,9 +95,9 @@ const View = (() => {
                 if (visitedDFS) {
                     const sus = Model.state.dfs.suspicion[node.id] || 0;
                     cls += sus >= 70 ? ' suspect' : ' cleared';
-                    if (isCurrDFS) cls = 'g-node current';
+                    if (isCurrDFS) cls = 'g-node current-dfs';
                 } else if (visitedBFS) {
-                    cls += ' visited-bfs';
+                    cls += ' mapped-bfs';
                 }
                 else cls += ' infected';
                 if (isValidNext && !isCurrDFS) cls += ' valid-next';
@@ -383,16 +383,11 @@ const View = (() => {
             const item = document.createElement('div');
             item.className = 'tl-item';
             item.style.animationDelay = `${idx * 0.08}s`;
-            const roleClass = ev.roleCls === 'ev-role-victim'  ? 'tl-role-victim'
-                            : ev.roleCls === 'ev-role-spread'  ? 'tl-role-spread'
-                            : ev.roleCls === 'ev-role-origin'  ? 'tl-role-origin'
-                            : 'tl-role-neutral';
             item.innerHTML = `
                 <div class="tl-step">${idx+1}</div>
                 <div class="tl-content">
                     <div class="tl-content-header">
                         <div class="tl-node-name">${user.name} <span style="color:var(--text-muted);font-size:9px">@${user.alias}</span></div>
-                        <div class="tl-node-role ${roleClass}">${ev.roleLabel}</div>
                     </div>
                     <div class="tl-evidence">${ev.pub}</div>
                     <div class="tl-evidence">${ev.trace}</div>
@@ -410,9 +405,6 @@ const View = (() => {
         document.getElementById('ev-user').textContent     = user.name + ' (@' + user.alias + ')';
         document.getElementById('ev-priv').textContent     = ev.priv;
         document.getElementById('ev-pub').textContent      = `${ev.pub} ${ev.trace} Pista: ${ev.clue}`;
-        const badge = document.getElementById('ev-role-badge');
-        badge.textContent  = ev.roleLabel;
-        badge.className    = 'ev-role-badge ' + ev.roleCls;
         const susBar = document.getElementById('sus-bar');
         if (phase === 'dfs') {
             const sus = Model.state.dfs.suspicion[id] || 30;
@@ -467,6 +459,16 @@ const View = (() => {
         document.getElementById('inst-phase').textContent = isB ? 'BFS ▸' : 'DFS ▸';
     }
 
+    function updateCpuPanel() {
+        const cpu = Model.state.cpu;
+        const panel = document.getElementById('cpu-rival-panel');
+        if (!panel || !cpu) return;
+        panel.dataset.pressure = cpu.pressure || 'stable';
+        document.getElementById('cpu-progress-val').textContent = `${cpu.progress}%`;
+        document.getElementById('cpu-progress-fill').style.width = `${cpu.progress}%`;
+        document.getElementById('cpu-action-log').textContent = cpu.lastAction;
+    }
+
     function setLog(msg, clear) {
         const el = document.getElementById('log-box');
         el.textContent = clear ? '_' : msg;
@@ -474,10 +476,10 @@ const View = (() => {
     function setInstruction(text) {
         document.getElementById('inst-text').textContent = text;
     }
-    function showEndScreen(win, originUser, detail, msg) {
+    function showEndScreen(win, originUser, detail, msg, titleOverride) {
         showScreen('screen-end');
         const t = document.getElementById('end-title');
-        t.textContent  = win ? '¡SISTEMA RESTAURADO!' : 'ACUSACIÓN FALLIDA';
+        t.textContent  = titleOverride || (win ? '¡SISTEMA RESTAURADO!' : 'ACUSACIÓN FALLIDA');
         t.style.color  = win ? 'var(--green)' : 'var(--red)';
         const rev = document.getElementById('end-reveal');
         rev.className  = 'end-reveal' + (win ? ' win' : '');
@@ -498,7 +500,7 @@ const View = (() => {
     return {
         // Juego principal
         showScreen, showGame, renderGraph, renderAccusationGrid, renderTimeline,
-        showEvidence, updatePanel, setLog, setInstruction, showEndScreen, edgeKey,
+        showEvidence, updatePanel, updateCpuPanel, setLog, setInstruction, showEndScreen, edgeKey,
         // Tutorial
         showConceptOverlay, hideConceptOverlay,
         renderTutorialGraph, updateTutorialPanel,
