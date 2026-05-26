@@ -211,6 +211,15 @@ body, html {
     border-color: var(--amber);
     color: var(--amber);
 }
+.btn-secondary.btn-danger {
+    border-color: rgba(255,68,85,0.75);
+    color: var(--red);
+}
+.btn-secondary.btn-danger:hover {
+    border-color: var(--red);
+    color: var(--red);
+    box-shadow: 0 0 14px rgba(255,68,85,0.12);
+}
 
 /* ── TUTORIAL ── */
 #screen-tutorial { justify-content: flex-start; padding-top: 20px; gap: 16px; }
@@ -376,6 +385,59 @@ body, html {
     padding: 12px 14px;
     flex-shrink: 0;
 }
+.m2-cpu-card {
+    border-color: rgba(255,68,85,0.52);
+    border-left: 3px solid var(--red);
+    background: linear-gradient(180deg, rgba(255,68,85,0.08), var(--surface));
+}
+#screen-game[data-cpu-mode="disabled"] .m2-cpu-card {
+    display: none;
+}
+.m2-cpu-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    color: var(--text-muted);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+}
+.m2-cpu-top strong {
+    color: var(--red);
+    font-size: 13px;
+}
+.m2-cpu-track {
+    height: 6px;
+    border: 1px solid rgba(255,68,85,0.32);
+    background: rgba(255,255,255,0.04);
+    overflow: hidden;
+}
+.m2-cpu-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--amber), var(--red));
+    transition: width 0.35s ease;
+}
+.m2-cpu-log {
+    min-height: 30px;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 9px;
+    line-height: 1.55;
+    letter-spacing: 0.05em;
+}
+.m2-cpu-card[data-pressure="warning"] {
+    border-color: rgba(255,165,0,0.72);
+    border-left-color: var(--amber);
+}
+.m2-cpu-card[data-pressure="critical"] {
+    animation: m2CpuPulse 0.85s ease-in-out infinite;
+}
+@keyframes m2CpuPulse {
+    0%,100% { box-shadow: 0 0 0 rgba(255,68,85,0); }
+    50% { box-shadow: 0 0 22px rgba(255,68,85,0.22); }
+}
 
 .hud-label {
     font-size: 7px;
@@ -533,9 +595,150 @@ body, html {
 .node-hint-flash .node-circle {
     animation: hintFlash 1.2s ease-out forwards;
 }
+.cpu-false-hint .node-circle {
+    fill: rgba(255,68,85,0.28);
+    stroke: var(--red);
+    stroke-width: 3;
+    animation: cpuFalseHint 0.18s steps(2,end) infinite;
+    filter: drop-shadow(0 0 12px var(--red));
+}
+.cpu-false-hint .node-label,
+.cpu-false-hint .node-sublabel {
+    fill: var(--red);
+}
+.game-weight-label.cpu-weight-fake {
+    fill: var(--red) !important;
+    font-size: 13px;
+    animation: cpuWeightGlitch 0.16s steps(2,end) infinite;
+}
+.game-weight-bg.cpu-weight-fake {
+    stroke: var(--red) !important;
+    fill: rgba(255,68,85,0.16) !important;
+}
+.game-edge.cpu-edge-glitch,
+.game-weight-bg.cpu-edge-glitch,
+.game-weight-label.cpu-edge-glitch {
+    animation: cpuEdgeGlitch 0.14s steps(2,end) infinite;
+}
+.game-edge.cpu-edge-hidden {
+    opacity: 0.08;
+    stroke-dasharray: 2 10;
+}
+.m2-qte {
+    position: fixed;
+    left: 50%;
+    top: 74px;
+    z-index: 980;
+    width: min(420px, calc(100vw - 28px));
+    transform: translateX(-50%);
+    border: 1px solid rgba(255,165,0,0.82);
+    border-left: 4px solid var(--amber);
+    background: rgba(8,10,16,0.94);
+    padding: 12px 14px;
+    box-shadow: 0 0 30px rgba(255,165,0,0.18), inset 0 0 0 1px rgba(255,165,0,0.08);
+    animation: m2QteIn 0.18s steps(2,end) both;
+}
+.m2-qte-kicker {
+    color: var(--amber);
+    font-size: 8px;
+    letter-spacing: 0.24em;
+    margin-bottom: 9px;
+}
+.m2-qte-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.m2-qte-key {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: 17px;
+    letter-spacing: 0.08em;
+}
+.m2-qte-key.active {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(0,255,65,0.12);
+    box-shadow: 0 0 18px rgba(0,255,65,0.22);
+    animation: m2QteKeyPulse 0.2s steps(2,end) infinite;
+}
+.m2-qte-key.done {
+    border-color: rgba(0,255,65,0.45);
+    color: var(--green-dim);
+    background: rgba(0,255,65,0.06);
+}
+.m2-qte-pulse {
+    height: 5px;
+    border: 1px solid rgba(255,165,0,0.36);
+    background: rgba(255,255,255,0.04);
+    overflow: hidden;
+}
+.m2-qte-pulse-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
+}
+.m2-qte-note {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 9px;
+    letter-spacing: 0.05em;
+}
+.m2-qte.success {
+    border-color: rgba(0,255,65,0.82);
+    border-left-color: var(--green);
+    box-shadow: 0 0 30px rgba(0,255,65,0.22);
+}
+.m2-qte.failed {
+    border-color: rgba(255,68,85,0.9);
+    border-left-color: var(--red);
+    animation: m2QteFail 0.12s steps(2,end) infinite;
+}
+.m2-qte.closing-success,
+.m2-qte.closing-fail {
+    animation: m2QteOut 0.18s ease forwards;
+}
 @keyframes hintFlash {
     0%   { fill: rgba(0,255,65,0.5); stroke: var(--green); filter: drop-shadow(0 0 16px var(--green)); }
     100% { fill: rgba(0,255,65,0.22); stroke: var(--green); filter: none; }
+}
+@keyframes cpuFalseHint {
+    0%,100% { opacity: 1; transform: translate(0,0); }
+    50% { opacity: 0.48; transform: translate(2px,-1px); }
+}
+@keyframes cpuWeightGlitch {
+    0%,100% { opacity: 1; transform: translate(0,0); }
+    50% { opacity: 0.5; transform: translate(-1px,1px); }
+}
+@keyframes cpuEdgeGlitch {
+    0%,100% { opacity: 1; filter: drop-shadow(0 0 4px var(--red)); }
+    50% { opacity: 0.28; filter: drop-shadow(0 0 8px var(--amber)); }
+}
+@keyframes m2QteIn {
+    from { opacity: 0; transform: translate(-50%, -8px) scale(0.98); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+@keyframes m2QteOut {
+    to { opacity: 0; transform: translate(-50%, -10px) scale(0.98); }
+}
+@keyframes m2QteDrain {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+@keyframes m2QteKeyPulse {
+    0%,100% { filter: brightness(1); }
+    50% { filter: brightness(1.55); }
+}
+@keyframes m2QteFail {
+    0%,100% { transform: translateX(-50%); }
+    50% { transform: translateX(calc(-50% + 4px)); }
 }
 
 /* ── MODALES ── */

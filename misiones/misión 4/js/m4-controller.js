@@ -58,6 +58,12 @@ const Mission4Controller = (() => {
       // si acaba de terminar, mostramos overlay
       if (result.finished) {
         Mission4View.updateChallenge(Mission4Model.getGraph(), getChallengeViewState());
+        if (window.RankingMode && RankingMode.isActive()) {
+          RankingMode.finish({
+            success: true,
+            extra: { maxFlow: result.maxFlow, steps: Mission4Model.state.steps.length }
+          });
+        }
         Mission4View.showCompletion(result.maxFlow);
       } else {
         // feedback positivo en el estado del modelo (lo pone applyAugmentingPath pero
@@ -139,6 +145,7 @@ const Mission4Controller = (() => {
   }
 
   function handleReset() {
+    if (window.RankingMode && RankingMode.isActive()) RankingMode.finish({ success: false });
     Mission4Model.reset();
     started  = false;
     finished = false;
@@ -154,15 +161,28 @@ const Mission4Controller = (() => {
     const btnClose     = document.getElementById("btn-close-completion");
     const btnTutorial  = document.getElementById("btn-mode-tutorial");
     const btnChallenge = document.getElementById("btn-mode-challenge");
+    const btnRanking   = document.getElementById("btn-start-ranking");
     const btnConfirm   = document.getElementById("btn-confirm-path");
     const btnClear     = document.getElementById("btn-clear-path");
 
     if (btnStart)     btnStart.addEventListener("click",     handleStart);
     if (btnNext)      btnNext.addEventListener("click",      handleNext);
     if (btnReset)     btnReset.addEventListener("click",     handleReset);
-    if (btnClose)     btnClose.addEventListener("click",     handleReset);
+    if (btnClose)     btnClose.addEventListener("click",     () => {
+      if (window.RankingMode && RankingMode.isActive()) RankingMode.finish({ success: false });
+      handleReset();
+    });
     if (btnTutorial)  btnTutorial.addEventListener("click",  () => applyMode("tutorial"));
     if (btnChallenge) btnChallenge.addEventListener("click", () => applyMode("challenge"));
+    if (btnRanking)   btnRanking.addEventListener("click",   () => {
+      RankingMode.begin({
+        missionId: "mision-4",
+        missionLabel: "MISION 04",
+        onStart: () => applyMode("challenge")
+      });
+    });
+    const btnViewRanking = document.getElementById("btn-view-ranking");
+    if (btnViewRanking) btnViewRanking.addEventListener("click", () => RankingMode.showBoard("mision-4"));
     if (btnConfirm)   btnConfirm.addEventListener("click",   handleConfirmPath);
     if (btnClear)     btnClear.addEventListener("click",     handleClearPath);
   }

@@ -13,6 +13,17 @@ const Controller = (() => {
         document.getElementById('btn-go-tutorial').addEventListener('click', startTutorial);
         document.getElementById('btn-start-single').addEventListener('click', () => startRealGame(false));
         document.getElementById('btn-start-cpu').addEventListener('click', () => startRealGame(true));
+        document.getElementById('btn-start-ranking').addEventListener('click', () => {
+            RankingMode.begin({
+                missionId: 'mision-1',
+                missionLabel: 'MISION 01',
+                nativeCpu: true,
+                onStart: () => startRealGame(true)
+            });
+        });
+        document.getElementById('btn-view-ranking').addEventListener('click', () => {
+            RankingMode.showBoard('mision-1');
+        });
 
         // Tutorial — botones
         document.getElementById('btn-tco-continue').addEventListener('click', onConceptOverlayContinue);
@@ -364,6 +375,9 @@ const Controller = (() => {
         if (id === Model.originId) {
             const user = Model.getUser(id);
             const ev   = Model.getEvidence(id);
+            if (window.RankingMode && RankingMode.isActive()) {
+                RankingMode.finish({ success: true, extra: { phase: 'accusation' } });
+            }
             View.showEndScreen(true, user,
                 `"${ev.priv}" — Este mensaje fue el disparador. Fue enviado antes que cualquier otro.`,
                 `Correcto. ${user.name} inició la campaña de acoso. Tu análisis BFS+DFS reveló su posición central en la red y su alta sospecha (${Model.state.dfs.suspicion[id]}%). La misión fue un éxito.`
@@ -373,6 +387,7 @@ const Controller = (() => {
             Model.state.accusationLives--;
             const remaining = Model.state.accusationLives;
             if (remaining <= 0) {
+                if (window.RankingMode && RankingMode.isActive()) RankingMode.finish({ success: false });
                 const origin = Model.getUser(Model.originId);
                 const ev = Model.getEvidence(Model.originId);
                 View.showEndScreen(false, origin,
@@ -407,6 +422,7 @@ const Controller = (() => {
         View.updatePanel(phase);
         if (cpuTurn('mistake')) return;
         if (st.lives <= 0) {
+            if (window.RankingMode && RankingMode.isActive()) RankingMode.finish({ success: false });
             const origin = Model.getUser(Model.originId);
             View.showEndScreen(false, origin,
                 `Demasiados errores. El rastro se perdió.`,
@@ -416,6 +432,7 @@ const Controller = (() => {
     }
 
     function resetGame() {
+        if (window.RankingMode && RankingMode.isActive()) RankingMode.finish({ success: false });
         cpuEnabled = true;
         Model.resetState();
         View.showScreen('screen-intro');
@@ -431,6 +448,7 @@ const Controller = (() => {
         if (window.M1CpuEffects) M1CpuEffects.runTurn(kind, cpu);
         if (cpu.progress < 100) return false;
         if (window.M1CpuEffects) M1CpuEffects.clear();
+        if (window.RankingMode && RankingMode.isActive()) RankingMode.finish({ success: false });
         const origin = Model.getUser(Model.originId);
         View.showEndScreen(false, origin,
             'La CPU completo su carrera de propagacion antes de que cerraras el caso.',

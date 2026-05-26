@@ -50,6 +50,7 @@ var TUT_STEPS = [
 
 var currentTutStep = 0;
 var lastResultWon  = false;
+var cpuEnabled     = true;
 
 // ── DIJKSTRA SOBRE EL GRAFO DE JUEGO ────────────────────────
 function dijkstra(nodes, edges, source) {
@@ -102,7 +103,19 @@ function init() {
         window.location.href = '../../index.html';
     });
     document.getElementById('btn-start-tutorial').addEventListener('click', startTutorial);
-    document.getElementById('btn-skip-tutorial').addEventListener('click', skipTutorial);
+    document.getElementById('btn-start-single').addEventListener('click', () => startMission(false));
+    document.getElementById('btn-start-cpu').addEventListener('click', () => startMission(true));
+    document.getElementById('btn-start-ranking').addEventListener('click', () => {
+        RankingMode.begin({
+            missionId: 'mision-2',
+            missionLabel: 'MISION 02',
+            nativeCpu: true,
+            onStart: () => startMission(true)
+        });
+    });
+    document.getElementById('btn-view-ranking').addEventListener('click', () => {
+        RankingMode.showBoard('mision-2');
+    });
     document.getElementById('btn-tut-next').addEventListener('click', tutNext);
     document.getElementById('btn-tut-prev').addEventListener('click', tutPrev);
     document.getElementById('btn-tut-skip').addEventListener('click', skipTutorial);
@@ -121,7 +134,7 @@ function startTutorial() {
 }
 
 function tutNext() {
-    if (TUT_STEPS[currentTutStep].isLast) { clearTutPopup(); startMission(); return; }
+    if (TUT_STEPS[currentTutStep].isLast) { clearTutPopup(); startMission(true); return; }
     applyTutStep(++currentTutStep);
 }
 
@@ -131,7 +144,7 @@ function tutPrev() {
 
 function skipTutorial() {
     clearTutPopup();
-    startMission();
+    startMission(true);
 }
 
 function applyTutStep(idx) {
@@ -144,7 +157,9 @@ function applyTutStep(idx) {
 }
 
 // ── JUEGO REAL ───────────────────────────────────────────────
-function startMission() {
+function startMission(withCpu) {
+    if (typeof withCpu === 'boolean') cpuEnabled = withCpu;
+    if (window.M2CpuEffects) M2CpuEffects.setEnabled(cpuEnabled);
     missionState.currentAttempt = 1;
     startGame();
 }
@@ -170,6 +185,9 @@ function startGame() {
 
     const endModal = document.getElementById('end-modal');
     if (endModal) endModal.classList.add('hidden');
+
+    document.getElementById('screen-game').dataset.cpuMode = cpuEnabled ? 'enabled' : 'disabled';
+    if (window.M2CpuEffects) M2CpuEffects.onGameStart({ enabled: cpuEnabled });
 
     bindGameEvents();
 }
@@ -383,6 +401,16 @@ function applyEdge(from, to, weight) {
     // renderShield(gameState.shieldHP, SHIELD_MAX);  // escudo desactivado
     renderPathDisplay(gameState.playerPath, gameState.totalRisk, RISK_THRESHOLD);
     bindGameDragOnly();
+    if (window.M2CpuEffects) {
+        M2CpuEffects.runTurn({
+            kind: 'edge',
+            from,
+            to,
+            weight,
+            path: gameState.playerPath.slice(),
+            risk: gameState.totalRisk
+        });
+    }
 
     if (to === TARGET_NODE) {
         gameState.finished = true;
@@ -403,6 +431,12 @@ function applyEdge(from, to, weight) {
 function evaluateEnd() {
     const win = gameState.totalRisk <= RISK_THRESHOLD;
     lastResultWon = win;
+    if (window.RankingMode && RankingMode.isActive()) {
+        RankingMode.finish({
+            success: win,
+            extra: { risk: gameState.totalRisk, path: gameState.playerPath.slice() }
+        });
+    }
     showEndModal(win, gameState.totalRisk, gameState.playerPath);
     updateRetryButton(win);
 }
@@ -433,12 +467,27 @@ function onCoinClick() {
 
     const success    = Math.random() < 0.5;
     const nextNodeId = getNextOptimalNode(gameState.playerPath);
-    const nextNode   = nextNodeId ? GAME_NODES.find(n => n.id === nextNodeId) : null;
-    const label      = nextNode ? `${nextNode.id} (${nextNode.label})` : '—';
+    const coinCpu    = window.M2CpuEffects
+        ? M2CpuEffects.getCoinInterference({
+            success,
+            nextNodeId,
+            path: gameState.playerPath.slice(),
+            nodes: GAME_NODES
+        })
+        : null;
+    const shownNodeId = coinCpu && coinCpu.fakeNodeId ? coinCpu.fakeNodeId : nextNodeId;
+    const shownNode   = shownNodeId ? GAME_NODES.find(n => n.id === shownNodeId) : null;
+    const label       = coinCpu && coinCpu.message
+        ? coinCpu.message
+        : shownNode ? `${shownNode.id} (${shownNode.label})` : '—';
 
     playCoinSound(success);
 
     showCoinAnimation(success, label, () => {
+        if (coinCpu && coinCpu.fakeNodeId && window.M2CpuEffects) {
+            M2CpuEffects.flashFalseHint(coinCpu.fakeNodeId);
+            return;
+        }
         if (success && nextNodeId) {
             flashHintNode(nextNodeId, 'game-svg');
             renderGameGraph('game-svg', GAME_NODES, GAME_EDGES, gameState.playerPath, gameState.drawnEdges, nextNodeId);

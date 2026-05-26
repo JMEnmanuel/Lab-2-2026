@@ -62,8 +62,17 @@
             <button class="btn-primary" id="btn-start-tutorial">
                 VER TUTORIAL ANTES DE COMENZAR →
             </button>
-            <button class="btn-secondary" id="btn-skip-tutorial">
-                SALTAR TUTORIAL → MISIÓN
+            <button class="btn-secondary" id="btn-start-single">
+                JUGAR SOLO →
+            </button>
+            <button class="btn-secondary btn-danger" id="btn-start-cpu">
+                JUGAR VS CPU →
+            </button>
+            <button class="btn-secondary ranking-btn" id="btn-start-ranking">
+                MODO RANKING →
+            </button>
+            <button class="btn-secondary" id="btn-view-ranking">
+                VER RANKING
             </button>
         </div>
     </div>
@@ -138,6 +147,17 @@
 
         <!-- HUD lateral -->
         <div class="hud-panel">
+            <div class="hud-card m2-cpu-card" id="m2-cpu-panel">
+                <span class="hud-label">// CPU RIVAL</span>
+                <div class="m2-cpu-top">
+                    <span id="m2-cpu-state">EN ESPERA</span>
+                    <strong id="m2-cpu-progress-val">0%</strong>
+                </div>
+                <div class="m2-cpu-track">
+                    <div id="m2-cpu-progress-fill" class="m2-cpu-fill"></div>
+                </div>
+                <div id="m2-cpu-log" class="m2-cpu-log">La CPU aun no interfiere la ruta.</div>
+            </div>
 
             <!--
             Escudo desactivado temporalmente.
@@ -239,6 +259,9 @@
 
 <script src="js/m2-model.js"></script>
 <script src="js/m2-view.js"></script>
+<script src="js/m2-cpu.js"></script>
+<script src="../../js/firebase-config.js"></script>
+<script src="../../js/ranking-mode.js"></script>
 <script src="js/m2-controller.js"></script>
 <script src="../../js/mission-timer.js"></script>
 <script>

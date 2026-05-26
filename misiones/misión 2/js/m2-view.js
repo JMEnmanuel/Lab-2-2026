@@ -85,6 +85,10 @@ function isEdgeOnPath(edge, path) {
     }
     return false;
 }
+
+function edgeKey(from, to) {
+    return [from, to].sort().join('-');
+}
  
 // ── TUTORIAL STEP ───────────────────────────────────────────
 function renderTutorialStep(step) {
@@ -140,6 +144,8 @@ function renderGameGraph(svgId, nodes, edges, playerPath, drawnEdges, hintNodeId
         line.setAttribute("x2", n2.x); line.setAttribute("y2", n2.y);
         line.setAttribute("stroke", isDrawn ? col : 'rgba(48,54,61,0.9)');
         line.setAttribute("stroke-width", isDrawn ? "3" : "1.5");
+        line.setAttribute("class", "game-edge");
+        line.setAttribute("data-edge", edgeKey(edge.from, edge.to));
         if (isDrawn) line.setAttribute("filter", `drop-shadow(0 0 4px ${col})`);
         svg.appendChild(line);
  
@@ -153,6 +159,8 @@ function renderGameGraph(svgId, nodes, edges, playerPath, drawnEdges, hintNodeId
         wRect.setAttribute("fill", "#1c2128");
         wRect.setAttribute("stroke", col);
         wRect.setAttribute("stroke-width", "1");
+        wRect.setAttribute("class", "game-weight-bg");
+        wRect.setAttribute("data-edge", edgeKey(edge.from, edge.to));
         svg.appendChild(wRect);
  
         const wText = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -161,6 +169,9 @@ function renderGameGraph(svgId, nodes, edges, playerPath, drawnEdges, hintNodeId
         wText.setAttribute("font-family", "var(--font-mono)");
         wText.setAttribute("font-size", "10");
         wText.setAttribute("text-anchor", "middle");
+        wText.setAttribute("class", "game-weight-label");
+        wText.setAttribute("data-edge", edgeKey(edge.from, edge.to));
+        wText.dataset.realWeight = edge.weight;
         wText.textContent = edge.weight;
         svg.appendChild(wText);
     });

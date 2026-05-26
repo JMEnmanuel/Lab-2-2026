@@ -16,6 +16,7 @@
     let intervalId = null;
     let expired = false;
     let completed = false;
+    let stopwatchMode = false;
     let hud = null;
     let overlay = null;
 
@@ -216,19 +217,26 @@
     function updateHud() {
         if (!hud) return;
         const value = hud.querySelector(".mission-timer-value");
+        const label = hud.querySelector(".mission-timer-label");
+        if (label) {
+            label.textContent = stopwatchMode
+                ? `// ${config.missionLabel} · CRONOMETRO`
+                : `// ${config.missionLabel} · TIEMPO RESTANTE`;
+        }
         value.textContent = formatTime(remaining);
-        hud.classList.toggle("is-low", remaining <= 30 && !completed && !expired);
+        hud.classList.toggle("is-low", !stopwatchMode && remaining <= 30 && !completed && !expired);
         hud.classList.toggle("is-idle", !intervalId && !expired && !completed);
     }
 
     function start() {
         if (intervalId || expired || completed) return;
         if (typeof config.canStart === "function" && !config.canStart()) return;
-        remaining = remaining > 0 ? remaining : config.durationSeconds;
+        stopwatchMode = !!(window.RankingMode && RankingMode.isActive && RankingMode.isActive());
+        remaining = stopwatchMode ? 0 : (remaining > 0 ? remaining : config.durationSeconds);
         updateHud();
         intervalId = setInterval(tick, 1000);
         updateHud();
-        window.dispatchEvent(new CustomEvent("missiontimer:start", { detail: { remaining } }));
+        window.dispatchEvent(new CustomEvent("missiontimer:start", { detail: { remaining, mode: stopwatchMode ? "stopwatch" : "countdown" } }));
     }
 
     function stop() {
@@ -236,7 +244,7 @@
         intervalId = null;
         completed = true;
         updateHud();
-        window.dispatchEvent(new CustomEvent("missiontimer:stop", { detail: { remaining } }));
+        window.dispatchEvent(new CustomEvent("missiontimer:stop", { detail: { remaining, mode: stopwatchMode ? "stopwatch" : "countdown" } }));
     }
 
     function reset() {
@@ -244,6 +252,7 @@
         intervalId = null;
         expired = false;
         completed = false;
+        stopwatchMode = false;
         remaining = config.durationSeconds;
         document.body.classList.remove("mission-timer-expired");
         if (overlay) overlay.classList.remove("visible");
@@ -267,7 +276,38 @@
             stop();
             return;
         }
+        if (stopwatchMode) {
+            remaining += 1;
+            updateHud();
+            return;
+        }
         remaining -= 1;
+        if (remaining <= 0) {
+            expire();
+            return;
+        }
+        updateHud();
+    }
+
+    function penalize(seconds, reason) {
+        if (expired || completed) return;
+        const amount = Math.max(0, Number(seconds) || 0);
+        if (!amount) return;
+        if (stopwatchMode) {
+            remaining += amount;
+            if (window.RankingMode && typeof RankingMode.addPenalty === "function") {
+                RankingMode.addPenalty(amount);
+            }
+        } else {
+            remaining = Math.max(0, remaining - amount);
+        }
+        window.dispatchEvent(new CustomEvent("missiontimer:penalty", {
+            detail: { seconds: amount, remaining, reason: reason || "" }
+        }));
+        if (stopwatchMode) {
+            updateHud();
+            return;
+        }
         if (remaining <= 0) {
             expire();
             return;
@@ -310,6 +350,7 @@
         start,
         stop,
         reset,
-        expire
+        expire,
+        penalize
     };
 })();

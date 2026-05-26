@@ -10,8 +10,30 @@ const Controller = (() => {
     bindModeSelector();
     bindAlgorithmSelector();
     bindStartButton();
+    bindRankingButton();
     bindResetButton();
     refresh();
+  }
+
+  function bindRankingButton() {
+    const btn = document.getElementById("btn-start-ranking");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      if (Model.state.running) return;
+      RankingMode.begin({
+        missionId: "mision-3",
+        missionLabel: "MISION 03",
+        onStart: () => {
+          Model.setMode("challenge");
+          updateModeUI();
+          startChallenge();
+        }
+      });
+    });
+    const viewBtn = document.getElementById("btn-view-ranking");
+    if (viewBtn) {
+      viewBtn.addEventListener("click", () => RankingMode.showBoard("mision-3"));
+    }
   }
 
   function bindModeSelector() {
@@ -137,6 +159,16 @@ const Controller = (() => {
         View.setChallengeEdgeHandler(null);
         View.renderChallengeHint(Model.state.algorithm, true, total, total);
         refresh();
+        if (window.RankingMode && RankingMode.isActive()) {
+          RankingMode.finish({
+            success: true,
+            extra: {
+              algorithm: Model.state.algorithm,
+              totalCost: Model.state.totalCost,
+              evaluatedSteps: Model.state.evaluatedSteps
+            }
+          });
+        }
         View.showVictory(Model.state.totalCost, Model.state.algorithm, Model.state.evaluatedSteps);
         return;
       }
@@ -164,6 +196,7 @@ const Controller = (() => {
     document.getElementById("btn-reset").addEventListener("click", () => {
       if (Model.state.running) return;
       Model.newGame();
+      if (window.RankingMode && RankingMode.isActive()) RankingMode.finish({ success: false });
       View.hideVictory();
       View.setControlsLocked(false);
       View.setChallengeEdgeHandler(null);
