@@ -60,7 +60,7 @@ body::before {
     rgba(0,0,0,0.14) 2px,
     rgba(0,0,0,0.14) 3px
   );
-  animation: scanline-drift 10s linear infinite;
+  opacity: 0.55;
 }
 
 @keyframes scanline-drift {
@@ -92,7 +92,6 @@ body::after {
   background: rgba(8,13,18,0.97);
   border-bottom: 1px solid rgba(248,81,73,0.25);
   box-shadow: 0 1px 0 rgba(248,81,73,0.08), inset 0 -1px 0 rgba(248,81,73,0.05);
-  animation: header-flicker 12s ease-in-out infinite;
 }
 
 @keyframes header-flicker {
@@ -122,7 +121,6 @@ body::after {
   font-size: 10px;
   letter-spacing: 0.2em;
   white-space: nowrap;
-  animation: title-glitch 9s ease-in-out infinite;
 }
 
 @keyframes title-glitch {
@@ -279,7 +277,7 @@ h1 {
 
 /* Animación de línea de flujo (aristas aceptadas) */
 .flow-dash {
-  animation: flow-move 1.2s linear infinite;
+  stroke-dashoffset: -12;
 }
 
 @keyframes flow-move {
@@ -293,7 +291,7 @@ h1 {
   fill: none;
   stroke: rgba(88,166,255,0.08);
   stroke-width: 1;
-  animation: hex-pulse 3s ease-in-out infinite;
+  opacity: 0.55;
 }
 
 .node-hex-ring {

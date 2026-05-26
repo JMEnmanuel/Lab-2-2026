@@ -27,6 +27,31 @@ const View = (() => {
 
   // onEdgeClick se inyecta desde el Controller solo en modo Desafío
   let _onEdgeClick = null;
+  let _dom = null;
+  let _lastLogKey = "";
+
+  function dom() {
+    if (_dom) return _dom;
+    _dom = {
+      svg: document.getElementById("mst-graph"),
+      nodeCount: document.getElementById("node-count"),
+      edgeCount: document.getElementById("edge-count"),
+      totalCost: document.getElementById("total-cost"),
+      mstCount: document.getElementById("mst-count"),
+      algorithmBtns: document.querySelectorAll("[data-algorithm]"),
+      orderedList: document.getElementById("ordered-edges-list"),
+      orderedTitle: document.getElementById("ordered-edges-title"),
+      componentsList: document.getElementById("components-list"),
+      mstNodesList: document.getElementById("mst-nodes-list"),
+      pendingNodesList: document.getElementById("pending-nodes-list"),
+      frontierList: document.getElementById("frontier-edges-list"),
+      evaluated: document.getElementById("evaluated-steps"),
+      progress: document.getElementById("mst-progress"),
+      activeNode: document.getElementById("active-node"),
+      log: document.getElementById("event-log")
+    };
+    return _dom;
+  }
 
   function render(graph, state) {
     renderGraph(graph, state);
@@ -36,7 +61,7 @@ const View = (() => {
   /* ── SVG ── */
 
   function renderGraph(graph, state) {
-    const svg = document.getElementById("mst-graph");
+    const svg = dom().svg;
     svg.innerHTML = "";
 
     svg.appendChild(createGrid());
@@ -328,21 +353,20 @@ const View = (() => {
   /* ── Panel lateral ── */
 
   function renderPanel(graph, state) {
+    const d = dom();
     // Contadores
-    document.getElementById("node-count").textContent = graph.nodes.length;
-    document.getElementById("edge-count").textContent = graph.edges.length;
+    if (d.nodeCount) d.nodeCount.textContent = graph.nodes.length;
+    if (d.edgeCount) d.edgeCount.textContent = graph.edges.length;
 
     // Costo acumulado
-    const costEl = document.getElementById("total-cost");
-    if (costEl) costEl.textContent = state.totalCost;
+    if (d.totalCost) d.totalCost.textContent = state.totalCost;
 
     // Aristas MST aceptadas
     const mstCount = graph.edges.filter(e => e.state === "accepted").length;
-    const mstEl = document.getElementById("mst-count");
-    if (mstEl) mstEl.textContent = mstCount;
+    if (d.mstCount) d.mstCount.textContent = mstCount;
 
     // Botones de algoritmo
-    document.querySelectorAll("[data-algorithm]").forEach(btn => {
+    d.algorithmBtns.forEach(btn => {
       btn.classList.toggle("active", btn.dataset.algorithm === state.algorithm);
     });
 
@@ -352,17 +376,20 @@ const View = (() => {
   }
 
   function renderAlgorithmState(graph, state) {
-    const orderedList = document.getElementById("ordered-edges-list");
-    const componentsList = document.getElementById("components-list");
-    const mstNodesList = document.getElementById("mst-nodes-list");
-    const pendingNodesList = document.getElementById("pending-nodes-list");
-    const frontierList = document.getElementById("frontier-edges-list");
+    const {
+      orderedList,
+      orderedTitle,
+      componentsList,
+      mstNodesList,
+      pendingNodesList,
+      frontierList
+    } = dom();
 
     if (orderedList) {
       const title = state.algorithm === "kruskal"
         ? "Aristas ordenadas pendientes"
         : "Aristas de frontera";
-      document.getElementById("ordered-edges-title").textContent = title;
+      if (orderedTitle) orderedTitle.textContent = title;
 
       const ids = state.algorithm === "kruskal"
         ? state.pendingEdges
@@ -393,9 +420,7 @@ const View = (() => {
   }
 
   function renderProgress(state) {
-    const evaluated = document.getElementById("evaluated-steps");
-    const progress = document.getElementById("mst-progress");
-    const activeNode = document.getElementById("active-node");
+    const { evaluated, progress, activeNode } = dom();
 
     if (evaluated) evaluated.textContent = state.evaluatedSteps;
     if (progress) progress.textContent = `${state.acceptedCount} / ${state.nodes.length - 1}`;
@@ -407,9 +432,14 @@ const View = (() => {
   }
 
   function renderLog(state) {
-    const log = document.getElementById("event-log");
+    const log = dom().log;
+    if (!log) return;
+    const items = state.log.slice(0, 12);
+    const logKey = items.join("\n");
+    if (logKey === _lastLogKey) return;
+    _lastLogKey = logKey;
     log.innerHTML = "";
-    state.log.slice(0, 12).forEach((msg, i) => {
+    items.forEach((msg, i) => {
       const row = document.createElement("div");
       row.className = "log-entry" + (i === 0 ? " log-entry--new" : "");
 
@@ -584,6 +614,7 @@ const View = (() => {
 
   return {
     render,
+    renderPanel,
     setControlsLocked,
     showVictory,
     hideVictory,

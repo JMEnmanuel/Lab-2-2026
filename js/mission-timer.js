@@ -19,6 +19,8 @@
     let stopwatchMode = false;
     let hud = null;
     let overlay = null;
+    let observer = null;
+    let observerFrame = null;
 
     function pad(n) {
         return String(n).padStart(2, "0");
@@ -332,12 +334,21 @@
         config.resetSelectors.forEach(selector => {
             document.querySelectorAll(selector).forEach(el => el.addEventListener("click", () => setTimeout(reset, 0)));
         });
-        const observer = new MutationObserver(() => {
-            if (!intervalId && !expired && !completed && anySelectorVisible(config.startWhenVisible)) start();
-            if (intervalId && ((typeof config.shouldStop === "function" && config.shouldStop()) || anySelectorVisible(config.stopWhenVisible) || anySelectorVisible(config.stopSelectors))) stop();
+        if (observer) observer.disconnect();
+        observer = new MutationObserver(() => {
+            if (observerFrame) return;
+            observerFrame = requestAnimationFrame(() => {
+                observerFrame = null;
+                checkVisibilityTriggers();
+            });
         });
-        observer.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ["class", "style"] });
-        if (anySelectorVisible(config.startWhenVisible)) start();
+        observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["class", "style"] });
+        checkVisibilityTriggers();
+    }
+
+    function checkVisibilityTriggers() {
+        if (!intervalId && !expired && !completed && anySelectorVisible(config.startWhenVisible)) start();
+        if (intervalId && ((typeof config.shouldStop === "function" && config.shouldStop()) || anySelectorVisible(config.stopWhenVisible) || anySelectorVisible(config.stopSelectors))) stop();
     }
 
     window.MissionTimer = {

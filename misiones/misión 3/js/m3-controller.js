@@ -4,15 +4,27 @@
   No contiene logica de grafo ni de renderizado.
 */
 const Controller = (() => {
+  let modeButtons = null;
+  let algorithmButtons = null;
+  let btnStart = null;
+  let introDesc = null;
 
   function init() {
     Model.init();
+    cacheDom();
     bindModeSelector();
     bindAlgorithmSelector();
     bindStartButton();
     bindRankingButton();
     bindResetButton();
     refresh();
+  }
+
+  function cacheDom() {
+    modeButtons = document.querySelectorAll("[data-mode]");
+    algorithmButtons = document.querySelectorAll("[data-algorithm]");
+    btnStart = document.getElementById("btn-start");
+    introDesc = document.getElementById("mode-description");
   }
 
   function bindRankingButton() {
@@ -37,7 +49,7 @@ const Controller = (() => {
   }
 
   function bindModeSelector() {
-    document.querySelectorAll("[data-mode]").forEach(btn => {
+    modeButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         if (Model.state.running) return;
         Model.setMode(btn.dataset.mode);
@@ -50,18 +62,16 @@ const Controller = (() => {
   function updateModeUI() {
     const mode = Model.state.mode;
     // Botones de modo
-    document.querySelectorAll("[data-mode]").forEach(btn => {
+    modeButtons.forEach(btn => {
       btn.classList.toggle("active", btn.dataset.mode === mode);
     });
     // Texto del botón INICIAR
-    const btnStart = document.getElementById("btn-start");
     if (btnStart) {
       btnStart.dataset.currentMode = mode;
       btnStart.querySelector(".btn-label").textContent =
         mode === "tutorial" ? "VER DEMO" : "JUGAR";
     }
     // Panel intro — descripción contextual
-    const introDesc = document.getElementById("mode-description");
     if (introDesc) {
       introDesc.textContent = mode === "tutorial"
         ? "Observa cómo el algoritmo reconstruye la red paso a paso de forma automática."
@@ -70,7 +80,7 @@ const Controller = (() => {
   }
 
   function bindAlgorithmSelector() {
-    document.querySelectorAll("[data-algorithm]").forEach(btn => {
+    algorithmButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         if (Model.state.running) return; // bloquear durante animacion
         Model.setAlgorithm(btn.dataset.algorithm);
@@ -187,6 +197,8 @@ const Controller = (() => {
         ? "Esa arista formaría un ciclo o no es la de menor peso. Intenta de nuevo."
         : "No es la arista mínima de la frontera. Intenta de nuevo.";
       Model.state.log.unshift(msg);
+      View.renderPanel(Model.getGraph(), Model.state);
+      return;
     }
 
     refresh();
